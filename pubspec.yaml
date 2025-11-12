@@ -20,3 +20,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    - assets/fonts/
+    - assets/icons/
+    - assets/nav_bar/select/
+    - assets/nav_bar/unselect/

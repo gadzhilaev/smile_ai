@@ -79,7 +79,7 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
 
     FocusScope.of(context).unfocus();
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute<void>(builder: (_) => const MainPlaceholderScreen()),
+      MaterialPageRoute<void>(builder: (_) => const MainScreen()),
     );
   }
 
