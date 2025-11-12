@@ -118,6 +118,7 @@ class _EmailScreenState extends State<EmailScreen> {
   static const double _fieldInnerPadding = 18;
   static const double _fieldLabelSpacing = 2;
   static const double _buttonBorderRadius = 9;
+  static const double _errorTextOffset = 21;
 
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
@@ -279,7 +280,9 @@ class _EmailScreenState extends State<EmailScreen> {
                   if (_showError && _errorMessage != null)
                     Padding(
                       padding: EdgeInsets.only(
-                        left: scaleWidth(_fieldHorizontalPadding),
+                        left: scaleWidth(
+                          _fieldHorizontalPadding + _errorTextOffset,
+                        ),
                         right: scaleWidth(_fieldHorizontalPadding),
                         top: scaleHeight(5),
                       ),
