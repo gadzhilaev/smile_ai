@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -120,12 +121,17 @@ class _EmailScreenState extends State<EmailScreen> {
 
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+  bool _showError = false;
+  String? _errorMessage;
+  late final TapGestureRecognizer _registerRecognizer;
 
   @override
   void initState() {
     super.initState();
     _focusNode.addListener(_onFieldStateChange);
     _controller.addListener(_onFieldStateChange);
+    _registerRecognizer = TapGestureRecognizer()
+      ..onTap = _openRegistrationPlaceholder;
   }
 
   @override
@@ -136,13 +142,67 @@ class _EmailScreenState extends State<EmailScreen> {
     _controller
       ..removeListener(_onFieldStateChange)
       ..dispose();
+    _registerRecognizer.dispose();
     super.dispose();
   }
 
   void _onFieldStateChange() {
-    if (mounted) {
-      setState(() {});
-    }
+    if (!mounted) return;
+    setState(() {
+      if (_showError || _errorMessage != null) {
+        _showError = false;
+        _errorMessage = null;
+      }
+    });
+  }
+
+  bool _isValidEmail(String value) {
+    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+    return emailRegex.hasMatch(value.trim());
+  }
+
+  void _submitEmail() {
+    final email = _controller.text.trim();
+    final isEmailValid = _isValidEmail(email);
+    final isRegistered = email.toLowerCase() == 'test@test.ru';
+
+    setState(() {
+      if (email.isEmpty) {
+        _showError = true;
+        _errorMessage = 'Введите корректную почту';
+        return;
+      }
+
+      if (!isEmailValid) {
+        _showError = true;
+        _errorMessage = 'Введите корректную почту';
+        return;
+      }
+
+      if (!isRegistered) {
+        _showError = true;
+        _errorMessage = 'Эта почта не зарегистрирована';
+        return;
+      }
+
+      _showError = false;
+      _errorMessage = null;
+
+      FocusScope.of(context).unfocus();
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => const RegistrationSuccessPlaceholderScreen(),
+        ),
+      );
+    });
+  }
+
+  void _openRegistrationPlaceholder() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const RegistrationPlaceholderScreen(),
+      ),
+    );
   }
 
   @override
@@ -158,7 +218,7 @@ class _EmailScreenState extends State<EmailScreen> {
 
         final bool isActive =
             _focusNode.hasFocus || _controller.text.isNotEmpty;
-        final bool isButtonEnabled = _controller.text.isNotEmpty;
+        final bool isButtonEnabled = _controller.text.isNotEmpty && !_showError;
 
         final double fieldHeight = scaleHeight(_componentHeight);
         final double fieldBorderRadius = scaleHeight(_fieldBorderRadius);
@@ -167,6 +227,9 @@ class _EmailScreenState extends State<EmailScreen> {
         final double buttonBorderRadius = scaleHeight(_buttonBorderRadius);
         final double buttonHeight = scaleHeight(_componentHeight);
         final double labelTopPadding = fieldHeight * 0.12;
+        final double buttonSpacing = _showError
+            ? scaleHeight(14)
+            : scaleHeight(_fieldButtonSpacing);
 
         return Scaffold(
           backgroundColor: Colors.white,
@@ -210,15 +273,34 @@ class _EmailScreenState extends State<EmailScreen> {
                       hintFontSize: scaleHeight(16),
                       floatingLabelFontSize: scaleHeight(11),
                       textFontSize: scaleHeight(15),
+                      showError: _showError,
                     ),
                   ),
-                  SizedBox(height: scaleHeight(_fieldButtonSpacing)),
+                  if (_showError && _errorMessage != null)
+                    Padding(
+                      padding: EdgeInsets.only(
+                        left: scaleWidth(_fieldHorizontalPadding),
+                        right: scaleWidth(_fieldHorizontalPadding),
+                        top: scaleHeight(5),
+                      ),
+                      child: Text(
+                        _errorMessage!,
+                        style: GoogleFonts.montserrat(
+                          fontSize: scaleHeight(10),
+                          fontWeight: FontWeight.w400,
+                          color: const Color(0xFFDF1525),
+                          height: 1,
+                        ),
+                      ),
+                    ),
+                  SizedBox(height: buttonSpacing),
                   Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: scaleWidth(_fieldHorizontalPadding),
                     ),
                     child: _EmailSubmitButton(
                       isEnabled: isButtonEnabled,
+                      onPressed: _submitEmail,
                       buttonHeight: buttonHeight,
                       borderRadius: buttonBorderRadius,
                       fontSize: scaleHeight(16),
@@ -245,6 +327,7 @@ class _EmailScreenState extends State<EmailScreen> {
                               color: const Color(0xFF1774FE),
                               height: 1,
                             ),
+                            recognizer: _registerRecognizer,
                           ),
                         ],
                       ),
@@ -273,6 +356,7 @@ class _EmailInputField extends StatelessWidget {
     required this.hintFontSize,
     required this.floatingLabelFontSize,
     required this.textFontSize,
+    required this.showError,
   });
 
   final TextEditingController controller;
@@ -286,13 +370,19 @@ class _EmailInputField extends StatelessWidget {
   final double hintFontSize;
   final double floatingLabelFontSize;
   final double textFontSize;
+  final bool showError;
 
   @override
   Widget build(BuildContext context) {
-    final Color borderColor = isActive
+    final bool isActiveState = isActive && !showError;
+    final Color borderColor = showError
+        ? const Color(0xFFDF1525)
+        : isActiveState
         ? const Color(0xFF1573FE)
         : const Color(0xFFE4E4E4);
-    final Color backgroundColor = isActive
+    final Color backgroundColor = showError
+        ? const Color(0xFFFFECEF)
+        : isActiveState
         ? const Color(0xFFF3F8FF)
         : Colors.white;
 
@@ -361,12 +451,14 @@ class _EmailInputField extends StatelessWidget {
 class _EmailSubmitButton extends StatelessWidget {
   const _EmailSubmitButton({
     required this.isEnabled,
+    required this.onPressed,
     required this.buttonHeight,
     required this.borderRadius,
     required this.fontSize,
   });
 
   final bool isEnabled;
+  final VoidCallback onPressed;
   final double buttonHeight;
   final double borderRadius;
   final double fontSize;
@@ -386,7 +478,7 @@ class _EmailSubmitButton extends StatelessWidget {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(borderRadius),
-        onTap: isEnabled ? () {} : null,
+        onTap: isEnabled ? onPressed : null,
         child: Center(
           child: Text(
             'ВОЙТИ',
@@ -398,6 +490,132 @@ class _EmailSubmitButton extends StatelessWidget {
                   : const Color(0xFF757575),
               height: 1,
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class RegistrationPlaceholderScreen extends StatelessWidget {
+  const RegistrationPlaceholderScreen({super.key});
+
+  static const double _designWidth = 428;
+  static const double _designHeight = 926;
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final widthFactor = size.width / _designWidth;
+    final heightFactor = size.height / _designHeight;
+
+    double scaleWidth(double value) => value * widthFactor;
+    double scaleHeight(double value) => value * heightFactor;
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: scaleWidth(24),
+            top: scaleHeight(24),
+            right: scaleWidth(24),
+            bottom: scaleHeight(24),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              InkWell(
+                onTap: () => Navigator.of(context).pop(),
+                borderRadius: BorderRadius.circular(scaleWidth(16)),
+                child: Padding(
+                  padding: EdgeInsets.all(scaleWidth(4)),
+                  child: Icon(
+                    Icons.arrow_back,
+                    size: scaleWidth(28),
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              SizedBox(height: scaleHeight(48)),
+              Expanded(
+                child: Center(
+                  child: Text(
+                    'Здесь будет экран регистрации',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.montserrat(
+                      fontSize: scaleWidth(20),
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
+                      height: 1.2,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class RegistrationSuccessPlaceholderScreen extends StatelessWidget {
+  const RegistrationSuccessPlaceholderScreen({super.key});
+
+  static const double _designWidth = 428;
+  static const double _designHeight = 926;
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final widthFactor = size.width / _designWidth;
+    final heightFactor = size.height / _designHeight;
+
+    double scaleWidth(double value) => value * widthFactor;
+    double scaleHeight(double value) => value * heightFactor;
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: scaleWidth(24),
+            top: scaleHeight(24),
+            right: scaleWidth(24),
+            bottom: scaleHeight(24),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              InkWell(
+                onTap: () => Navigator.of(context).pop(),
+                borderRadius: BorderRadius.circular(scaleWidth(16)),
+                child: Padding(
+                  padding: EdgeInsets.all(scaleWidth(4)),
+                  child: Icon(
+                    Icons.arrow_back,
+                    size: scaleWidth(28),
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              SizedBox(height: scaleHeight(48)),
+              Expanded(
+                child: Center(
+                  child: Text(
+                    'Почта подтверждена.\nПродолжение следует.',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.montserrat(
+                      fontSize: scaleWidth(20),
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
+                      height: 1.2,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
