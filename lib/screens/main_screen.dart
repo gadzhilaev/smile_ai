@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -149,91 +150,72 @@ class _MainScreenState extends State<MainScreen> {
                 ],
               ),
             ),
-            if (_hasConversation)
-              SizedBox(height: scaleHeight(44))
-            else
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.only(bottom: scaleHeight(24)),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: scaleHeight(24)),
-                      Container(
-                        width: double.infinity,
-                        height: 1,
-                        color: const Color(0xFF9E9E9E),
-                      ),
-                      SizedBox(height: scaleHeight(23)),
-                      Center(
-                        child: Image.asset(
-                          'assets/images/bot.png',
-                          width: scaleWidth(105),
-                          height: scaleHeight(157),
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                      SizedBox(height: scaleHeight(14)),
-                      Padding(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: scaleWidth(25)),
-                        child: Container(
-                          width: double.infinity,
-                          height: scaleHeight(48),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius:
-                                BorderRadius.circular(scaleHeight(16)),
-                          ),
-                          padding: EdgeInsets.symmetric(
-                            horizontal: scaleWidth(16),
-                          ),
-                          child: Row(
-                            children: [
-                              Image.asset(
-                                'assets/icons/icon_stars.png',
-                                width: scaleWidth(16),
-                                height: scaleHeight(16),
-                                fit: BoxFit.contain,
-                              ),
-                              SizedBox(width: scaleWidth(8)),
-                              Expanded(
-                                child: Text(
-                                  'Привет, ты можешь спросить меня',
-                                  style: GoogleFonts.montserrat(
-                                    fontSize: scaleHeight(15),
-                                    fontWeight: FontWeight.w500,
-                                    color: _primaryTextColor,
-                                    height: 24 / 15,
+            SizedBox(height: scaleHeight(24)),
+            Container(
+              width: double.infinity,
+              height: 1,
+              color: const Color(0xFF9E9E9E),
+            ),
+            SizedBox(height: scaleHeight(24)),
+            Expanded(
+              child: _hasConversation
+                  ? Padding(
+                      padding: EdgeInsets.symmetric(horizontal: scaleWidth(24)),
+                      child: _messages.isEmpty
+                          ? const SizedBox.shrink()
+                          : ListView.builder(
+                              controller: _scrollController,
+                              itemCount: _messages.length,
+                              itemBuilder: (context, index) {
+                                final message = _messages[index];
+                                final bool isLast =
+                                    index == _messages.length - 1;
+                                return Padding(
+                                  padding: EdgeInsets.only(
+                                    bottom: isLast ? 0 : scaleHeight(24),
                                   ),
+                                  child: _MessageBubble(
+                                    message: message,
+                                    designWidth: _designWidth,
+                                    designHeight: _designHeight,
+                                    accentColor: _accentColor,
+                                  ),
+                                );
+                              },
+                            ),
+                    )
+                  : SingleChildScrollView(
+                      padding: EdgeInsets.only(bottom: scaleHeight(24)),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: scaleHeight(23)),
+                          Center(
+                            child: Image.asset(
+                              'assets/images/bot.png',
+                              width: scaleWidth(105),
+                              height: scaleHeight(157),
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                          SizedBox(height: scaleHeight(14)),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: scaleWidth(25),
+                            ),
+                            child: Container(
+                              width: double.infinity,
+                              height: scaleHeight(48),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(
+                                  scaleHeight(16),
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: scaleHeight(24)),
-                      Padding(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: scaleWidth(25)),
-                        child: Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius:
-                                BorderRadius.circular(scaleHeight(12)),
-                          ),
-                          padding: EdgeInsets.fromLTRB(
-                            scaleWidth(16),
-                            scaleHeight(24),
-                            scaleWidth(16),
-                            scaleHeight(24),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: scaleWidth(16),
+                              ),
+                              child: Row(
                                 children: [
                                   Image.asset(
                                     'assets/icons/icon_stars.png',
@@ -244,104 +226,126 @@ class _MainScreenState extends State<MainScreen> {
                                   SizedBox(width: scaleWidth(8)),
                                   Expanded(
                                     child: Text(
-                                      'Может эти слова тебе помогут...',
+                                      'Привет, ты можешь спросить меня',
                                       style: GoogleFonts.montserrat(
-                                        fontSize: scaleHeight(16),
+                                        fontSize: scaleHeight(15),
                                         fontWeight: FontWeight.w500,
                                         color: _primaryTextColor,
-                                        height: 1,
+                                        height: 24 / 15,
                                       ),
                                     ),
                                   ),
                                 ],
                               ),
-                              SizedBox(height: scaleHeight(24)),
-                              Wrap(
-                                spacing: scaleWidth(12),
-                                runSpacing: scaleHeight(12),
-                                children: const [
-                                  'Привет',
-                                  'Как дела?',
-                                  'Что умеешь?',
-                                  'Спроси меня',
-                                  'Помоги',
-                                  'Совет',
-                                ].map(
-                                  (chip) => _SuggestionChip(
-                                    text: chip,
-                                    designWidth: _designWidth,
-                                    designHeight: _designHeight,
-                                    accentColor: _accentColor,
-                                    primaryTextColor: _primaryTextColor,
-                                  ),
-                                ).toList(),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            if (_hasConversation)
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: scaleWidth(24)),
-                  child: _messages.isEmpty
-                      ? const SizedBox.shrink()
-                      : ListView.builder(
-                          controller: _scrollController,
-                          itemCount: _messages.length,
-                          itemBuilder: (context, index) {
-                            final message = _messages[index];
-                            final bool isLast = index == _messages.length - 1;
-                            return Padding(
-                              padding: EdgeInsets.only(
-                                bottom: isLast ? 0 : scaleHeight(24),
-                              ),
-                              child: _MessageBubble(
-                                message: message,
-                                designWidth: _designWidth,
-                                designHeight: _designHeight,
-                                accentColor: _accentColor,
-                              ),
-                            );
-                          },
-                        ),
-                ),
-              ),
-            if (_hasConversation && _isTyping)
-              Padding(
-                padding: EdgeInsets.only(
-                  left: scaleWidth(24),
-                  right: scaleWidth(24),
-                  bottom: scaleHeight(20),
-                ),
-                child: GestureDetector(
-                  onTap: _stopGeneration,
-                  child: SizedBox(
-                    width: scaleWidth(253),
-                    height: scaleHeight(44),
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: const Color(0xFFE4E4E4)),
-                        borderRadius: BorderRadius.circular(scaleHeight(12)),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: scaleWidth(18),
-                            height: scaleWidth(18),
-                            decoration: BoxDecoration(
-                              color: _accentColor,
-                              borderRadius:
-                                  BorderRadius.circular(scaleWidth(2)),
                             ),
                           ),
-                          SizedBox(width: scaleWidth(11)),
-                          Text(
+                          SizedBox(height: scaleHeight(24)),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: scaleWidth(25),
+                            ),
+                            child: Container(
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(
+                                  scaleHeight(12),
+                                ),
+                              ),
+                              padding: EdgeInsets.fromLTRB(
+                                scaleWidth(16),
+                                scaleHeight(24),
+                                scaleWidth(16),
+                                scaleHeight(24),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Image.asset(
+                                        'assets/icons/icon_stars.png',
+                                        width: scaleWidth(16),
+                                        height: scaleHeight(16),
+                                        fit: BoxFit.contain,
+                                      ),
+                                      SizedBox(width: scaleWidth(8)),
+                                      Expanded(
+                                        child: Text(
+                                          'Может эти слова тебе помогут...',
+                                          style: GoogleFonts.montserrat(
+                                            fontSize: scaleHeight(16),
+                                            fontWeight: FontWeight.w500,
+                                            color: _primaryTextColor,
+                                            height: 1,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: scaleHeight(24)),
+                                  Wrap(
+                                    spacing: scaleWidth(12),
+                                    runSpacing: scaleHeight(12),
+                                    children:
+                                        const [
+                                              'Привет',
+                                              'Как дела?',
+                                              'Что умеешь?',
+                                              'Спроси меня',
+                                              'Помоги',
+                                              'Совет',
+                                            ]
+                                            .map(
+                                              (chip) => _SuggestionChip(
+                                                text: chip,
+                                                designWidth: _designWidth,
+                                                designHeight: _designHeight,
+                                                accentColor: _accentColor,
+                                                primaryTextColor:
+                                                    _primaryTextColor,
+                                              ),
+                                            )
+                                            .toList(),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+            ),
+            SizedBox(height: scaleHeight(24)),
+            if (_hasConversation && _isTyping)
+              Center(
+                child: GestureDetector(
+                  onTap: _stopGeneration,
+                  child: Container(
+                    width: scaleWidth(253),
+                    height: scaleHeight(44),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: const Color(0xFFE4E4E4)),
+                      borderRadius: BorderRadius.circular(scaleHeight(12)),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: scaleWidth(16)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: scaleWidth(18),
+                          height: scaleWidth(18),
+                          decoration: BoxDecoration(
+                            color: _accentColor,
+                            borderRadius: BorderRadius.circular(scaleWidth(2)),
+                          ),
+                        ),
+                        SizedBox(width: scaleWidth(11)),
+                        Flexible(
+                          child: Text(
                             'Остановить генерацию...',
                             style: GoogleFonts.montserrat(
                               fontSize: scaleHeight(14),
@@ -349,13 +353,16 @@ class _MainScreenState extends State<MainScreen> {
                               color: Colors.black,
                               height: 20 / 14,
                             ),
+                            textAlign: TextAlign.center,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
+            if (_hasConversation && _isTyping)
+              SizedBox(height: scaleHeight(24)),
             Padding(
               padding: EdgeInsets.only(
                 left: scaleWidth(25),
@@ -536,12 +543,12 @@ class _MessageBubble extends StatelessWidget {
         ? BorderRadius.only(
             topLeft: Radius.circular(scaleHeight(19)),
             topRight: Radius.circular(scaleHeight(19)),
-            bottomRight: Radius.circular(scaleHeight(19)),
+            bottomLeft: Radius.circular(scaleHeight(19)),
           )
         : BorderRadius.only(
             topLeft: Radius.circular(scaleHeight(19)),
             topRight: Radius.circular(scaleHeight(19)),
-            bottomLeft: Radius.circular(scaleHeight(19)),
+            bottomRight: Radius.circular(scaleHeight(19)),
           );
 
     final TextStyle textStyle = GoogleFonts.montserrat(
@@ -563,24 +570,22 @@ class _MessageBubble extends StatelessWidget {
     if (message.isUser) {
       return Align(alignment: Alignment.centerRight, child: bubble);
     } else {
-      return Align(
-        alignment: Alignment.centerLeft,
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            bubble,
-            Positioned(
-              top: -scaleHeight(10),
-              right: -scaleWidth(10),
-              child: Image.asset(
-                'assets/icons/icon_copy.png',
-                width: scaleWidth(20),
-                height: scaleHeight(30),
-                fit: BoxFit.contain,
-              ),
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          bubble,
+          SizedBox(width: scaleWidth(10)),
+          GestureDetector(
+            onTap: () => Clipboard.setData(ClipboardData(text: message.text)),
+            child: Image.asset(
+              'assets/icons/icon_copy.png',
+              width: scaleWidth(20),
+              height: scaleHeight(30),
+              fit: BoxFit.contain,
             ),
-          ],
-        ),
+          ),
+        ],
       );
     }
   }
