@@ -22,6 +22,14 @@ class _MainScreenState extends State<MainScreen> {
   static const Color _accentColor = Color(0xFFAD2023);
   static const String _assistantReply =
       'Хорошо. цель — стабильный доход или масштаб? от этого зависит стратегия: быстрые продажи или долгосрочный бренд.';
+  static const List<String> _suggestions = <String>[
+    'Привет',
+    'Как дела?',
+    'Что умеешь?',
+    'Спроси меня',
+    'Помоги',
+    'Совет',
+  ];
 
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
@@ -46,6 +54,7 @@ class _MainScreenState extends State<MainScreen> {
     }
 
     final String userText = _inputController.text.trim();
+    FocusScope.of(context).unfocus();
     setState(() {
       _hasConversation = true;
       _messages.add(_ChatMessage(text: userText, isUser: true));
@@ -109,354 +118,341 @@ class _MainScreenState extends State<MainScreen> {
     double scaleWidth(double value) => value * widthFactor;
     double scaleHeight(double value) => value * heightFactor;
 
-    return Scaffold(
-      backgroundColor: _backgroundColor,
-      body: SafeArea(
-        top: true,
-        bottom: false,
+    Widget conversationArea;
+    if (_hasConversation) {
+      conversationArea = Padding(
+        padding: EdgeInsets.symmetric(horizontal: scaleWidth(24)),
+        child: _messages.isEmpty
+            ? const SizedBox.shrink()
+            : ListView.builder(
+                controller: _scrollController,
+                itemCount: _messages.length,
+                itemBuilder: (context, index) {
+                  final message = _messages[index];
+                  final bool isLast = index == _messages.length - 1;
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      bottom: isLast ? 0 : scaleHeight(24),
+                    ),
+                    child: _MessageBubble(
+                      message: message,
+                      designWidth: _designWidth,
+                      designHeight: _designHeight,
+                      accentColor: _accentColor,
+                    ),
+                  );
+                },
+              ),
+      );
+    } else {
+      conversationArea = SingleChildScrollView(
+        padding: EdgeInsets.only(bottom: scaleHeight(24)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: scaleHeight(13)),
+            Center(
+              child: Image.asset(
+                'assets/images/bot.png',
+                width: scaleWidth(105),
+                height: scaleHeight(157),
+                fit: BoxFit.contain,
+              ),
+            ),
+            SizedBox(height: scaleHeight(14)),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: scaleWidth(24)),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Smile AI',
-                      style: GoogleFonts.montserrat(
-                        fontSize: scaleHeight(20),
-                        fontWeight: FontWeight.w500,
-                        color: _primaryTextColor,
-                        height: 1,
+              padding: EdgeInsets.symmetric(horizontal: scaleWidth(25)),
+              child: Container(
+                width: double.infinity,
+                height: scaleHeight(48),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(scaleHeight(16)),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: scaleWidth(16)),
+                child: Row(
+                  children: [
+                    Image.asset(
+                      'assets/icons/icon_stars.png',
+                      width: scaleWidth(16),
+                      height: scaleHeight(16),
+                      fit: BoxFit.contain,
+                    ),
+                    SizedBox(width: scaleWidth(8)),
+                    Expanded(
+                      child: Text(
+                        'Привет, ты можешь спросить меня',
+                        style: GoogleFonts.montserrat(
+                          fontSize: scaleHeight(15),
+                          fontWeight: FontWeight.w500,
+                          color: _primaryTextColor,
+                          height: 24 / 15,
+                        ),
                       ),
                     ),
-                  ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Padding(
-                      padding: EdgeInsets.only(right: scaleWidth(29)),
-                      child: Image.asset(
-                        'assets/icons/icon_mes.png',
-                        width: scaleWidth(24),
-                        height: scaleHeight(24),
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             SizedBox(height: scaleHeight(24)),
-            Container(
-              width: double.infinity,
-              height: 1,
-              color: const Color(0xFF9E9E9E),
-            ),
-            SizedBox(height: scaleHeight(24)),
-            Expanded(
-              child: _hasConversation
-                  ? Padding(
-                      padding: EdgeInsets.symmetric(horizontal: scaleWidth(24)),
-                      child: _messages.isEmpty
-                          ? const SizedBox.shrink()
-                          : ListView.builder(
-                              controller: _scrollController,
-                              itemCount: _messages.length,
-                              itemBuilder: (context, index) {
-                                final message = _messages[index];
-                                final bool isLast =
-                                    index == _messages.length - 1;
-                                return Padding(
-                                  padding: EdgeInsets.only(
-                                    bottom: isLast ? 0 : scaleHeight(24),
-                                  ),
-                                  child: _MessageBubble(
-                                    message: message,
-                                    designWidth: _designWidth,
-                                    designHeight: _designHeight,
-                                    accentColor: _accentColor,
-                                  ),
-                                );
-                              },
-                            ),
-                    )
-                  : SingleChildScrollView(
-                      padding: EdgeInsets.only(bottom: scaleHeight(24)),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: scaleHeight(23)),
-                          Center(
-                            child: Image.asset(
-                              'assets/images/bot.png',
-                              width: scaleWidth(105),
-                              height: scaleHeight(157),
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                          SizedBox(height: scaleHeight(14)),
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: scaleWidth(25),
-                            ),
-                            child: Container(
-                              width: double.infinity,
-                              height: scaleHeight(48),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(
-                                  scaleHeight(16),
-                                ),
-                              ),
-                              padding: EdgeInsets.symmetric(
-                                horizontal: scaleWidth(16),
-                              ),
-                              child: Row(
-                                children: [
-                                  Image.asset(
-                                    'assets/icons/icon_stars.png',
-                                    width: scaleWidth(16),
-                                    height: scaleHeight(16),
-                                    fit: BoxFit.contain,
-                                  ),
-                                  SizedBox(width: scaleWidth(8)),
-                                  Expanded(
-                                    child: Text(
-                                      'Привет, ты можешь спросить меня',
-                                      style: GoogleFonts.montserrat(
-                                        fontSize: scaleHeight(15),
-                                        fontWeight: FontWeight.w500,
-                                        color: _primaryTextColor,
-                                        height: 24 / 15,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: scaleHeight(24)),
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: scaleWidth(25),
-                            ),
-                            child: Container(
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(
-                                  scaleHeight(12),
-                                ),
-                              ),
-                              padding: EdgeInsets.fromLTRB(
-                                scaleWidth(16),
-                                scaleHeight(24),
-                                scaleWidth(16),
-                                scaleHeight(24),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Image.asset(
-                                        'assets/icons/icon_stars.png',
-                                        width: scaleWidth(16),
-                                        height: scaleHeight(16),
-                                        fit: BoxFit.contain,
-                                      ),
-                                      SizedBox(width: scaleWidth(8)),
-                                      Expanded(
-                                        child: Text(
-                                          'Может эти слова тебе помогут...',
-                                          style: GoogleFonts.montserrat(
-                                            fontSize: scaleHeight(16),
-                                            fontWeight: FontWeight.w500,
-                                            color: _primaryTextColor,
-                                            height: 1,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: scaleHeight(24)),
-                                  Wrap(
-                                    spacing: scaleWidth(12),
-                                    runSpacing: scaleHeight(12),
-                                    children:
-                                        const [
-                                              'Привет',
-                                              'Как дела?',
-                                              'Что умеешь?',
-                                              'Спроси меня',
-                                              'Помоги',
-                                              'Совет',
-                                            ]
-                                            .map(
-                                              (chip) => _SuggestionChip(
-                                                text: chip,
-                                                designWidth: _designWidth,
-                                                designHeight: _designHeight,
-                                                accentColor: _accentColor,
-                                                primaryTextColor:
-                                                    _primaryTextColor,
-                                              ),
-                                            )
-                                            .toList(),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-            ),
-            SizedBox(height: scaleHeight(24)),
-            if (_hasConversation && _isTyping)
-              Center(
-                child: GestureDetector(
-                  onTap: _stopGeneration,
-                  child: Container(
-                    width: scaleWidth(253),
-                    height: scaleHeight(44),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: const Color(0xFFE4E4E4)),
-                      borderRadius: BorderRadius.circular(scaleHeight(12)),
-                    ),
-                    padding: EdgeInsets.symmetric(horizontal: scaleWidth(16)),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: scaleWidth(25)),
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(scaleHeight(12)),
+                ),
+                padding: EdgeInsets.fromLTRB(
+                  scaleWidth(16),
+                  scaleHeight(24),
+                  scaleWidth(16),
+                  scaleHeight(24),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: scaleWidth(18),
-                          height: scaleWidth(18),
-                          decoration: BoxDecoration(
-                            color: _accentColor,
-                            borderRadius: BorderRadius.circular(scaleWidth(2)),
-                          ),
+                        Image.asset(
+                          'assets/icons/icon_stars.png',
+                          width: scaleWidth(16),
+                          height: scaleHeight(16),
+                          fit: BoxFit.contain,
                         ),
-                        SizedBox(width: scaleWidth(11)),
-                        Flexible(
+                        SizedBox(width: scaleWidth(8)),
+                        Expanded(
                           child: Text(
-                            'Остановить генерацию...',
+                            'Может эти слова тебе помогут...',
                             style: GoogleFonts.montserrat(
-                              fontSize: scaleHeight(14),
+                              fontSize: scaleHeight(16),
                               fontWeight: FontWeight.w500,
-                              color: Colors.black,
-                              height: 20 / 14,
+                              color: _primaryTextColor,
+                              height: 1,
                             ),
-                            textAlign: TextAlign.center,
                           ),
                         ),
                       ],
                     ),
-                  ),
+                    SizedBox(height: scaleHeight(24)),
+                    Wrap(
+                      spacing: scaleWidth(12),
+                      runSpacing: scaleHeight(12),
+                      children: _suggestions
+                          .map(
+                            (chip) => _SuggestionChip(
+                              text: chip,
+                              designWidth: _designWidth,
+                              designHeight: _designHeight,
+                              accentColor: _accentColor,
+                              primaryTextColor: _primaryTextColor,
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ],
                 ),
               ),
-            if (_hasConversation && _isTyping)
-              SizedBox(height: scaleHeight(24)),
-            Padding(
-              padding: EdgeInsets.only(
-                left: scaleWidth(25),
-                right: scaleWidth(25),
-                bottom: scaleHeight(20),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      height: scaleHeight(54),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(scaleHeight(12)),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0x1F18274B),
-                            offset: Offset(0, 14),
-                            blurRadius: 64,
-                            spreadRadius: -4,
-                          ),
-                          BoxShadow(
-                            color: Color(0x1F18274B),
-                            offset: Offset(0, 8),
-                            blurRadius: 22,
-                            spreadRadius: -6,
-                          ),
-                        ],
-                      ),
-                      padding: EdgeInsets.only(
-                        left: scaleWidth(16),
-                        right: scaleWidth(15),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: _inputController,
-                              style: GoogleFonts.montserrat(
-                                fontSize: scaleHeight(16),
-                                fontWeight: FontWeight.w500,
-                                color: _primaryTextColor,
-                                height: 1,
-                              ),
-                              cursorColor: _accentColor,
-                              decoration: InputDecoration(
-                                hintText: 'Введите вопрос...',
-                                hintStyle: GoogleFonts.montserrat(
-                                  fontSize: scaleHeight(16),
-                                  fontWeight: FontWeight.w500,
-                                  color: const Color(0xFF9E9E9E),
-                                  height: 1,
-                                ),
-                                border: InputBorder.none,
-                                isDense: true,
-                              ),
-                              textInputAction: TextInputAction.send,
-                              onSubmitted: (_) => _sendMessage(),
-                            ),
-                          ),
-                          Image.asset(
-                            'assets/icons/icon_mic.png',
-                            width: scaleWidth(24),
-                            height: scaleHeight(24),
-                            fit: BoxFit.contain,
-                          ),
-                        ],
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Scaffold(
+      backgroundColor: _backgroundColor,
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SafeArea(
+          top: true,
+          bottom: false,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: scaleHeight(13)),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: scaleWidth(24)),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Smile AI',
+                        style: GoogleFonts.montserrat(
+                          fontSize: scaleHeight(20),
+                          fontWeight: FontWeight.w500,
+                          color: _primaryTextColor,
+                          height: 1,
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(width: scaleWidth(20)),
-                  GestureDetector(
-                    onTap: _sendMessage,
-                    child: Container(
-                      width: scaleWidth(54),
-                      height: scaleHeight(54),
-                      decoration: BoxDecoration(
-                        color: _accentColor,
-                        borderRadius: BorderRadius.circular(scaleHeight(50)),
-                      ),
-                      child: Center(
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Padding(
+                        padding: EdgeInsets.only(right: scaleWidth(29)),
                         child: Image.asset(
-                          'assets/icons/icon_teleg.png',
+                          'assets/icons/icon_mes.png',
                           width: scaleWidth(24),
                           height: scaleHeight(24),
                           fit: BoxFit.contain,
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+              SizedBox(height: scaleHeight(24)),
+              Container(
+                width: double.infinity,
+                height: 1,
+                color: const Color(0xFF9E9E9E),
+              ),
+              SizedBox(height: scaleHeight(24)),
+              Expanded(child: conversationArea),
+              SizedBox(height: scaleHeight(24)),
+              if (_hasConversation && _isTyping) ...[
+                Center(
+                  child: GestureDetector(
+                    onTap: _stopGeneration,
+                    child: Container(
+                      width: scaleWidth(253),
+                      height: scaleHeight(44),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: const Color(0xFFE4E4E4)),
+                        borderRadius: BorderRadius.circular(scaleHeight(12)),
+                      ),
+                      padding: EdgeInsets.symmetric(horizontal: scaleWidth(16)),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: scaleWidth(18),
+                            height: scaleWidth(18),
+                            decoration: BoxDecoration(
+                              color: _accentColor,
+                              borderRadius: BorderRadius.circular(
+                                scaleWidth(2),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: scaleWidth(11)),
+                          Flexible(
+                            child: Text(
+                              'Остановить генерацию...',
+                              style: GoogleFonts.montserrat(
+                                fontSize: scaleHeight(14),
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black,
+                                height: 20 / 14,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: scaleHeight(24)),
+              ],
+              Padding(
+                padding: EdgeInsets.only(
+                  left: scaleWidth(25),
+                  right: scaleWidth(25),
+                  bottom: scaleHeight(20),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: scaleHeight(54),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(scaleHeight(12)),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x1F18274B),
+                              offset: Offset(0, 14),
+                              blurRadius: 64,
+                              spreadRadius: -4,
+                            ),
+                            BoxShadow(
+                              color: Color(0x1F18274B),
+                              offset: Offset(0, 8),
+                              blurRadius: 22,
+                              spreadRadius: -6,
+                            ),
+                          ],
+                        ),
+                        padding: EdgeInsets.only(
+                          left: scaleWidth(16),
+                          right: scaleWidth(15),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _inputController,
+                                style: GoogleFonts.montserrat(
+                                  fontSize: scaleHeight(16),
+                                  fontWeight: FontWeight.w500,
+                                  color: _primaryTextColor,
+                                  height: 1,
+                                ),
+                                cursorColor: _accentColor,
+                                decoration: InputDecoration(
+                                  hintText: 'Введите вопрос...',
+                                  hintStyle: GoogleFonts.montserrat(
+                                    fontSize: scaleHeight(16),
+                                    fontWeight: FontWeight.w500,
+                                    color: const Color(0xFF9E9E9E),
+                                    height: 1,
+                                  ),
+                                  border: InputBorder.none,
+                                  isDense: true,
+                                ),
+                                textInputAction: TextInputAction.send,
+                                onSubmitted: (_) => _sendMessage(),
+                              ),
+                            ),
+                            Image.asset(
+                              'assets/icons/icon_mic.png',
+                              width: scaleWidth(24),
+                              height: scaleHeight(24),
+                              fit: BoxFit.contain,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: scaleWidth(20)),
+                    GestureDetector(
+                      onTap: _sendMessage,
+                      child: Container(
+                        width: scaleWidth(54),
+                        height: scaleHeight(54),
+                        decoration: BoxDecoration(
+                          color: _accentColor,
+                          borderRadius: BorderRadius.circular(scaleHeight(50)),
+                        ),
+                        child: Center(
+                          child: Image.asset(
+                            'assets/icons/icon_teleg.png',
+                            width: scaleWidth(24),
+                            height: scaleHeight(24),
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: MainBottomNavBar(

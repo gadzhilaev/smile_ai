@@ -142,115 +142,123 @@ class _EmailScreenState extends State<EmailScreen> {
             : scaleHeight(_fieldButtonSpacing);
 
         return Scaffold(
+          resizeToAvoidBottomInset: false,
           backgroundColor: Colors.white,
-          body: SafeArea(
-            child: Padding(
-              padding: EdgeInsets.only(
-                top: scaleHeight(_topOffset),
-                bottom: scaleHeight(62),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: scaleWidth(_leftOffset),
-                    ),
-                    child: Text(
-                      'Введите почту',
-                      style: GoogleFonts.montserrat(
-                        fontSize: scaleWidth(40),
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black,
-                        height: 1,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: scaleHeight(_titleFieldSpacing)),
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: scaleWidth(_fieldHorizontalPadding),
-                    ),
-                    child: AuthInputField(
-                      controller: _controller,
-                      focusNode: _focusNode,
-                      isActive: isActive,
-                      showError: _showError,
-                      fieldHeight: fieldHeight,
-                      borderRadius: fieldBorderRadius,
-                      innerPadding: fieldInnerPadding,
-                      labelSpacing: fieldLabelSpacing,
-                      labelTopPadding: labelTopPadding,
-                      hintFontSize: scaleHeight(16),
-                      floatingLabelFontSize: scaleHeight(11),
-                      textFontSize: scaleHeight(15),
-                      hintText: 'Email',
-                      labelText: 'Email',
-                      keyboardType: TextInputType.emailAddress,
-                      textInputAction: TextInputAction.done,
-                    ),
-                  ),
-                  if (_showError && _errorMessage != null)
+          body: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => FocusScope.of(context).unfocus(),
+            child: SafeArea(
+              top: true,
+              bottom: false,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  top: scaleHeight(_topOffset),
+                  bottom: scaleHeight(62),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Padding(
-                      padding: EdgeInsets.only(
-                        left: scaleWidth(
-                          _fieldHorizontalPadding + _errorTextOffset,
-                        ),
-                        right: scaleWidth(_fieldHorizontalPadding),
-                        top: scaleHeight(5),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: scaleWidth(_leftOffset),
                       ),
                       child: Text(
-                        _errorMessage!,
+                        'Введите почту',
                         style: GoogleFonts.montserrat(
-                          fontSize: scaleHeight(10),
-                          fontWeight: FontWeight.w400,
-                          color: const Color(0xFFDF1525),
-                          height: 1,
-                        ),
-                      ),
-                    ),
-                  SizedBox(height: buttonSpacing),
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: scaleWidth(_fieldHorizontalPadding),
-                    ),
-                    child: AuthSubmitButton(
-                      label: 'ВОЙТИ',
-                      isEnabled: isButtonEnabled,
-                      onPressed: isButtonEnabled ? _submitEmail : null,
-                      buttonHeight: buttonHeight,
-                      borderRadius: buttonBorderRadius,
-                      fontSize: scaleHeight(16),
-                    ),
-                  ),
-                  const Spacer(),
-                  Center(
-                    child: RichText(
-                      textAlign: TextAlign.center,
-                      text: TextSpan(
-                        text: 'Нет аккаунта? ',
-                        style: GoogleFonts.montserrat(
-                          fontSize: scaleHeight(16),
-                          fontWeight: FontWeight.w400,
+                          fontSize: scaleWidth(40),
+                          fontWeight: FontWeight.w700,
                           color: Colors.black,
                           height: 1,
                         ),
-                        children: [
-                          TextSpan(
-                            text: 'Зарегистрируйтесь',
-                            style: GoogleFonts.montserrat(
-                              fontSize: scaleHeight(16),
-                              fontWeight: FontWeight.w400,
-                              color: const Color(0xFF1774FE),
-                              height: 1,
-                            ),
-                            recognizer: _registerRecognizer,
-                          ),
-                        ],
                       ),
                     ),
-                  ),
-                ],
+                    SizedBox(height: scaleHeight(_titleFieldSpacing)),
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: scaleWidth(_fieldHorizontalPadding),
+                      ),
+                      child: AuthInputField(
+                        controller: _controller,
+                        focusNode: _focusNode,
+                        isActive: isActive,
+                        showError: _showError,
+                        fieldHeight: fieldHeight,
+                        borderRadius: fieldBorderRadius,
+                        innerPadding: fieldInnerPadding,
+                        labelSpacing: fieldLabelSpacing,
+                        labelTopPadding: labelTopPadding,
+                        hintFontSize: scaleHeight(16),
+                        floatingLabelFontSize: scaleHeight(11),
+                        textFontSize: scaleHeight(15),
+                        hintText: 'Email',
+                        labelText: 'Email',
+                        keyboardType: TextInputType.emailAddress,
+                        textInputAction: TextInputAction.done,
+                        onSubmitted: (_) => _submitEmail(),
+                      ),
+                    ),
+                    if (_showError && _errorMessage != null)
+                      Padding(
+                        padding: EdgeInsets.only(
+                          left: scaleWidth(
+                            _fieldHorizontalPadding + _errorTextOffset,
+                          ),
+                          right: scaleWidth(_fieldHorizontalPadding),
+                          top: scaleHeight(5),
+                        ),
+                        child: Text(
+                          _errorMessage!,
+                          style: GoogleFonts.montserrat(
+                            fontSize: scaleHeight(10),
+                            fontWeight: FontWeight.w400,
+                            color: const Color(0xFFDF1525),
+                            height: 1,
+                          ),
+                        ),
+                      ),
+                    SizedBox(height: buttonSpacing),
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: scaleWidth(_fieldHorizontalPadding),
+                      ),
+                      child: AuthSubmitButton(
+                        label: 'ВОЙТИ',
+                        isEnabled: isButtonEnabled,
+                        onPressed: isButtonEnabled ? _submitEmail : null,
+                        buttonHeight: buttonHeight,
+                        borderRadius: buttonBorderRadius,
+                        fontSize: scaleHeight(16),
+                      ),
+                    ),
+                    const Spacer(),
+                    Center(
+                      child: RichText(
+                        textAlign: TextAlign.center,
+                        text: TextSpan(
+                          text: 'Нет аккаунта? ',
+                          style: GoogleFonts.montserrat(
+                            fontSize: scaleHeight(16),
+                            fontWeight: FontWeight.w400,
+                            color: Colors.black,
+                            height: 1,
+                          ),
+                          children: [
+                            TextSpan(
+                              text: 'Зарегистрируйтесь',
+                              style: GoogleFonts.montserrat(
+                                fontSize: scaleHeight(16),
+                                fontWeight: FontWeight.w400,
+                                color: const Color(0xFF1774FE),
+                                height: 1,
+                              ),
+                              recognizer: _registerRecognizer,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

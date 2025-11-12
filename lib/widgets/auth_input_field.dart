@@ -21,6 +21,7 @@ class AuthInputField extends StatelessWidget {
     this.isObscure = false,
     this.keyboardType = TextInputType.text,
     this.textInputAction = TextInputAction.done,
+    this.onSubmitted,
   });
 
   final TextEditingController controller;
@@ -40,6 +41,7 @@ class AuthInputField extends StatelessWidget {
   final bool isObscure;
   final TextInputType keyboardType;
   final TextInputAction textInputAction;
+  final ValueChanged<String>? onSubmitted;
 
   @override
   Widget build(BuildContext context) {
@@ -109,6 +111,7 @@ class AuthInputField extends StatelessWidget {
                 ),
                 keyboardType: keyboardType,
                 textInputAction: textInputAction,
+                onSubmitted: onSubmitted,
               ),
             ),
           ),

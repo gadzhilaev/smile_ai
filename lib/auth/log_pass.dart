@@ -111,113 +111,121 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
             : scaleHeight(_fieldButtonSpacing);
 
         return Scaffold(
+          resizeToAvoidBottomInset: false,
           backgroundColor: Colors.white,
-          body: SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(
-                    left: scaleWidth(24),
-                    top: scaleHeight(24),
-                    right: scaleWidth(24),
-                  ),
-                  child: InkWell(
-                    onTap: () => Navigator.of(context).pop(),
-                    borderRadius: BorderRadius.circular(scaleWidth(16)),
-                    child: Padding(
-                      padding: EdgeInsets.all(scaleWidth(4)),
-                      child: Icon(
-                        Icons.arrow_back,
-                        size: scaleWidth(28),
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(height: scaleHeight(98)),
-                Center(
-                  child: ClipOval(
-                    child: Image.asset(
-                      'assets/images/avatar.png',
-                      width: scaleWidth(130),
-                      height: scaleHeight(130),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                SizedBox(height: scaleHeight(14)),
-                Center(
-                  child: Text(
-                    widget.email,
-                    style: GoogleFonts.montserrat(
-                      fontSize: scaleHeight(15),
-                      fontWeight: FontWeight.w400,
-                      color: Colors.black,
-                      height: 1,
-                    ),
-                  ),
-                ),
-                SizedBox(height: scaleHeight(42)),
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: scaleWidth(_fieldHorizontalPadding),
-                  ),
-                  child: AuthInputField(
-                    controller: _passwordController,
-                    focusNode: _passwordFocusNode,
-                    isActive: isActive,
-                    showError: _showError,
-                    fieldHeight: fieldHeight,
-                    borderRadius: fieldBorderRadius,
-                    innerPadding: fieldInnerPadding,
-                    labelSpacing: fieldLabelSpacing,
-                    labelTopPadding: labelTopPadding,
-                    hintFontSize: scaleHeight(16),
-                    floatingLabelFontSize: scaleHeight(11),
-                    textFontSize: scaleHeight(15),
-                    hintText: 'Пароль',
-                    labelText: 'Пароль',
-                    isObscure: true,
-                    keyboardType: TextInputType.visiblePassword,
-                    textInputAction: TextInputAction.done,
-                  ),
-                ),
-                if (_showError && _errorMessage != null)
+          body: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => FocusScope.of(context).unfocus(),
+            child: SafeArea(
+              top: true,
+              bottom: false,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Padding(
                     padding: EdgeInsets.only(
-                      left: scaleWidth(
-                        _fieldHorizontalPadding + _errorTextOffset,
-                      ),
-                      right: scaleWidth(_fieldHorizontalPadding),
-                      top: scaleHeight(5),
+                      left: scaleWidth(24),
+                      top: scaleHeight(24),
+                      right: scaleWidth(24),
                     ),
+                    child: InkWell(
+                      onTap: () => Navigator.of(context).pop(),
+                      borderRadius: BorderRadius.circular(scaleWidth(16)),
+                      child: Padding(
+                        padding: EdgeInsets.all(scaleWidth(4)),
+                        child: Icon(
+                          Icons.arrow_back,
+                          size: scaleWidth(28),
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: scaleHeight(98)),
+                  Center(
+                    child: ClipOval(
+                      child: Image.asset(
+                        'assets/images/avatar.png',
+                        width: scaleWidth(130),
+                        height: scaleHeight(130),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: scaleHeight(14)),
+                  Center(
                     child: Text(
-                      _errorMessage!,
-                      style: const TextStyle(
-                        fontSize: 10,
+                      widget.email,
+                      style: GoogleFonts.montserrat(
+                        fontSize: scaleHeight(15),
                         fontWeight: FontWeight.w400,
-                        color: Color(0xFFDF1525),
+                        color: Colors.black,
                         height: 1,
                       ),
                     ),
                   ),
-                SizedBox(height: buttonSpacing),
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: scaleWidth(_fieldHorizontalPadding),
+                  SizedBox(height: scaleHeight(42)),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: scaleWidth(_fieldHorizontalPadding),
+                    ),
+                    child: AuthInputField(
+                      controller: _passwordController,
+                      focusNode: _passwordFocusNode,
+                      isActive: isActive,
+                      showError: _showError,
+                      fieldHeight: fieldHeight,
+                      borderRadius: fieldBorderRadius,
+                      innerPadding: fieldInnerPadding,
+                      labelSpacing: fieldLabelSpacing,
+                      labelTopPadding: labelTopPadding,
+                      hintFontSize: scaleHeight(16),
+                      floatingLabelFontSize: scaleHeight(11),
+                      textFontSize: scaleHeight(15),
+                      hintText: 'Пароль',
+                      labelText: 'Пароль',
+                      isObscure: true,
+                      keyboardType: TextInputType.visiblePassword,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (_) => _submitPassword(),
+                    ),
                   ),
-                  child: AuthSubmitButton(
-                    label: 'ВОЙТИ',
-                    isEnabled: isButtonEnabled,
-                    onPressed: isButtonEnabled ? _submitPassword : null,
-                    buttonHeight: buttonHeight,
-                    borderRadius: buttonBorderRadius,
-                    fontSize: scaleHeight(16),
+                  if (_showError && _errorMessage != null)
+                    Padding(
+                      padding: EdgeInsets.only(
+                        left: scaleWidth(
+                          _fieldHorizontalPadding + _errorTextOffset,
+                        ),
+                        right: scaleWidth(_fieldHorizontalPadding),
+                        top: scaleHeight(5),
+                      ),
+                      child: Text(
+                        _errorMessage!,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w400,
+                          color: Color(0xFFDF1525),
+                          height: 1,
+                        ),
+                      ),
+                    ),
+                  SizedBox(height: buttonSpacing),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: scaleWidth(_fieldHorizontalPadding),
+                    ),
+                    child: AuthSubmitButton(
+                      label: 'ВОЙТИ',
+                      isEnabled: isButtonEnabled,
+                      onPressed: isButtonEnabled ? _submitPassword : null,
+                      buttonHeight: buttonHeight,
+                      borderRadius: buttonBorderRadius,
+                      fontSize: scaleHeight(16),
+                    ),
                   ),
-                ),
-                const Spacer(),
-              ],
+                  const Spacer(),
+                ],
+              ),
             ),
           ),
         );
