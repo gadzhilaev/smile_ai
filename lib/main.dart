@@ -91,6 +91,7 @@ class _EmailScreenState extends State<EmailScreen> {
         final double fieldInnerPadding = scaleWidth(_fieldInnerPadding);
         final double buttonBorderRadius = scaleHeight(_buttonBorderRadius);
         final double buttonHeight = scaleHeight(_componentHeight);
+        final double labelTopPadding = fieldHeight * 0.12;
 
         return Scaffold(
           backgroundColor: Colors.white,
@@ -130,6 +131,7 @@ class _EmailScreenState extends State<EmailScreen> {
                       borderRadius: fieldBorderRadius,
                       innerPadding: fieldInnerPadding,
                       labelSpacing: fieldLabelSpacing,
+                      labelTopPadding: labelTopPadding,
                       hintFontSize: scaleHeight(16),
                       floatingLabelFontSize: scaleHeight(11),
                       textFontSize: scaleHeight(15),
@@ -166,6 +168,7 @@ class _EmailInputField extends StatelessWidget {
     required this.borderRadius,
     required this.innerPadding,
     required this.labelSpacing,
+    required this.labelTopPadding,
     required this.hintFontSize,
     required this.floatingLabelFontSize,
     required this.textFontSize,
@@ -178,6 +181,7 @@ class _EmailInputField extends StatelessWidget {
   final double borderRadius;
   final double innerPadding;
   final double labelSpacing;
+  final double labelTopPadding;
   final double hintFontSize;
   final double floatingLabelFontSize;
   final double textFontSize;
@@ -206,6 +210,7 @@ class _EmailInputField extends StatelessWidget {
             : MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (isActive) SizedBox(height: labelTopPadding),
           if (isActive)
             Text(
               'Email',
@@ -283,11 +288,13 @@ class _EmailSubmitButton extends StatelessWidget {
         onTap: isEnabled ? () {} : null,
         child: Center(
           child: Text(
-            'Продолжить',
+            'ВОЙТИ',
             style: GoogleFonts.montserrat(
               fontSize: fontSize,
               fontWeight: FontWeight.w600,
-              color: Colors.white,
+              color: isEnabled
+                  ? const Color(0xFFFFFFFF)
+                  : const Color(0xFF757575),
               height: 1,
             ),
           ),
