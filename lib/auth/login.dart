@@ -2,10 +2,10 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'registration_placeholder_screen.dart';
-import 'registration_success_screen.dart';
-import 'widgets/auth_input_field.dart';
-import 'widgets/auth_submit_button.dart';
+import 'register.dart';
+import 'log_pass.dart';
+import '../widgets/auth_input_field.dart';
+import '../widgets/auth_submit_button.dart';
 
 class EmailScreen extends StatefulWidget {
   const EmailScreen({super.key});
