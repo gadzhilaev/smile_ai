@@ -201,7 +201,8 @@ class MainScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: scaleHeight(24)),
+                const Spacer(),
+                SizedBox(height: scaleHeight(20)),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: scaleWidth(25)),
                   child: Row(
@@ -287,8 +288,7 @@ class MainScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                SizedBox(height: scaleHeight(24)),
-                const Spacer(),
+                SizedBox(height: scaleHeight(20)),
               ],
             );
           },
