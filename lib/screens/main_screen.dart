@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../widgets/bottom_nav_bar.dart';
+
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
 
@@ -294,131 +296,12 @@ class MainScreen extends StatelessWidget {
           },
         ),
       ),
-      bottomNavigationBar: _BottomNavBar(),
-    );
-  }
-}
-
-class _BottomNavBar extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final double widthFactor = size.width / MainScreen._designWidth;
-    final double heightFactor = size.height / MainScreen._designHeight;
-
-    double scaleWidth(double value) => value * widthFactor;
-    double scaleHeight(double value) => value * heightFactor;
-
-    const double designNavHeight = 72;
-    final double navHeight = scaleHeight(designNavHeight);
-
-    return Container(
-      color: Colors.white,
-      child: SafeArea(
-        top: false,
-        child: Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            border: Border(top: BorderSide(color: Color(0xFFF0F0F0), width: 1)),
-          ),
-          child: SizedBox(
-            height: navHeight,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: scaleWidth(24)),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: const [
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: _NavItem(
-                        iconPath: 'assets/nav_bar/select/ai.png',
-                        label: 'AI',
-                        isSelected: true,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: _NavItem(
-                        iconPath: 'assets/nav_bar/unselect/bookmark.png',
-                        label: 'Шаблоны',
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: _NavItem(
-                        iconPath: 'assets/nav_bar/unselect/analytics.png',
-                        label: 'Аналитика',
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: _NavItem(
-                        iconPath: 'assets/nav_bar/unselect/person.png',
-                        label: 'Профиль',
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
+      bottomNavigationBar: MainBottomNavBar(
+        designWidth: _designWidth,
+        designHeight: _designHeight,
+        primaryColor: _primaryTextColor,
+        accentColor: _accentColor,
       ),
-    );
-  }
-}
-
-class _NavItem extends StatelessWidget {
-  const _NavItem({
-    required this.iconPath,
-    required this.label,
-    this.isSelected = false,
-  });
-
-  final String iconPath;
-  final String label;
-  final bool isSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final double widthFactor = size.width / MainScreen._designWidth;
-    final double heightFactor = size.height / MainScreen._designHeight;
-
-    double scaleWidth(double value) => value * widthFactor;
-    double scaleHeight(double value) => value * heightFactor;
-
-    final Color textColor = isSelected
-        ? MainScreen._accentColor
-        : MainScreen._primaryTextColor;
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Image.asset(
-          iconPath,
-          width: scaleWidth(24),
-          height: scaleHeight(24),
-          fit: BoxFit.contain,
-        ),
-        SizedBox(height: scaleHeight(4)),
-        Text(
-          label,
-          style: GoogleFonts.montserrat(
-            fontSize: scaleHeight(10),
-            fontWeight: FontWeight.w500,
-            color: textColor,
-            height: 1,
-          ),
-        ),
-      ],
     );
   }
 }

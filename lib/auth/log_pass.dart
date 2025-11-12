@@ -194,10 +194,10 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
                     ),
                     child: Text(
                       _errorMessage!,
-                      style: GoogleFonts.montserrat(
-                        fontSize: scaleHeight(10),
+                      style: const TextStyle(
+                        fontSize: 10,
                         fontWeight: FontWeight.w400,
-                        color: const Color(0xFFDF1525),
+                        color: Color(0xFFDF1525),
                         height: 1,
                       ),
                     ),
