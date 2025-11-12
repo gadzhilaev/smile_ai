@@ -171,10 +171,10 @@ class _EmailScreenState extends State<EmailScreen> {
         return Scaffold(
           backgroundColor: Colors.white,
           body: SafeArea(
-            child: SingleChildScrollView(
+            child: Padding(
               padding: EdgeInsets.only(
                 top: scaleHeight(_topOffset),
-                bottom: scaleHeight(40),
+                bottom: scaleHeight(62),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -222,6 +222,32 @@ class _EmailScreenState extends State<EmailScreen> {
                       buttonHeight: buttonHeight,
                       borderRadius: buttonBorderRadius,
                       fontSize: scaleHeight(16),
+                    ),
+                  ),
+                  const Spacer(),
+                  Center(
+                    child: RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                        text: 'Нет аккаунта? ',
+                        style: GoogleFonts.montserrat(
+                          fontSize: scaleHeight(16),
+                          fontWeight: FontWeight.w400,
+                          color: Colors.black,
+                          height: 1,
+                        ),
+                        children: [
+                          TextSpan(
+                            text: 'Зарегистрируйтесь',
+                            style: GoogleFonts.montserrat(
+                              fontSize: scaleHeight(16),
+                              fontWeight: FontWeight.w400,
+                              color: const Color(0xFF1774FE),
+                              height: 1,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
