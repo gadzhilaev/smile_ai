@@ -1,6 +1,7 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io' show Platform;
+import 'notification_settings_service.dart';
 
 class NotificationService {
   static NotificationService? _instance;
@@ -15,6 +16,9 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   bool _isInitialized = false;
+  static const String _channelId = 'ai_messages';
+  static const String _channelName = 'AI Messages';
+  static const String _channelDescription = 'Уведомления о новых сообщениях от AI';
 
   /// Инициализация уведомлений
   Future<bool> initialize() async {
@@ -44,9 +48,36 @@ class NotificationService {
 
     if (initialized == true) {
       _isInitialized = true;
+      // Создаем канал уведомлений с начальными настройками
+      await _updateNotificationChannel();
     }
 
     return initialized ?? false;
+  }
+
+  /// Обновление канала уведомлений на Android в соответствии с настройками
+  Future<void> _updateNotificationChannel() async {
+    if (!Platform.isAndroid) return;
+
+    final settingsService = NotificationSettingsService.instance;
+    final bool enableSound = settingsService.sound;
+    final bool enableVibration = settingsService.vibration;
+
+    final AndroidNotificationChannel channel = AndroidNotificationChannel(
+      _channelId,
+      _channelName,
+      description: _channelDescription,
+      importance: Importance.high,
+      playSound: enableSound,
+      enableVibration: enableVibration,
+      showBadge: true,
+    );
+
+    final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
+        _notificationsPlugin.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+
+    await androidImplementation?.createNotificationChannel(channel);
   }
 
   /// Обработка нажатия на уведомление
@@ -100,10 +131,27 @@ class NotificationService {
     return false;
   }
 
+  /// Обновить настройки канала уведомлений (вызывается при изменении настроек)
+  Future<void> updateNotificationSettings() async {
+    if (!_isInitialized) {
+      await initialize();
+    }
+    await _updateNotificationChannel();
+  }
+
   /// Показать уведомление о завершении генерации AI
   Future<void> showAiMessageNotification(String message) async {
     if (!_isInitialized) {
       await initialize();
+    }
+
+    // Проверяем настройки уведомлений
+    final settingsService = NotificationSettingsService.instance;
+    if (!settingsService.shouldShowNotifications()) {
+      if (kDebugMode) {
+        print('Notifications disabled in settings');
+      }
+      return;
     }
 
     // Проверяем разрешение перед отправкой
@@ -115,24 +163,35 @@ class NotificationService {
       return;
     }
 
-    const AndroidNotificationDetails androidDetails =
+    // Проверяем настройки звука и вибрации
+    final bool enableSound = settingsService.sound;
+    final bool enableVibration = settingsService.vibration;
+
+    // Обновляем канал перед отправкой уведомления
+    if (Platform.isAndroid) {
+      await _updateNotificationChannel();
+    }
+
+    final AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(
-      'ai_messages',
-      'AI Messages',
-      channelDescription: 'Уведомления о новых сообщениях от AI',
+      _channelId,
+      _channelName,
+      channelDescription: _channelDescription,
       importance: Importance.high,
       priority: Priority.high,
       showWhen: true,
       icon: '@mipmap/ic_launcher',
+      playSound: enableSound,
+      enableVibration: enableVibration,
     );
 
-    const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
+    final DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
-      presentSound: true,
+      presentSound: enableSound,
     );
 
-    const NotificationDetails details = NotificationDetails(
+    final NotificationDetails details = NotificationDetails(
       android: androidDetails,
       iOS: iosDetails,
     );
