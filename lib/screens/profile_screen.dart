@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../settings/style.dart';
 
 import '../widgets/custom_refresh_indicator.dart';
@@ -133,7 +134,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   }
                                 },
                                 child: _ProfileMenuItem(
-                                  iconPath: 'assets/profile_icons/profile_person.png',
+                                  iconPath: 'assets/profile_icons/profile_person.svg',
                                   title: 'Учетная запись',
                                   designWidth: _designWidth,
                                   designHeight: _designHeight,
@@ -150,7 +151,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   );
                                 },
                                 child: _ProfileMenuItem(
-                                  iconPath: 'assets/profile_icons/profile_notification.png',
+                                  iconPath: 'assets/profile_icons/profile_notification.svg',
                                   title: 'Уведомления',
                                   designWidth: _designWidth,
                                   designHeight: _designHeight,
@@ -158,7 +159,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               SizedBox(height: scaleHeight(12)),
                               _ProfileMenuItem(
-                                iconPath: 'assets/profile_icons/profile_language.png',
+                                iconPath: 'assets/profile_icons/profile_language.svg',
                                 title: 'Язык',
                                 designWidth: _designWidth,
                                 designHeight: _designHeight,
@@ -199,14 +200,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: Column(
                             children: [
                               _ProfileMenuItem(
-                                iconPath: 'assets/profile_icons/profile_privacy.png',
+                                iconPath: 'assets/profile_icons/profile_privacy.svg',
                                 title: 'Данные и конфиденциальность',
                                 designWidth: _designWidth,
                                 designHeight: _designHeight,
                               ),
                               SizedBox(height: scaleHeight(12)),
                               _ProfileMenuItem(
-                                iconPath: 'assets/profile_icons/profile_theme.png',
+                                iconPath: 'assets/profile_icons/profile_theme.svg',
                                 title: 'Тема',
                                 designWidth: _designWidth,
                                 designHeight: _designHeight,
@@ -246,21 +247,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: Column(
                             children: [
                               _ProfileMenuItem(
-                                iconPath: 'assets/profile_icons/profile_supp.png',
+                                iconPath: 'assets/profile_icons/profile_supp.svg',
                                 title: 'Поддержка',
                                 designWidth: _designWidth,
                                 designHeight: _designHeight,
                               ),
                               SizedBox(height: scaleHeight(12)),
                               _ProfileMenuItem(
-                                iconPath: 'assets/profile_icons/profile_faq.png',
+                                iconPath: 'assets/profile_icons/profile_faq.svg',
                                 title: 'Часто задаваемые вопросы',
                                 designWidth: _designWidth,
                                 designHeight: _designHeight,
                               ),
                               SizedBox(height: scaleHeight(12)),
                               _ProfileMenuItem(
-                                iconPath: 'assets/profile_icons/profile_lock.png',
+                                iconPath: 'assets/profile_icons/profile_lock.svg',
                                 title: 'Политика конфиденциальности',
                                 designWidth: _designWidth,
                                 designHeight: _designHeight,
@@ -345,7 +346,7 @@ class _ProfileMenuItem extends StatelessWidget {
 
     return Row(
       children: [
-        Image.asset(
+        SvgPicture.asset(
           iconPath,
           width: scaleWidth(24),
           height: scaleHeight(24),
