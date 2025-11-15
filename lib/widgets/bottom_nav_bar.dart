@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../settings/style.dart';
 
 class MainBottomNavBar extends StatelessWidget {
@@ -44,8 +45,8 @@ class MainBottomNavBar extends StatelessWidget {
                 alignment: Alignment.center,
                 child: _NavItem(
                   iconPath: currentIndex == 0
-                      ? 'assets/nav_bar/select/ai.png'
-                      : 'assets/nav_bar/unselect/ai2.png',
+                      ? 'assets/nav_bar/select/ai.svg'
+                      : 'assets/nav_bar/unselect/ai.svg',
                   label: 'AI',
                   labelColor: currentIndex == 0 ? accentColor : primaryColor,
                   designWidth: designWidth,
@@ -59,8 +60,8 @@ class MainBottomNavBar extends StatelessWidget {
                 alignment: Alignment.center,
                 child: _NavItem(
                   iconPath: currentIndex == 1
-                      ? 'assets/nav_bar/select/bookmark.png'
-                      : 'assets/nav_bar/unselect/bookmark.png',
+                      ? 'assets/nav_bar/select/bookmark.svg'
+                      : 'assets/nav_bar/unselect/bookmark.svg',
                   label: 'Шаблоны',
                   labelColor: currentIndex == 1 ? accentColor : primaryColor,
                   designWidth: designWidth,
@@ -74,8 +75,8 @@ class MainBottomNavBar extends StatelessWidget {
                 alignment: Alignment.center,
                 child: _NavItem(
                   iconPath: currentIndex == 2
-                      ? 'assets/nav_bar/select/analytics.png'
-                      : 'assets/nav_bar/unselect/analytics.png',
+                      ? 'assets/nav_bar/select/analytics.svg'
+                      : 'assets/nav_bar/unselect/analytics.svg',
                   label: 'Аналитика',
                   labelColor: currentIndex == 2 ? accentColor : primaryColor,
                   designWidth: designWidth,
@@ -89,8 +90,8 @@ class MainBottomNavBar extends StatelessWidget {
                 alignment: Alignment.center,
                 child: _NavItem(
                   iconPath: currentIndex == 3
-                      ? 'assets/nav_bar/select/person.png'
-                      : 'assets/nav_bar/unselect/person.png',
+                      ? 'assets/nav_bar/select/person.svg'
+                      : 'assets/nav_bar/unselect/person.svg',
                   label: 'Профиль',
                   labelColor: currentIndex == 3 ? accentColor : primaryColor,
                   designWidth: designWidth,
@@ -140,7 +141,7 @@ class _NavItem extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(
+            SvgPicture.asset(
               iconPath,
               width: scaleWidth(24),
               height: scaleHeight(24),
