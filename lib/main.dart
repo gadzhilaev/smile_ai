@@ -16,7 +16,6 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
-        // textTheme: GoogleFonts.montserratTextTheme(), // Используем AppTextStyle
         useMaterial3: true,
       ),
       home: const SplashScreen(),

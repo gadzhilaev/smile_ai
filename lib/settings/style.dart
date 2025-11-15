@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AppTextStyle {
-  // Базовый метод для создания стиля
+  // Базовый метод для создания стиля (Montserrat)
   static TextStyle _base({
     required double fontSize,
     required FontWeight fontWeight,
     required Color color,
     double? height,
+    String? fontFamily,
   }) {
-    return GoogleFonts.montserrat(
+    return TextStyle(
+      fontFamily: fontFamily ?? 'Montserrat',
       fontSize: fontSize,
       fontWeight: fontWeight,
       color: color,
@@ -214,20 +215,20 @@ class AppTextStyle {
 
   // Inter шрифт (для профиля)
   static TextStyle interMedium(double fontSize, {Color? color}) {
-    return GoogleFonts.inter(
+    return _base(
       fontSize: fontSize,
       fontWeight: FontWeight.w500,
       color: color ?? Colors.black,
-      height: 1,
+      fontFamily: 'Inter',
     );
   }
 
   static TextStyle interRegular(double fontSize, {Color? color}) {
-    return GoogleFonts.inter(
+    return _base(
       fontSize: fontSize,
       fontWeight: FontWeight.w400,
       color: color ?? Colors.black,
-      height: 1,
+      fontFamily: 'Inter',
     );
   }
 }
