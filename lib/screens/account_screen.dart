@@ -1,0 +1,872 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+class AccountScreen extends StatefulWidget {
+  const AccountScreen({super.key});
+
+  @override
+  State<AccountScreen> createState() => _AccountScreenState();
+}
+
+class _AccountScreenState extends State<AccountScreen> {
+  static const double _designWidth = 428;
+  static const double _designHeight = 926;
+
+  final TextEditingController _fullNameController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+
+  final FocusNode _fullNameFocus = FocusNode();
+  final FocusNode _usernameFocus = FocusNode();
+  final FocusNode _emailFocus = FocusNode();
+  final FocusNode _phoneFocus = FocusNode();
+
+  String? _selectedCountry = 'russia';
+  String? _selectedGender;
+
+  @override
+  void dispose() {
+    _fullNameController.dispose();
+    _usernameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _fullNameFocus.dispose();
+    _usernameFocus.dispose();
+    _emailFocus.dispose();
+    _phoneFocus.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final double widthFactor = size.width / _designWidth;
+    final double heightFactor = size.height / _designHeight;
+
+    double scaleWidth(double value) => value * widthFactor;
+    double scaleHeight(double value) => value * heightFactor;
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SafeArea(
+          top: true,
+          bottom: false,
+          child: SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Стрелка назад и заголовок
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: scaleWidth(18),
+                    top: scaleHeight(18),
+                    right: scaleWidth(26),
+                  ),
+                  child: Row(
+                    children: [
+                      // Стрелка назад
+                      InkWell(
+                        onTap: () => Navigator.of(context).pop(),
+                        borderRadius: BorderRadius.circular(scaleWidth(16)),
+                        child: Padding(
+                          padding: EdgeInsets.all(scaleWidth(4)),
+                          child: Icon(
+                              Icons.arrow_back,
+                              size: scaleWidth(28),
+                              color: Colors.black,
+                            ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            'Редактировать профиль',
+                            style: GoogleFonts.montserrat(
+                              fontSize: scaleHeight(20),
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black,
+                              height: 1,
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Невидимый виджет для балансировки
+                      SizedBox(width: scaleWidth(28) + scaleWidth(8)),
+                    ],
+                  ),
+                ),
+                SizedBox(height: scaleHeight(44)),
+                // Текстовые поля
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: scaleWidth(26)),
+                  child: Column(
+                    children: [
+                      _AccountInputField(
+                        controller: _fullNameController,
+                        focusNode: _fullNameFocus,
+                        hintText: 'Полное имя',
+                        designWidth: _designWidth,
+                        designHeight: _designHeight,
+                      ),
+                      SizedBox(height: scaleHeight(26)),
+                      _AccountInputField(
+                        controller: _usernameController,
+                        focusNode: _usernameFocus,
+                        hintText: 'Ник',
+                        designWidth: _designWidth,
+                        designHeight: _designHeight,
+                      ),
+                      SizedBox(height: scaleHeight(26)),
+                      _AccountInputField(
+                        controller: _emailController,
+                        focusNode: _emailFocus,
+                        hintText: 'Электронная почта',
+                        keyboardType: TextInputType.emailAddress,
+                        designWidth: _designWidth,
+                        designHeight: _designHeight,
+                      ),
+                      SizedBox(height: scaleHeight(26)),
+                      // Поле телефона с флагом
+                      _PhoneInputField(
+                        controller: _phoneController,
+                        focusNode: _phoneFocus,
+                        hintText: 'Номер телефона',
+                        designWidth: _designWidth,
+                        designHeight: _designHeight,
+                      ),
+                      SizedBox(height: scaleHeight(26)),
+                      // Выпадающий список и поле пола
+                      Row(
+                        children: [
+                          // Выпадающий список
+                          _DropdownField(
+                            value: _selectedCountry,
+                            onChanged: (String? value) {
+                              setState(() {
+                                _selectedCountry = value;
+                              });
+                            },
+                            hintText: 'Страна',
+                            designWidth: _designWidth,
+                            designHeight: _designHeight,
+                          ),
+                          SizedBox(width: scaleWidth(16)),
+                          // Поле пола (такого же размера)
+                          _GenderDropdownField(
+                            value: _selectedGender,
+                            onChanged: (String? value) {
+                              setState(() {
+                                _selectedGender = value;
+                              });
+                            },
+                            hintText: 'Пол',
+                            designWidth: _designWidth,
+                            designHeight: _designHeight,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: scaleHeight(40)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AccountInputField extends StatefulWidget {
+  const _AccountInputField({
+    required this.controller,
+    required this.focusNode,
+    required this.hintText,
+    required this.designWidth,
+    required this.designHeight,
+    this.keyboardType = TextInputType.text,
+  });
+
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final String hintText;
+  final double designWidth;
+  final double designHeight;
+  final TextInputType keyboardType;
+
+  @override
+  State<_AccountInputField> createState() => _AccountInputFieldState();
+}
+
+class _AccountInputFieldState extends State<_AccountInputField> {
+  bool _isFocused = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.focusNode.addListener(_onFocusChange);
+    widget.controller.addListener(_onTextChange);
+  }
+
+  @override
+  void dispose() {
+    widget.focusNode.removeListener(_onFocusChange);
+    widget.controller.removeListener(_onTextChange);
+    super.dispose();
+  }
+
+  void _onFocusChange() {
+    if (mounted) {
+      setState(() {
+        _isFocused = widget.focusNode.hasFocus;
+      });
+    }
+  }
+
+  void _onTextChange() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final double widthFactor = size.width / widget.designWidth;
+    final double heightFactor = size.height / widget.designHeight;
+
+    double scaleWidth(double value) => value * widthFactor;
+    double scaleHeight(double value) => value * heightFactor;
+
+    final bool hasText = widget.controller.text.isNotEmpty;
+    final bool showLabel = _isFocused || hasText;
+
+    return Container(
+      width: scaleWidth(376),
+      height: scaleHeight(52),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(scaleHeight(8)),
+        border: Border.all(
+          color: const Color(0x8CA3A3A3),
+          width: 1,
+        ),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: scaleWidth(18)),
+      child: Column(
+        mainAxisAlignment: showLabel
+            ? MainAxisAlignment.start
+            : MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (showLabel) SizedBox(height: scaleHeight(8)),
+          if (showLabel)
+            Text(
+              widget.hintText,
+              style: GoogleFonts.montserrat(
+                fontSize: scaleHeight(10),
+                fontWeight: FontWeight.w400,
+                color: const Color(0xFF757575),
+                height: 1,
+              ),
+            ),
+          if (showLabel) SizedBox(height: scaleHeight(4)),
+          Expanded(
+            child: Center(
+              child: TextField(
+                controller: widget.controller,
+                focusNode: widget.focusNode,
+                keyboardType: widget.keyboardType,
+                style: GoogleFonts.montserrat(
+                  fontSize: scaleHeight(14),
+                  fontWeight: FontWeight.w400,
+                  color: const Color(0xFF212121),
+                  height: 1,
+                ),
+                cursorColor: const Color(0xFF212121),
+                decoration: InputDecoration(
+                  hintText: showLabel ? null : widget.hintText,
+                  hintStyle: GoogleFonts.montserrat(
+                    fontSize: scaleHeight(10),
+                    fontWeight: FontWeight.w400,
+                    color: const Color(0xFF757575),
+                    height: 1,
+                  ),
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+                textInputAction: TextInputAction.next,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PhoneInputField extends StatefulWidget {
+  const _PhoneInputField({
+    required this.controller,
+    required this.focusNode,
+    required this.hintText,
+    required this.designWidth,
+    required this.designHeight,
+  });
+
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final String hintText;
+  final double designWidth;
+  final double designHeight;
+
+  @override
+  State<_PhoneInputField> createState() => _PhoneInputFieldState();
+}
+
+class _PhoneInputFieldState extends State<_PhoneInputField> {
+  bool _isFocused = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.focusNode.addListener(_onFocusChange);
+    widget.controller.addListener(_onTextChange);
+  }
+
+  @override
+  void dispose() {
+    widget.focusNode.removeListener(_onFocusChange);
+    widget.controller.removeListener(_onTextChange);
+    super.dispose();
+  }
+
+  void _onFocusChange() {
+    if (mounted) {
+      setState(() {
+        _isFocused = widget.focusNode.hasFocus;
+      });
+    }
+  }
+
+  void _onTextChange() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  String _formatPhoneNumber(String text) {
+    // Убираем все символы кроме цифр
+    String digits = text.replaceAll(RegExp(r'[^\d]'), '');
+    
+    // Если начинается с 7, убираем её
+    if (digits.isNotEmpty && digits[0] == '7') {
+      digits = digits.substring(1);
+    }
+    
+    // Форматируем: +7 989 470-00-00
+    if (digits.isEmpty) return '+7';
+    if (digits.length <= 3) return '+7 $digits';
+    if (digits.length <= 6) {
+      return '+7 ${digits.substring(0, 3)} ${digits.substring(3)}';
+    }
+    if (digits.length <= 8) {
+      return '+7 ${digits.substring(0, 3)} ${digits.substring(3, 6)}-${digits.substring(6)}';
+    }
+    if (digits.length <= 10) {
+      return '+7 ${digits.substring(0, 3)} ${digits.substring(3, 6)}-${digits.substring(6, 8)}-${digits.substring(8)}';
+    }
+    // Ограничиваем до 10 цифр
+    digits = digits.substring(0, 10);
+    return '+7 ${digits.substring(0, 3)} ${digits.substring(3, 6)}-${digits.substring(6, 8)}-${digits.substring(8)}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final double widthFactor = size.width / widget.designWidth;
+    final double heightFactor = size.height / widget.designHeight;
+
+    double scaleWidth(double value) => value * widthFactor;
+    double scaleHeight(double value) => value * heightFactor;
+
+    final bool hasText = widget.controller.text.isNotEmpty;
+    final bool showLabel = _isFocused || hasText;
+
+    return Container(
+      width: scaleWidth(376),
+      height: scaleHeight(52),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(scaleHeight(8)),
+        border: Border.all(
+          color: const Color(0xFFDBDBDB),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          SizedBox(width: scaleWidth(18)),
+          // Флаг России
+          Container(
+            width: scaleWidth(42),
+            height: scaleHeight(24),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: const Color(0xFFDBDBDB),
+                width: 1,
+              ),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(3),
+              child: Image.asset(
+                'assets/images/russia.png',
+                width: scaleWidth(42),
+                height: scaleHeight(24),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          SizedBox(width: scaleWidth(10)),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: showLabel
+                  ? MainAxisAlignment.start
+                  : MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (showLabel) SizedBox(height: scaleHeight(8)),
+                if (showLabel)
+                  Text(
+                    widget.hintText,
+                    style: GoogleFonts.montserrat(
+                      fontSize: scaleHeight(10),
+                      fontWeight: FontWeight.w400,
+                      color: const Color(0xFF757575),
+                      height: 1,
+                    ),
+                  ),
+                if (showLabel) SizedBox(height: scaleHeight(4)),
+                Expanded(
+                  child: Center(
+                    child: TextField(
+                      controller: widget.controller,
+                      focusNode: widget.focusNode,
+                      keyboardType: TextInputType.phone,
+                      style: GoogleFonts.montserrat(
+                        fontSize: scaleHeight(14),
+                        fontWeight: FontWeight.w400,
+                        color: const Color(0xFF212121),
+                        height: 1,
+                      ),
+                      cursorColor: const Color(0xFF212121),
+                      decoration: InputDecoration(
+                        hintText: showLabel ? null : widget.hintText,
+                        hintStyle: GoogleFonts.montserrat(
+                          fontSize: scaleHeight(10),
+                          fontWeight: FontWeight.w400,
+                          color: const Color(0xFF757575),
+                          height: 1,
+                        ),
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                      textInputAction: TextInputAction.next,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[\d]')),
+                      ],
+                      onChanged: (value) {
+                        // Форматирование номера телефона
+                        final formatted = _formatPhoneNumber(value);
+                        if (formatted != widget.controller.text) {
+                          widget.controller.value = TextEditingValue(
+                            text: formatted,
+                            selection: TextSelection.collapsed(
+                              offset: formatted.length,
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: scaleWidth(18)),
+        ],
+      ),
+    );
+  }
+}
+
+class _DropdownField extends StatefulWidget {
+  const _DropdownField({
+    required this.value,
+    required this.onChanged,
+    required this.hintText,
+    required this.designWidth,
+    required this.designHeight,
+  });
+
+  final String? value;
+  final ValueChanged<String?> onChanged;
+  final String hintText;
+  final double designWidth;
+  final double designHeight;
+
+  @override
+  State<_DropdownField> createState() => _DropdownFieldState();
+}
+
+class _DropdownFieldState extends State<_DropdownField> {
+  bool _isFocused = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final double widthFactor = size.width / widget.designWidth;
+    final double heightFactor = size.height / widget.designHeight;
+
+    double scaleWidth(double value) => value * widthFactor;
+    double scaleHeight(double value) => value * heightFactor;
+
+    final bool hasValue = widget.value != null;
+    final bool showLabel = _isFocused || hasValue;
+
+    return InkWell(
+      onTap: () async {
+        setState(() {
+          _isFocused = true;
+        });
+        final RenderBox renderBox = context.findRenderObject() as RenderBox;
+        final Offset offset = renderBox.localToGlobal(Offset.zero);
+        
+        final String? selectedValue = await showMenu<String>(
+          context: context,
+          position: RelativeRect.fromLTRB(
+            offset.dx,
+            offset.dy + renderBox.size.height,
+            offset.dx + renderBox.size.width,
+            offset.dy + renderBox.size.height,
+          ),
+          items: [
+            PopupMenuItem(
+              value: 'russia',
+              child: Text(
+                'Россия',
+                style: GoogleFonts.montserrat(
+                  fontSize: scaleHeight(14),
+                  fontWeight: FontWeight.w400,
+                  color: const Color(0xFF212121),
+                  height: 1,
+                ),
+              ),
+            ),
+            PopupMenuItem(
+              value: 'kazakhstan',
+              child: Text(
+                'Казахстан',
+                style: GoogleFonts.montserrat(
+                  fontSize: scaleHeight(14),
+                  fontWeight: FontWeight.w400,
+                  color: const Color(0xFF212121),
+                  height: 1,
+                ),
+              ),
+            ),
+            PopupMenuItem(
+              value: 'belarus',
+              child: Text(
+                'Беларусь',
+                style: GoogleFonts.montserrat(
+                  fontSize: scaleHeight(14),
+                  fontWeight: FontWeight.w400,
+                  color: const Color(0xFF212121),
+                  height: 1,
+                ),
+              ),
+            ),
+          ],
+          color: Colors.white,
+        );
+        
+        if (selectedValue != null) {
+          setState(() {
+            _isFocused = false;
+          });
+          widget.onChanged(selectedValue);
+        } else {
+          setState(() {
+            _isFocused = false;
+          });
+        }
+      },
+      child: Container(
+        width: scaleWidth(180),
+        height: scaleHeight(54),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(scaleHeight(8)),
+          border: Border.all(
+            color: const Color(0x8CA3A3A3),
+            width: 1,
+          ),
+        ),
+        padding: EdgeInsets.symmetric(horizontal: scaleWidth(18)),
+        child: Column(
+          mainAxisAlignment: showLabel
+              ? MainAxisAlignment.start
+              : MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (showLabel) SizedBox(height: scaleHeight(8)),
+            if (showLabel)
+              Text(
+                widget.hintText,
+                style: GoogleFonts.montserrat(
+                  fontSize: scaleHeight(10),
+                  fontWeight: FontWeight.w400,
+                  color: const Color(0xFF757575),
+                  height: 1,
+                ),
+              ),
+            if (showLabel) SizedBox(height: scaleHeight(4)),
+            Expanded(
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Отображаем выбранное значение или подсказку
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: widget.value != null
+                        ? Text(
+                            widget.value == 'russia'
+                                ? 'Россия'
+                                : widget.value == 'kazakhstan'
+                                    ? 'Казахстан'
+                                    : 'Беларусь',
+                            style: GoogleFonts.montserrat(
+                              fontSize: scaleHeight(14),
+                              fontWeight: FontWeight.w400,
+                              color: const Color(0xFF212121),
+                              height: 1,
+                            ),
+                          )
+                        : (showLabel
+                            ? null
+                            : Text(
+                                widget.hintText,
+                                style: GoogleFonts.montserrat(
+                                  fontSize: scaleHeight(10),
+                                  fontWeight: FontWeight.w400,
+                                  color: const Color(0xFF757575),
+                                  height: 1,
+                                ),
+                              )),
+                  ),
+                  // Стрелка по центру справа
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    bottom: 0,
+                    child: Center(
+                      child: Icon(
+                        Icons.arrow_drop_down,
+                        size: scaleHeight(24),
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _GenderDropdownField extends StatefulWidget {
+  const _GenderDropdownField({
+    required this.value,
+    required this.onChanged,
+    required this.hintText,
+    required this.designWidth,
+    required this.designHeight,
+  });
+
+  final String? value;
+  final ValueChanged<String?> onChanged;
+  final String hintText;
+  final double designWidth;
+  final double designHeight;
+
+  @override
+  State<_GenderDropdownField> createState() => _GenderDropdownFieldState();
+}
+
+class _GenderDropdownFieldState extends State<_GenderDropdownField> {
+  bool _isFocused = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final double widthFactor = size.width / widget.designWidth;
+    final double heightFactor = size.height / widget.designHeight;
+
+    double scaleWidth(double value) => value * widthFactor;
+    double scaleHeight(double value) => value * heightFactor;
+
+    final bool hasValue = widget.value != null;
+    final bool showLabel = _isFocused || hasValue;
+
+    return InkWell(
+      onTap: () async {
+        setState(() {
+          _isFocused = true;
+        });
+        final RenderBox renderBox = context.findRenderObject() as RenderBox;
+        final Offset offset = renderBox.localToGlobal(Offset.zero);
+        
+        final String? selectedValue = await showMenu<String>(
+          context: context,
+          position: RelativeRect.fromLTRB(
+            offset.dx,
+            offset.dy + renderBox.size.height,
+            offset.dx + renderBox.size.width,
+            offset.dy + renderBox.size.height,
+          ),
+          items: [
+            PopupMenuItem(
+              value: 'male',
+              child: Text(
+                'Мужской',
+                style: GoogleFonts.montserrat(
+                  fontSize: scaleHeight(14),
+                  fontWeight: FontWeight.w400,
+                  color: const Color(0xFF212121),
+                  height: 1,
+                ),
+              ),
+            ),
+            PopupMenuItem(
+              value: 'female',
+              child: Text(
+                'Женский',
+                style: GoogleFonts.montserrat(
+                  fontSize: scaleHeight(14),
+                  fontWeight: FontWeight.w400,
+                  color: const Color(0xFF212121),
+                  height: 1,
+                ),
+              ),
+            ),
+          ],
+          color: Colors.white,
+        );
+        
+        if (selectedValue != null) {
+          setState(() {
+            _isFocused = false;
+          });
+          widget.onChanged(selectedValue);
+        } else {
+          setState(() {
+            _isFocused = false;
+          });
+        }
+      },
+      child: Container(
+        width: scaleWidth(180),
+        height: scaleHeight(54),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(scaleHeight(8)),
+          border: Border.all(
+            color: const Color(0x8CA3A3A3),
+            width: 1,
+          ),
+        ),
+        padding: EdgeInsets.symmetric(horizontal: scaleWidth(18)),
+        child: Column(
+          mainAxisAlignment: showLabel
+              ? MainAxisAlignment.start
+              : MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (showLabel) SizedBox(height: scaleHeight(8)),
+            if (showLabel)
+              Text(
+                widget.hintText,
+                style: GoogleFonts.montserrat(
+                  fontSize: scaleHeight(10),
+                  fontWeight: FontWeight.w400,
+                  color: const Color(0xFF757575),
+                  height: 1,
+                ),
+              ),
+            if (showLabel) SizedBox(height: scaleHeight(4)),
+            Expanded(
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Отображаем выбранное значение или подсказку
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: widget.value != null
+                        ? Text(
+                            widget.value == 'male' ? 'Мужской' : 'Женский',
+                            style: GoogleFonts.montserrat(
+                              fontSize: scaleHeight(14),
+                              fontWeight: FontWeight.w400,
+                              color: const Color(0xFF212121),
+                              height: 1,
+                            ),
+                          )
+                        : (showLabel
+                            ? null
+                            : Text(
+                                widget.hintText,
+                                style: GoogleFonts.montserrat(
+                                  fontSize: scaleHeight(10),
+                                  fontWeight: FontWeight.w400,
+                                  color: const Color(0xFF757575),
+                                  height: 1,
+                                ),
+                              )),
+                  ),
+                  // Стрелка по центру справа
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    bottom: 0,
+                    child: Center(
+                      child: Icon(
+                        Icons.arrow_drop_down,
+                        size: scaleHeight(24),
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+

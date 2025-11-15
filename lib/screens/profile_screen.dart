@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../widgets/custom_refresh_indicator.dart';
+import 'account_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -34,38 +35,329 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final double widthFactor = size.width / _designWidth;
+    final double heightFactor = size.height / _designHeight;
 
     double scaleWidth(double value) => value * widthFactor;
+    double scaleHeight(double value) => value * heightFactor;
+
+    final double topSectionHeight = scaleHeight(170);
+    final double bottomPadding = MediaQuery.of(context).padding.bottom;
+    final double navBarHeight = 72.0;
+
+    final double topPadding = MediaQuery.of(context).padding.top;
+    final double actualTopSectionHeight = topSectionHeight + topPadding;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
-      body: SafeArea(
-        top: true,
-        bottom: false,
-        child: CustomRefreshIndicator(
-          onRefresh: _refreshProfile,
-          designWidth: _designWidth,
-          designHeight: _designHeight,
-          child: SingleChildScrollView(
-            controller: _scrollController,
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: SizedBox(
-              height: MediaQuery.of(context).size.height * 0.8,
-              child: Center(
-                child: Text(
-                  'Профиль',
-                  style: GoogleFonts.montserrat(
-                    fontSize: scaleWidth(20),
-                    fontWeight: FontWeight.w500,
-                    color: const Color(0xFF201D2F),
-                    height: 1.2,
+      body: CustomRefreshIndicator(
+        onRefresh: _refreshProfile,
+        designWidth: _designWidth,
+        designHeight: _designHeight,
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          physics: const ClampingScrollPhysics(),
+          child: Stack(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Верхняя секция с фоном #F0EBEB (заливает полностью включая SafeArea)
+                  Container(
+                    height: actualTopSectionHeight,
+                    width: double.infinity,
+                    color: const Color(0xFFF0EBEB),
+                  ),
+                  // Нижняя секция с фоном #F7F7F7
+                  Container(
+                    color: const Color(0xFFF7F7F7),
+                    child: Column(
+                      children: [
+                        SizedBox(height: scaleHeight(11) + scaleHeight(130) / 2),
+                        // Имя пользователя
+                        Center(
+                          child: Text(
+                            'Имя пользователя',
+                            style: GoogleFonts.inter(
+                              fontSize: scaleHeight(28),
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black,
+                              height: 1,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: scaleHeight(11)),
+                        // Email и телефон
+                        Center(
+                          child: Text(
+                            'gmsillk@gmail.com | +7 989 470-00-00',
+                            style: GoogleFonts.montserrat(
+                              fontSize: scaleHeight(15),
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black,
+                              height: 1,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: scaleHeight(24)),
+                      // Контейнер 1: Учетная запись, Уведомления, Язык
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: scaleWidth(32)),
+                        child: Container(
+                          width: scaleWidth(364),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: scaleWidth(23),
+                            vertical: scaleHeight(18),
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(scaleHeight(10)),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x1F18274B),
+                                offset: Offset(0, 14),
+                                blurRadius: 64,
+                                spreadRadius: -4,
+                              ),
+                              BoxShadow(
+                                color: Color(0x1F18274B),
+                                offset: Offset(0, 8),
+                                blurRadius: 22,
+                                spreadRadius: -6,
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => const AccountScreen(),
+                                    ),
+                                  );
+                                },
+                                child: _ProfileMenuItem(
+                                  iconPath: 'assets/profile_icons/profile_person.png',
+                                  title: 'Учетная запись',
+                                  designWidth: _designWidth,
+                                  designHeight: _designHeight,
+                                ),
+                              ),
+                              SizedBox(height: scaleHeight(12)),
+                              _ProfileMenuItem(
+                                iconPath: 'assets/profile_icons/profile_notification.png',
+                                title: 'Уведомления',
+                                designWidth: _designWidth,
+                                designHeight: _designHeight,
+                              ),
+                              SizedBox(height: scaleHeight(12)),
+                              _ProfileMenuItem(
+                                iconPath: 'assets/profile_icons/profile_language.png',
+                                title: 'Язык',
+                                designWidth: _designWidth,
+                                designHeight: _designHeight,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: scaleHeight(20)),
+                      // Контейнер 2: Данные и конфиденциальность, Тема
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: scaleWidth(32)),
+                        child: Container(
+                          width: scaleWidth(364),
+                          height: scaleHeight(96),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: scaleWidth(23),
+                            vertical: scaleHeight(18),
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(scaleHeight(10)),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x1F18274B),
+                                offset: Offset(0, 14),
+                                blurRadius: 64,
+                                spreadRadius: -4,
+                              ),
+                              BoxShadow(
+                                color: Color(0x1F18274B),
+                                offset: Offset(0, 8),
+                                blurRadius: 22,
+                                spreadRadius: -6,
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              _ProfileMenuItem(
+                                iconPath: 'assets/profile_icons/profile_privacy.png',
+                                title: 'Данные и конфиденциальность',
+                                designWidth: _designWidth,
+                                designHeight: _designHeight,
+                              ),
+                              SizedBox(height: scaleHeight(12)),
+                              _ProfileMenuItem(
+                                iconPath: 'assets/profile_icons/profile_theme.png',
+                                title: 'Тема',
+                                designWidth: _designWidth,
+                                designHeight: _designHeight,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: scaleHeight(20)),
+                      // Контейнер 3: Поддержка, Часто задаваемые вопросы, Политика конфиденциальности
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: scaleWidth(32)),
+                        child: Container(
+                          width: scaleWidth(364),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: scaleWidth(23),
+                            vertical: scaleHeight(18),
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(scaleHeight(10)),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x1F18274B),
+                                offset: Offset(0, 14),
+                                blurRadius: 64,
+                                spreadRadius: -4,
+                              ),
+                              BoxShadow(
+                                color: Color(0x1F18274B),
+                                offset: Offset(0, 8),
+                                blurRadius: 22,
+                                spreadRadius: -6,
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              _ProfileMenuItem(
+                                iconPath: 'assets/profile_icons/profile_supp.png',
+                                title: 'Поддержка',
+                                designWidth: _designWidth,
+                                designHeight: _designHeight,
+                              ),
+                              SizedBox(height: scaleHeight(12)),
+                              _ProfileMenuItem(
+                                iconPath: 'assets/profile_icons/profile_faq.png',
+                                title: 'Часто задаваемые вопросы',
+                                designWidth: _designWidth,
+                                designHeight: _designHeight,
+                              ),
+                              SizedBox(height: scaleHeight(12)),
+                              _ProfileMenuItem(
+                                iconPath: 'assets/profile_icons/profile_lock.png',
+                                title: 'Политика конфиденциальности',
+                                designWidth: _designWidth,
+                                designHeight: _designHeight,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      // Отступ для нав бара (только если контент не помещается)
+                      SizedBox(height: navBarHeight + bottomPadding),
+                    ],
+                  ),
+                ),
+                ],
+              ),
+              // Аватарка поверх границы секций
+              Positioned(
+                top: topPadding + scaleHeight(101),
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: Stack(
+                    alignment: Alignment.bottomRight,
+                    children: [
+                      Container(
+                        width: scaleWidth(130),
+                        height: scaleHeight(130),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          image: const DecorationImage(
+                            image: AssetImage('assets/images/avatar.png'),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      // Круг для редактирования
+                      Container(
+                        width: scaleWidth(40),
+                        height: scaleHeight(40),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF898989),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white,
+                            width: 4,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ),
+            ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class _ProfileMenuItem extends StatelessWidget {
+  const _ProfileMenuItem({
+    required this.iconPath,
+    required this.title,
+    required this.designWidth,
+    required this.designHeight,
+  });
+
+  final String iconPath;
+  final String title;
+  final double designWidth;
+  final double designHeight;
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final double widthFactor = size.width / designWidth;
+    final double heightFactor = size.height / designHeight;
+
+    double scaleWidth(double value) => value * widthFactor;
+    double scaleHeight(double value) => value * heightFactor;
+
+    return Row(
+      children: [
+        Image.asset(
+          iconPath,
+          width: scaleWidth(24),
+          height: scaleHeight(24),
+          fit: BoxFit.contain,
+        ),
+        SizedBox(width: scaleWidth(12)),
+        Expanded(
+          child: Text(
+            title,
+            style: GoogleFonts.inter(
+              fontSize: scaleHeight(16),
+              fontWeight: FontWeight.w400,
+              color: Colors.black,
+              height: 1,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
