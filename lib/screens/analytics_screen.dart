@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../models/analytics_model.dart';
 import '../services/analytics_service.dart';
+import '../widgets/custom_refresh_indicator.dart';
 
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
@@ -62,7 +63,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : _analytics == null
-                ? _CustomRefreshIndicator(
+                ? CustomRefreshIndicator(
                     onRefresh: _refreshAnalytics,
                     designWidth: _designWidth,
                     designHeight: _designHeight,
@@ -87,7 +88,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       ),
                     ),
                   )
-                : _CustomRefreshIndicator(
+                : CustomRefreshIndicator(
                     onRefresh: _refreshAnalytics,
                     designWidth: _designWidth,
                     designHeight: _designHeight,
@@ -357,43 +358,6 @@ class _TrendContainer extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _CustomRefreshIndicator extends StatefulWidget {
-  const _CustomRefreshIndicator({
-    required this.onRefresh,
-    required this.child,
-    required this.designWidth,
-    required this.designHeight,
-  });
-
-  final Future<void> Function() onRefresh;
-  final Widget child;
-  final double designWidth;
-  final double designHeight;
-
-  @override
-  State<_CustomRefreshIndicator> createState() =>
-      _CustomRefreshIndicatorState();
-}
-
-class _CustomRefreshIndicatorState extends State<_CustomRefreshIndicator> {
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final double heightFactor = size.height / widget.designHeight;
-
-    double scaleHeight(double value) => value * heightFactor;
-
-    return RefreshIndicator(
-      onRefresh: widget.onRefresh,
-      color: const Color(0xFFAD2023),
-      backgroundColor: Colors.white,
-      strokeWidth: 3.0,
-      displacement: scaleHeight(40),
-      child: widget.child,
     );
   }
 }

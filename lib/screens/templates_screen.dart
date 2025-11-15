@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../models/template_model.dart';
 import '../services/template_service.dart';
+import '../widgets/custom_refresh_indicator.dart';
 
 class TemplatesScreen extends StatefulWidget {
   const TemplatesScreen({
@@ -24,6 +25,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
 
   List<TemplateModel> _templates = [];
   bool _isLoading = true;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -46,6 +48,16 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
     await _loadTemplates();
   }
 
+  Future<void> _refreshTemplates() async {
+    await _loadTemplates();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -60,38 +72,73 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
       body: SafeArea(
         top: true,
         bottom: false,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: scaleHeight(16)),
-            Center(
-              child: Text(
-                'Шаблоны',
-                style: GoogleFonts.montserrat(
-                  fontSize: scaleHeight(20),
-                  fontWeight: FontWeight.w500,
-                  color: const Color(0xFF201D2F),
-                  height: 1,
-                ),
-              ),
-            ),
-            SizedBox(height: scaleHeight(34)),
-            Expanded(
-              child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : _templates.isEmpty
-                      ? Center(
-                          child: Text(
-                            'Шаблоны не найдены',
-                            style: GoogleFonts.montserrat(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black,
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _templates.isEmpty
+                ? CustomRefreshIndicator(
+                    onRefresh: _refreshTemplates,
+                    designWidth: _designWidth,
+                    designHeight: _designHeight,
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: scaleHeight(16)),
+                          Center(
+                            child: Text(
+                              'Шаблоны',
+                              style: GoogleFonts.montserrat(
+                                fontSize: scaleHeight(20),
+                                fontWeight: FontWeight.w500,
+                                color: const Color(0xFF201D2F),
+                                height: 1,
+                              ),
                             ),
                           ),
-                        )
-                      : SingleChildScrollView(
-                          child: Padding(
+                          SizedBox(height: scaleHeight(34)),
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.6,
+                            child: Center(
+                              child: Text(
+                                'Шаблоны не найдены',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : CustomRefreshIndicator(
+                    onRefresh: _refreshTemplates,
+                    designWidth: _designWidth,
+                    designHeight: _designHeight,
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: scaleHeight(16)),
+                          Center(
+                            child: Text(
+                              'Шаблоны',
+                              style: GoogleFonts.montserrat(
+                                fontSize: scaleHeight(20),
+                                fontWeight: FontWeight.w500,
+                                color: const Color(0xFF201D2F),
+                                height: 1,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: scaleHeight(34)),
+                          Padding(
                             padding: EdgeInsets.symmetric(
                               horizontal: scaleWidth(24),
                             ),
@@ -115,7 +162,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                                             text,
                                             (editedText) {
                                               _updateTemplate(
-                                                  _templates[i].id, editedText);
+                                                  _templates[i].id,
+                                                  editedText);
                                               onSaved(editedText);
                                             },
                                           );
@@ -126,10 +174,10 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                               ],
                             ),
                           ),
-                        ),
-            ),
-          ],
-        ),
+                        ],
+                      ),
+                    ),
+                  ),
       ),
     );
   }
