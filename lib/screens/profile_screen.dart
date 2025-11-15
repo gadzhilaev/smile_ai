@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../settings/style.dart';
 
 import '../widgets/custom_refresh_indicator.dart';
+import '../services/profile_service.dart';
 import 'account_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -20,8 +21,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // Сбрасываем позицию прокрутки для полной перестройки страницы
     if (mounted) {
       _scrollController.jumpTo(0);
+      setState(() {}); // Обновляем UI с новыми данными из сервиса
     }
-    // Здесь будет логика обновления данных профиля
     await Future.delayed(const Duration(milliseconds: 500));
   }
 
@@ -76,7 +77,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         // Имя пользователя
                         Center(
                           child: Text(
-                            'Имя пользователя',
+                            ProfileService.instance.fullName,
                             style: AppTextStyle.interMedium(scaleHeight(28)),
                           ),
                         ),
@@ -84,7 +85,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         // Email и телефон
                         Center(
                           child: Text(
-                            'gmsillk@gmail.com | +7 989 470-00-00',
+                            '${ProfileService.instance.email} | ${ProfileService.instance.phone}',
                             style: AppTextStyle.bodyText(scaleHeight(15)),
                           ),
                         ),
@@ -118,13 +119,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           child: Column(
                             children: [
-                              InkWell(
-                                onTap: () {
-                                  Navigator.of(context).push(
+                                InkWell(
+                                onTap: () async {
+                                  final result = await Navigator.of(context).push(
                                     MaterialPageRoute(
                                       builder: (context) => const AccountScreen(),
                                     ),
                                   );
+                                  // Обновляем экран если данные были сохранены
+                                  if (result == true && mounted) {
+                                    setState(() {});
+                                  }
                                 },
                                 child: _ProfileMenuItem(
                                   iconPath: 'assets/profile_icons/profile_person.png',

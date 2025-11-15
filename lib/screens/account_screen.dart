@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../settings/style.dart';
+import '../services/profile_service.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
@@ -27,14 +28,37 @@ class _AccountScreenState extends State<AccountScreen> {
   String? _selectedCountry = 'russia';
   String? _selectedGender = 'male';
 
+  void _saveProfileData() {
+    // Сохраняем данные в сервис
+    ProfileService.instance.updateProfile(
+      fullName: _fullNameController.text.trim(),
+      username: _usernameController.text.trim(),
+      email: _emailController.text.trim(),
+      phone: _phoneController.text.trim(),
+      country: _selectedCountry,
+      gender: _selectedGender,
+    );
+
+    // Возвращаемся назад и обновляем профиль
+    Navigator.of(context).pop(true);
+  }
+
   @override
   void initState() {
     super.initState();
-    // Предзаполняем данные пользователя
-    _fullNameController.text = 'Тест';
-    _usernameController.text = 'test';
-    _emailController.text = 'test@test.ru'; // Email пользователя
-    _phoneController.text = '+7 777 777-77-77'; // Номер телефона все 7
+    // Загружаем данные из сервиса
+    _loadProfileData();
+  }
+
+  void _loadProfileData() {
+    final profileService = ProfileService.instance;
+    _fullNameController.text = profileService.fullName;
+    _usernameController.text = profileService.username;
+    _emailController.text = profileService.email;
+    _phoneController.text = profileService.phone;
+    _selectedCountry = profileService.country;
+    _selectedGender = profileService.gender;
+    setState(() {}); // Обновляем состояние для выпадающих списков
   }
 
   @override
@@ -178,6 +202,30 @@ class _AccountScreenState extends State<AccountScreen> {
                         ],
                       ),
                     ],
+                  ),
+                ),
+                SizedBox(height: scaleHeight(26)),
+                // Кнопка Сохранить
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: scaleWidth(26)),
+                  child: InkWell(
+                    onTap: () {
+                      _saveProfileData();
+                    },
+                    child: Container(
+                      width: scaleWidth(376),
+                      height: scaleHeight(53),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1573FE),
+                        borderRadius: BorderRadius.circular(scaleHeight(9)),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Сохранить',
+                        style: AppTextStyle.screenTitle(scaleHeight(16),
+                            color: Colors.white),
+                      ),
+                    ),
                   ),
                 ),
                 SizedBox(height: scaleHeight(40)),
