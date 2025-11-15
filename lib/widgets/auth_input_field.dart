@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../settings/style.dart';
 
 class AuthInputField extends StatelessWidget {
   const AuthInputField({
@@ -76,12 +76,7 @@ class AuthInputField extends StatelessWidget {
           if (isActive)
             Text(
               labelText,
-              style: GoogleFonts.montserrat(
-                fontSize: floatingLabelFontSize,
-                fontWeight: FontWeight.w400,
-                color: const Color(0xFFA3A3A3),
-                height: 1,
-              ),
+              style: AppTextStyle.fieldLabelAuth(floatingLabelFontSize),
             ),
           if (isActive) SizedBox(height: labelSpacing),
           Expanded(
@@ -90,21 +85,11 @@ class AuthInputField extends StatelessWidget {
                 controller: controller,
                 focusNode: focusNode,
                 obscureText: isObscure,
-                style: GoogleFonts.montserrat(
-                  fontSize: textFontSize,
-                  fontWeight: FontWeight.w400,
-                  color: Colors.black,
-                  height: 1,
-                ),
+                style: AppTextStyle.bodyText(textFontSize),
                 cursorColor: const Color(0xFF1573FE),
                 decoration: InputDecoration(
                   hintText: isActive ? null : hintText,
-                  hintStyle: GoogleFonts.montserrat(
-                    fontSize: hintFontSize,
-                    fontWeight: FontWeight.w400,
-                    color: const Color(0xFFA3A3A3),
-                    height: 1,
-                  ),
+                  hintStyle: AppTextStyle.fieldHintAuth(hintFontSize),
                   border: InputBorder.none,
                   isDense: true,
                   contentPadding: EdgeInsets.zero,

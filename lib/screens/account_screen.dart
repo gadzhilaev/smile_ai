@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+
+import '../settings/style.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
@@ -97,12 +98,7 @@ class _AccountScreenState extends State<AccountScreen> {
                         child: Center(
                           child: Text(
                             'Редактировать профиль',
-                            style: GoogleFonts.montserrat(
-                              fontSize: scaleHeight(20),
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black,
-                              height: 1,
-                            ),
+                            style: AppTextStyle.screenTitle(scaleHeight(20)),
                           ),
                         ),
                       ),
@@ -280,12 +276,7 @@ class _AccountInputFieldState extends State<_AccountInputField> {
           if (showLabel)
             Text(
               widget.hintText,
-              style: GoogleFonts.montserrat(
-                fontSize: scaleHeight(10),
-                fontWeight: FontWeight.w400,
-                color: const Color(0xFF757575),
-                height: 1,
-              ),
+              style: AppTextStyle.fieldLabel(scaleHeight(10)),
             ),
           if (showLabel) SizedBox(height: scaleHeight(4)),
           Expanded(
@@ -294,21 +285,11 @@ class _AccountInputFieldState extends State<_AccountInputField> {
                 controller: widget.controller,
                 focusNode: widget.focusNode,
                 keyboardType: widget.keyboardType,
-                style: GoogleFonts.montserrat(
-                  fontSize: scaleHeight(14),
-                  fontWeight: FontWeight.w400,
-                  color: const Color(0xFF212121),
-                  height: 1,
-                ),
+                style: AppTextStyle.fieldText(scaleHeight(14)),
                 cursorColor: const Color(0xFF212121),
                 decoration: InputDecoration(
                   hintText: showLabel ? null : widget.hintText,
-                  hintStyle: GoogleFonts.montserrat(
-                    fontSize: scaleHeight(10),
-                    fontWeight: FontWeight.w400,
-                    color: const Color(0xFF757575),
-                    height: 1,
-                  ),
+                  hintStyle: AppTextStyle.fieldHint(scaleHeight(10)),
                   border: InputBorder.none,
                   isDense: true,
                   contentPadding: EdgeInsets.zero,
@@ -458,12 +439,7 @@ class _PhoneInputFieldState extends State<_PhoneInputField> {
                 if (showLabel)
                   Text(
                     widget.hintText,
-                    style: GoogleFonts.montserrat(
-                      fontSize: scaleHeight(10),
-                      fontWeight: FontWeight.w400,
-                      color: const Color(0xFF757575),
-                      height: 1,
-                    ),
+                    style: AppTextStyle.fieldLabel(scaleHeight(10)),
                   ),
                 if (showLabel) SizedBox(height: scaleHeight(4)),
                 Expanded(
@@ -472,21 +448,11 @@ class _PhoneInputFieldState extends State<_PhoneInputField> {
                       controller: widget.controller,
                       focusNode: widget.focusNode,
                       keyboardType: TextInputType.phone,
-                      style: GoogleFonts.montserrat(
-                        fontSize: scaleHeight(14),
-                        fontWeight: FontWeight.w400,
-                        color: const Color(0xFF212121),
-                        height: 1,
-                      ),
+                      style: AppTextStyle.fieldText(scaleHeight(14)),
                       cursorColor: const Color(0xFF212121),
                       decoration: InputDecoration(
                         hintText: showLabel ? null : widget.hintText,
-                        hintStyle: GoogleFonts.montserrat(
-                          fontSize: scaleHeight(10),
-                          fontWeight: FontWeight.w400,
-                          color: const Color(0xFF757575),
-                          height: 1,
-                        ),
+                        hintStyle: AppTextStyle.fieldHint(scaleHeight(10)),
                         border: InputBorder.none,
                         isDense: true,
                         contentPadding: EdgeInsets.zero,
@@ -575,36 +541,21 @@ class _DropdownFieldState extends State<_DropdownField> {
               value: 'russia',
               child: Text(
                 'Россия',
-                style: GoogleFonts.montserrat(
-                  fontSize: scaleHeight(14),
-                  fontWeight: FontWeight.w400,
-                  color: const Color(0xFF212121),
-                  height: 1,
-                ),
+                style: AppTextStyle.dropdownMenuItem(scaleHeight(14)),
               ),
             ),
             PopupMenuItem(
               value: 'kazakhstan',
               child: Text(
                 'Казахстан',
-                style: GoogleFonts.montserrat(
-                  fontSize: scaleHeight(14),
-                  fontWeight: FontWeight.w400,
-                  color: const Color(0xFF212121),
-                  height: 1,
-                ),
+                style: AppTextStyle.dropdownMenuItem(scaleHeight(14)),
               ),
             ),
             PopupMenuItem(
               value: 'belarus',
               child: Text(
                 'Беларусь',
-                style: GoogleFonts.montserrat(
-                  fontSize: scaleHeight(14),
-                  fontWeight: FontWeight.w400,
-                  color: const Color(0xFF212121),
-                  height: 1,
-                ),
+                style: AppTextStyle.dropdownMenuItem(scaleHeight(14)),
               ),
             ),
           ],
@@ -644,12 +595,7 @@ class _DropdownFieldState extends State<_DropdownField> {
             if (showLabel)
               Text(
                 widget.hintText,
-                style: GoogleFonts.montserrat(
-                  fontSize: scaleHeight(10),
-                  fontWeight: FontWeight.w400,
-                  color: const Color(0xFF757575),
-                  height: 1,
-                ),
+                style: AppTextStyle.fieldLabel(scaleHeight(10)),
               ),
             if (showLabel) SizedBox(height: scaleHeight(4)),
             Expanded(
@@ -666,23 +612,13 @@ class _DropdownFieldState extends State<_DropdownField> {
                                 : widget.value == 'kazakhstan'
                                     ? 'Казахстан'
                                     : 'Беларусь',
-                            style: GoogleFonts.montserrat(
-                              fontSize: scaleHeight(14),
-                              fontWeight: FontWeight.w400,
-                              color: const Color(0xFF212121),
-                              height: 1,
-                            ),
+                            style: AppTextStyle.fieldText(scaleHeight(14)),
                           )
                         : (showLabel
                             ? null
                             : Text(
                                 widget.hintText,
-                                style: GoogleFonts.montserrat(
-                                  fontSize: scaleHeight(10),
-                                  fontWeight: FontWeight.w400,
-                                  color: const Color(0xFF757575),
-                                  height: 1,
-                                ),
+                                style: AppTextStyle.fieldHint(scaleHeight(10)),
                               )),
                   ),
                   // Стрелка по центру справа
@@ -763,24 +699,14 @@ class _GenderDropdownFieldState extends State<_GenderDropdownField> {
               value: 'male',
               child: Text(
                 'Мужской',
-                style: GoogleFonts.montserrat(
-                  fontSize: scaleHeight(14),
-                  fontWeight: FontWeight.w400,
-                  color: const Color(0xFF212121),
-                  height: 1,
-                ),
+                style: AppTextStyle.dropdownMenuItem(scaleHeight(14)),
               ),
             ),
             PopupMenuItem(
               value: 'female',
               child: Text(
                 'Женский',
-                style: GoogleFonts.montserrat(
-                  fontSize: scaleHeight(14),
-                  fontWeight: FontWeight.w400,
-                  color: const Color(0xFF212121),
-                  height: 1,
-                ),
+                style: AppTextStyle.dropdownMenuItem(scaleHeight(14)),
               ),
             ),
           ],
@@ -820,12 +746,7 @@ class _GenderDropdownFieldState extends State<_GenderDropdownField> {
             if (showLabel)
               Text(
                 widget.hintText,
-                style: GoogleFonts.montserrat(
-                  fontSize: scaleHeight(10),
-                  fontWeight: FontWeight.w400,
-                  color: const Color(0xFF757575),
-                  height: 1,
-                ),
+                style: AppTextStyle.fieldLabel(scaleHeight(10)),
               ),
             if (showLabel) SizedBox(height: scaleHeight(4)),
             Expanded(
@@ -838,23 +759,13 @@ class _GenderDropdownFieldState extends State<_GenderDropdownField> {
                     child: widget.value != null
                         ? Text(
                             widget.value == 'male' ? 'Мужской' : 'Женский',
-                            style: GoogleFonts.montserrat(
-                              fontSize: scaleHeight(14),
-                              fontWeight: FontWeight.w400,
-                              color: const Color(0xFF212121),
-                              height: 1,
-                            ),
+                            style: AppTextStyle.fieldText(scaleHeight(14)),
                           )
                         : (showLabel
                             ? null
                             : Text(
                                 widget.hintText,
-                                style: GoogleFonts.montserrat(
-                                  fontSize: scaleHeight(10),
-                                  fontWeight: FontWeight.w400,
-                                  color: const Color(0xFF757575),
-                                  height: 1,
-                                ),
+                                style: AppTextStyle.fieldHint(scaleHeight(10)),
                               )),
                   ),
                   // Стрелка по центру справа

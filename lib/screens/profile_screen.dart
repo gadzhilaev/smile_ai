@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../settings/style.dart';
 
 import '../widgets/custom_refresh_indicator.dart';
 import 'account_screen.dart';
@@ -77,12 +77,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Center(
                           child: Text(
                             'Имя пользователя',
-                            style: GoogleFonts.inter(
-                              fontSize: scaleHeight(28),
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black,
-                              height: 1,
-                            ),
+                            style: AppTextStyle.interMedium(scaleHeight(28)),
                           ),
                         ),
                         SizedBox(height: scaleHeight(11)),
@@ -90,12 +85,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Center(
                           child: Text(
                             'gmsillk@gmail.com | +7 989 470-00-00',
-                            style: GoogleFonts.montserrat(
-                              fontSize: scaleHeight(15),
-                              fontWeight: FontWeight.w400,
-                              color: Colors.black,
-                              height: 1,
-                            ),
+                            style: AppTextStyle.bodyText(scaleHeight(15)),
                           ),
                         ),
                         SizedBox(height: scaleHeight(24)),
@@ -349,12 +339,7 @@ class _ProfileMenuItem extends StatelessWidget {
         Expanded(
           child: Text(
             title,
-            style: GoogleFonts.inter(
-              fontSize: scaleHeight(16),
-              fontWeight: FontWeight.w400,
-              color: Colors.black,
-              height: 1,
-            ),
+            style: AppTextStyle.interRegular(scaleHeight(16)),
           ),
         ),
       ],

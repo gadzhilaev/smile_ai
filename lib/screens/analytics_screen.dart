@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../settings/style.dart';
 
 import '../models/analytics_model.dart';
 import '../services/analytics_service.dart';
@@ -87,11 +87,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                             padding: const EdgeInsets.all(20.0),
                             child: Text(
                               'Ошибка загрузки данных',
-                              style: GoogleFonts.montserrat(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black,
-                              ),
+                              style: AppTextStyle.bodyTextMedium(16),
                             ),
                           ),
                         ),
@@ -113,12 +109,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           SizedBox(height: scaleHeight(37)),
                           Text(
                             'Топ направлений недели',
-                            style: GoogleFonts.montserrat(
-                              fontSize: scaleHeight(20),
-                              fontWeight: FontWeight.w600,
-                              color: const Color(0xFF201D2F),
-                              height: 1,
-                            ),
+                            style: AppTextStyle.screenTitle(scaleHeight(20),
+                                color: const Color(0xFF201D2F)),
                           ),
                           SizedBox(height: scaleHeight(16)),
                           Row(
@@ -126,23 +118,15 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                             children: [
                               Text(
                                 'Тренд №1',
-                                style: GoogleFonts.montserrat(
-                                  fontSize: scaleHeight(18),
-                                  fontWeight: FontWeight.w600,
-                                  color: const Color(0xFF178751),
-                                  height: 1,
-                                ),
+                                style: AppTextStyle.trendTitle(
+                                    scaleHeight(18), const Color(0xFF178751)),
                               ),
                               SizedBox(width: scaleWidth(11)),
                               Expanded(
                                 child: Text(
                                   _analytics!.trendName,
-                                  style: GoogleFonts.montserrat(
-                                    fontSize: scaleHeight(18),
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.black,
-                                    height: 1,
-                                  ),
+                                  style: AppTextStyle.trendTitle(
+                                      scaleHeight(18), Colors.black),
                                 ),
                               ),
                             ],
@@ -150,12 +134,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           SizedBox(height: scaleHeight(16)),
                           Text(
                             _analytics!.trendPercentage,
-                            style: GoogleFonts.montserrat(
-                              fontSize: scaleHeight(64),
-                              fontWeight: FontWeight.w600,
-                              color: const Color(0xFF178751),
-                              height: 1,
-                            ),
+                            style: AppTextStyle.trendPercentage(
+                                scaleHeight(64), const Color(0xFF178751)),
                           ),
                           SizedBox(height: scaleHeight(3)),
                           Row(
@@ -164,23 +144,16 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                               Expanded(
                                 child: Text(
                                   'на столько  увеличилась вовлеченность\nпо сравнению с прошлой неделей',
-                                  style: GoogleFonts.montserrat(
-                                    fontSize: scaleHeight(10),
-                                    fontWeight: FontWeight.w300,
-                                    color: Colors.black,
-                                    height: 1,
-                                  ),
+                                  style: AppTextStyle.bodyTextLight(
+                                      scaleHeight(10)),
                                 ),
                               ),
                               SizedBox(width: scaleWidth(8)),
                               Text(
                                 '7 дн',
-                                style: GoogleFonts.montserrat(
-                                  fontSize: scaleHeight(12),
-                                  fontWeight: FontWeight.w500,
-                                  color: const Color(0xFF9E9E9E),
-                                  height: 1,
-                                ),
+                                style: AppTextStyle.bodyTextMedium(
+                                    scaleHeight(12),
+                                    color: const Color(0xFF9E9E9E)),
                               ),
                             ],
                           ),
@@ -222,24 +195,17 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                     SizedBox(width: scaleWidth(8)),
                                     Text(
                                       'Почему?',
-                                      style: GoogleFonts.montserrat(
-                                        fontSize: scaleHeight(18),
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.black,
-                                        height: 1,
-                                      ),
+                                      style: AppTextStyle.trendTitle(
+                                          scaleHeight(18), Colors.black),
                                     ),
                                   ],
                                 ),
                                 SizedBox(height: scaleHeight(19)),
                                 Text(
                                   _analytics!.trendDescription,
-                                  style: GoogleFonts.montserrat(
-                                    fontSize: scaleHeight(15),
-                                    fontWeight: FontWeight.w300,
-                                    color: Colors.black,
-                                    height: 1.2,
-                                  ),
+                                  style: AppTextStyle.trendDescription(
+                                          scaleHeight(15))
+                                      .copyWith(height: 1.2),
                                 ),
                               ],
                             ),
@@ -323,12 +289,7 @@ class _TrendContainer extends StatelessWidget {
         children: [
           Text(
             title,
-            style: GoogleFonts.montserrat(
-              fontSize: scaleHeight(16),
-              fontWeight: FontWeight.w600,
-              color: Colors.black,
-              height: 1,
-            ),
+            style: AppTextStyle.screenTitle(scaleHeight(16)),
           ),
           SizedBox(height: scaleHeight(30)),
           Expanded(
@@ -342,12 +303,9 @@ class _TrendContainer extends StatelessWidget {
                       Expanded(
                         child: Text(
                           items[i],
-                          style: GoogleFonts.montserrat(
-                            fontSize: scaleHeight(14),
-                            fontWeight: FontWeight.w500,
-                            color: itemColor,
-                            height: 1.2,
-                          ),
+                          style: AppTextStyle.bodyTextMedium(scaleHeight(14),
+                                  color: itemColor)
+                              .copyWith(height: 1.2),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),

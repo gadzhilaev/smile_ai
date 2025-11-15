@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../settings/style.dart';
 
 class RegistrationPlaceholderScreen extends StatelessWidget {
   const RegistrationPlaceholderScreen({super.key});
@@ -47,12 +47,8 @@ class RegistrationPlaceholderScreen extends StatelessWidget {
                 child: Text(
                   'Здесь будет экран регистрации',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.montserrat(
-                    fontSize: scaleWidth(20),
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black,
-                    height: 1.2,
-                  ),
+                  style: AppTextStyle.bodyTextMedium(scaleWidth(20))
+                      .copyWith(height: 1.2),
                 ),
               ),
             ),

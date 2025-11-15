@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../settings/style.dart';
 
 class MainBottomNavBar extends StatelessWidget {
   const MainBottomNavBar({
@@ -149,12 +149,7 @@ class _NavItem extends StatelessWidget {
             SizedBox(height: scaleHeight(4)),
             Text(
               label,
-              style: GoogleFonts.montserrat(
-                fontSize: scaleHeight(10),
-                fontWeight: FontWeight.w500,
-                color: labelColor,
-                height: 1,
-              ),
+              style: AppTextStyle.navBarLabel(scaleHeight(10), labelColor),
             ),
           ],
         ),

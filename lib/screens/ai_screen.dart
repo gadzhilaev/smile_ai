@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../settings/style.dart';
 
 class AiScreen extends StatefulWidget {
   const AiScreen({
@@ -282,12 +282,10 @@ class _AiScreenState extends State<AiScreen> {
                     Expanded(
                       child: Text(
                         'Привет, ты можешь спросить меня',
-                        style: GoogleFonts.montserrat(
-                          fontSize: scaleHeight(15),
-                          fontWeight: FontWeight.w500,
+                        style: AppTextStyle.bodyTextMedium(
+                          scaleHeight(15),
                           color: _primaryTextColor,
-                          height: 24 / 15,
-                        ),
+                        ).copyWith(height: 24 / 15),
                       ),
                     ),
                   ],
@@ -325,11 +323,9 @@ class _AiScreenState extends State<AiScreen> {
                         Expanded(
                           child: Text(
                             'Может эти слова тебе помогут...',
-                            style: GoogleFonts.montserrat(
-                              fontSize: scaleHeight(16),
-                              fontWeight: FontWeight.w500,
+                            style: AppTextStyle.bodyTextMedium(
+                              scaleHeight(16),
                               color: _primaryTextColor,
-                              height: 1,
                             ),
                           ),
                         ),
@@ -381,11 +377,9 @@ class _AiScreenState extends State<AiScreen> {
                       alignment: Alignment.center,
                       child: Text(
                         'Smile AI',
-                        style: GoogleFonts.montserrat(
-                          fontSize: scaleHeight(20),
-                          fontWeight: FontWeight.w500,
+                        style: AppTextStyle.screenTitleMedium(
+                          scaleHeight(20),
                           color: _primaryTextColor,
-                          height: 1,
                         ),
                       ),
                     ),
@@ -443,12 +437,10 @@ class _AiScreenState extends State<AiScreen> {
                           Flexible(
                             child: Text(
                               'Остановить генерацию...',
-                              style: GoogleFonts.montserrat(
-                                fontSize: scaleHeight(14),
-                                fontWeight: FontWeight.w500,
+                              style: AppTextStyle.bodyTextMedium(
+                                scaleHeight(14),
                                 color: Colors.black,
-                                height: 20 / 14,
-                              ),
+                              ).copyWith(height: 20 / 14),
                               textAlign: TextAlign.center,
                             ),
                           ),
@@ -497,20 +489,16 @@ class _AiScreenState extends State<AiScreen> {
                             Expanded(
                               child: TextField(
                                 controller: _inputController,
-                                style: GoogleFonts.montserrat(
-                                  fontSize: scaleHeight(16),
-                                  fontWeight: FontWeight.w500,
+                                style: AppTextStyle.bodyTextMedium(
+                                  scaleHeight(16),
                                   color: _primaryTextColor,
-                                  height: 1,
                                 ),
                                 cursorColor: _accentColor,
                                 decoration: InputDecoration(
                                   hintText: 'Введите вопрос...',
-                                  hintStyle: GoogleFonts.montserrat(
-                                    fontSize: scaleHeight(16),
-                                    fontWeight: FontWeight.w500,
+                                  hintStyle: AppTextStyle.bodyTextMedium(
+                                    scaleHeight(16),
                                     color: const Color(0xFF9E9E9E),
-                                    height: 1,
                                   ),
                                   border: InputBorder.none,
                                   isDense: true,
@@ -596,11 +584,9 @@ class _SuggestionChip extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: GoogleFonts.montserrat(
-          fontSize: scaleHeight(14),
-          fontWeight: FontWeight.w500,
+        style: AppTextStyle.bodyTextMedium(
+          scaleHeight(14),
           color: primaryTextColor,
-          height: 1,
         ),
       ),
     );
@@ -642,9 +628,8 @@ class _MessageBubble extends StatelessWidget {
             bottomRight: Radius.circular(scaleHeight(19)),
           );
 
-    final TextStyle textStyle = GoogleFonts.montserrat(
-      fontSize: scaleHeight(16),
-      fontWeight: FontWeight.w400,
+    final TextStyle textStyle = AppTextStyle.chatMessage(
+      scaleHeight(16),
       color: message.isUser ? Colors.white : const Color(0xFF212121),
       height: message.isUser ? 1 : 21 / 16,
     );

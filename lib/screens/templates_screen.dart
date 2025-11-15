@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../settings/style.dart';
 
 import '../models/template_model.dart';
 import '../services/template_service.dart';
@@ -108,12 +108,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                   Center(
                     child: Text(
                       'Шаблоны',
-                      style: GoogleFonts.montserrat(
-                        fontSize: scaleHeight(20),
-                        fontWeight: FontWeight.w500,
-                        color: const Color(0xFF201D2F),
-                        height: 1,
-                      ),
+                      style: AppTextStyle.screenTitleMedium(scaleHeight(20)),
                     ),
                   ),
                   SizedBox(height: scaleHeight(34)),
@@ -132,11 +127,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                                 child: Center(
                                   child: Text(
                                     'Шаблоны не найдены',
-                                    style: GoogleFonts.montserrat(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.black,
-                                    ),
+                                    style: AppTextStyle.bodyTextMedium(16),
                                   ),
                                 ),
                               ),
@@ -276,12 +267,7 @@ class _TemplateCard extends StatelessWidget {
                 alignment: Alignment.center,
                 child: Text(
                   template.category,
-                  style: GoogleFonts.montserrat(
-                    fontSize: scaleHeight(12),
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
-                    height: 1,
-                  ),
+                  style: AppTextStyle.templateCategory(scaleHeight(12)),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -290,23 +276,14 @@ class _TemplateCard extends StatelessWidget {
           SizedBox(height: scaleHeight(7.5)),
           Text(
             template.title,
-            style: GoogleFonts.montserrat(
-              fontSize: scaleHeight(16),
-              fontWeight: FontWeight.w500,
-              color: Colors.black,
-              height: 18 / 16,
-            ),
+            style: AppTextStyle.templateTitle(scaleHeight(16))
+                .copyWith(height: 18 / 16),
           ),
           SizedBox(height: scaleHeight(12.5)),
           Expanded(
             child: Text(
               template.description,
-              style: GoogleFonts.montserrat(
-                fontSize: scaleHeight(12),
-                fontWeight: FontWeight.w500,
-                color: const Color(0xFF98A7BD),
-                height: 18 / 12,
-              ),
+              style: AppTextStyle.templateDescription(scaleHeight(12)),
             ),
           ),
           SizedBox(height: scaleHeight(12.5)),
@@ -339,12 +316,7 @@ class _TemplateCard extends StatelessWidget {
                   alignment: Alignment.center,
                   child: Text(
                     'Применить шаблон',
-                    style: GoogleFonts.montserrat(
-                      fontSize: scaleHeight(14),
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black,
-                      height: 1,
-                    ),
+                    style: AppTextStyle.templateButton(scaleHeight(14)),
                   ),
                 ),
               ),
@@ -367,12 +339,7 @@ class _TemplateCard extends StatelessWidget {
                   alignment: Alignment.center,
                   child: Text(
                     'Редактировать',
-                    style: GoogleFonts.montserrat(
-                      fontSize: scaleHeight(14),
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
-                      height: 1,
-                    ),
+                    style: AppTextStyle.templateButtonWhite(scaleHeight(14)),
                   ),
                 ),
               ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../settings/style.dart';
 
 class AuthSubmitButton extends StatelessWidget {
   const AuthSubmitButton({
@@ -41,12 +41,7 @@ class AuthSubmitButton extends StatelessWidget {
         child: Center(
           child: Text(
             label,
-            style: GoogleFonts.montserrat(
-              fontSize: fontSize,
-              fontWeight: FontWeight.w600,
-              color: textColor,
-              height: 1,
-            ),
+            style: AppTextStyle.screenTitle(fontSize, color: textColor),
           ),
         ),
       ),

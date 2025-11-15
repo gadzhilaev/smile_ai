@@ -1,6 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../settings/style.dart';
 
 import 'register.dart';
 import 'log_pass.dart';
@@ -164,12 +164,7 @@ class _EmailScreenState extends State<EmailScreen> {
                       ),
                       child: Text(
                         'Введите почту',
-                        style: GoogleFonts.montserrat(
-                          fontSize: scaleWidth(40),
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black,
-                          height: 1,
-                        ),
+                        style: AppTextStyle.bodyTextBold(scaleWidth(40)),
                       ),
                     ),
                     SizedBox(height: scaleHeight(_titleFieldSpacing)),
@@ -208,12 +203,8 @@ class _EmailScreenState extends State<EmailScreen> {
                         ),
                         child: Text(
                           _errorMessage!,
-                          style: GoogleFonts.montserrat(
-                            fontSize: scaleHeight(10),
-                            fontWeight: FontWeight.w400,
-                            color: const Color(0xFFDF1525),
-                            height: 1,
-                          ),
+                          style: AppTextStyle.bodyText(scaleHeight(10),
+                              color: const Color(0xFFDF1525)),
                         ),
                       ),
                     SizedBox(height: buttonSpacing),
@@ -236,21 +227,12 @@ class _EmailScreenState extends State<EmailScreen> {
                         textAlign: TextAlign.center,
                         text: TextSpan(
                           text: 'Нет аккаунта? ',
-                          style: GoogleFonts.montserrat(
-                            fontSize: scaleHeight(16),
-                            fontWeight: FontWeight.w400,
-                            color: Colors.black,
-                            height: 1,
-                          ),
+                          style: AppTextStyle.bodyText(scaleHeight(16)),
                           children: [
                             TextSpan(
                               text: 'Зарегистрируйтесь',
-                              style: GoogleFonts.montserrat(
-                                fontSize: scaleHeight(16),
-                                fontWeight: FontWeight.w400,
-                                color: const Color(0xFF1774FE),
-                                height: 1,
-                              ),
+                              style: AppTextStyle.bodyText(scaleHeight(16),
+                                  color: const Color(0xFF1774FE)),
                               recognizer: _registerRecognizer,
                             ),
                           ],

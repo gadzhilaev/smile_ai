@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../settings/style.dart';
 
 import '../screens/home_screen.dart';
 import '../widgets/auth_input_field.dart';
@@ -156,12 +156,7 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
                   Center(
                     child: Text(
                       widget.email,
-                      style: GoogleFonts.montserrat(
-                        fontSize: scaleHeight(15),
-                        fontWeight: FontWeight.w400,
-                        color: Colors.black,
-                        height: 1,
-                      ),
+                      style: AppTextStyle.bodyText(scaleHeight(15)),
                     ),
                   ),
                   SizedBox(height: scaleHeight(42)),

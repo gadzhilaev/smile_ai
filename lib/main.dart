@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'settings/style.dart';
 
 import 'auth/login.dart';
 
@@ -16,7 +16,7 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
-        textTheme: GoogleFonts.montserratTextTheme(),
+        // textTheme: GoogleFonts.montserratTextTheme(), // Используем AppTextStyle
         useMaterial3: true,
       ),
       home: const SplashScreen(),
@@ -82,12 +82,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   child: Text(
                     'Smile AI',
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.montserrat(
-                      fontSize: scaleWidth(40),
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
-                      height: 1,
-                    ),
+                    style: AppTextStyle.screenTitle(scaleWidth(40)),
                   ),
                 ),
               ],
