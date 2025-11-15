@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'settings/style.dart';
 import 'services/notification_service.dart';
 import 'auth/login.dart';
@@ -73,8 +74,8 @@ class _SplashScreenState extends State<SplashScreen> {
             child: Stack(
               children: [
                 Center(
-                  child: Image.asset(
-                    'assets/images/bot.png',
+                  child: SvgPicture.asset(
+                    'assets/images/bot.svg',
                     width: scaleWidth(309),
                     height: scaleHeight(464),
                     fit: BoxFit.contain,

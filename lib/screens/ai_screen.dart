@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../settings/style.dart';
 import '../services/notification_service.dart';
 
@@ -259,8 +260,8 @@ class _AiScreenState extends State<AiScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Center(
-              child: Image.asset(
-                'assets/images/bot.png',
+              child: SvgPicture.asset(
+                'assets/images/bot.svg',
                 width: scaleWidth(105),
                 height: scaleHeight(157),
                 fit: BoxFit.contain,
@@ -279,8 +280,8 @@ class _AiScreenState extends State<AiScreen> {
                 padding: EdgeInsets.symmetric(horizontal: scaleWidth(16)),
                 child: Row(
                   children: [
-                    Image.asset(
-                      'assets/icons/icon_stars.png',
+                    SvgPicture.asset(
+                      'assets/icons/icon_stars.svg',
                       width: scaleWidth(16),
                       height: scaleHeight(16),
                       fit: BoxFit.contain,
@@ -320,8 +321,8 @@ class _AiScreenState extends State<AiScreen> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Image.asset(
-                          'assets/icons/icon_stars.png',
+                        SvgPicture.asset(
+                          'assets/icons/icon_stars.svg',
                           width: scaleWidth(16),
                           height: scaleHeight(16),
                           fit: BoxFit.contain,
@@ -394,8 +395,8 @@ class _AiScreenState extends State<AiScreen> {
                       alignment: Alignment.centerRight,
                       child: Padding(
                         padding: EdgeInsets.only(right: scaleWidth(29)),
-                        child: Image.asset(
-                          'assets/icons/icon_mes.png',
+                        child: SvgPicture.asset(
+                          'assets/icons/icon_mes.svg',
                           width: scaleWidth(24),
                           height: scaleHeight(24),
                           fit: BoxFit.contain,
@@ -514,8 +515,8 @@ class _AiScreenState extends State<AiScreen> {
                                 onSubmitted: (_) => _sendMessage(),
                               ),
                             ),
-                            Image.asset(
-                              'assets/icons/icon_mic.png',
+                            SvgPicture.asset(
+                              'assets/icons/icon_mic.svg',
                               width: scaleWidth(24),
                               height: scaleHeight(24),
                               fit: BoxFit.contain,
@@ -535,8 +536,8 @@ class _AiScreenState extends State<AiScreen> {
                           borderRadius: BorderRadius.circular(scaleHeight(50)),
                         ),
                         child: Center(
-                          child: Image.asset(
-                            'assets/icons/icon_teleg.png',
+                          child: SvgPicture.asset(
+                            'assets/icons/icon_teleg.svg',
                             width: scaleWidth(24),
                             height: scaleHeight(24),
                             fit: BoxFit.contain,
@@ -661,8 +662,8 @@ class _MessageBubble extends StatelessWidget {
           SizedBox(width: scaleWidth(10)),
           GestureDetector(
             onTap: () => Clipboard.setData(ClipboardData(text: message.text)),
-            child: Image.asset(
-              'assets/icons/icon_copy.png',
+            child: SvgPicture.asset(
+              'assets/icons/icon_copy.svg',
               width: scaleWidth(20),
               height: scaleHeight(30),
               fit: BoxFit.contain,

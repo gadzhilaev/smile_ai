@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../settings/style.dart';
 
 import '../models/analytics_model.dart';
@@ -186,8 +187,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                               children: [
                                 Row(
                                   children: [
-                                    Image.asset(
-                                      'assets/icons/icon_brain.png',
+                                    SvgPicture.asset(
+                                      'assets/icons/icon_brain.svg',
                                       width: scaleWidth(24),
                                       height: scaleHeight(24),
                                       fit: BoxFit.contain,
@@ -219,7 +220,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                 title: 'Растущие',
                                 items: _analytics!.growingTrends,
                                 itemColor: const Color(0xFF178751),
-                                iconPath: 'assets/icons/icon_tr_up.png',
+                                iconPath: 'assets/icons/icon_tr_up.svg',
                                 designWidth: _designWidth,
                                 designHeight: _designHeight,
                               ),
@@ -228,7 +229,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                 title: 'Падающие',
                                 items: _analytics!.fallingTrends,
                                 itemColor: const Color(0xFF76090B),
-                                iconPath: 'assets/icons/icon_tr_down.png',
+                                iconPath: 'assets/icons/icon_tr_down.svg',
                                 designWidth: _designWidth,
                                 designHeight: _designHeight,
                               ),
@@ -311,7 +312,7 @@ class _TrendContainer extends StatelessWidget {
                         ),
                       ),
                       SizedBox(width: scaleWidth(9)),
-                      Image.asset(
+                      SvgPicture.asset(
                         iconPath,
                         width: scaleWidth(20),
                         height: scaleHeight(20),
