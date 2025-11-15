@@ -43,6 +43,16 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   }
 
   Future<void> _refreshAnalytics() async {
+    // Сбрасываем состояние для полной перестройки страницы
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+        _analytics = null;
+      });
+      // Сбрасываем позицию прокрутки
+      _scrollController.jumpTo(0);
+    }
+    // Перезагружаем данные
     await _loadAnalytics();
   }
 

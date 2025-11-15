@@ -18,11 +18,18 @@ class TemplateService {
   }
 
   // Метод для получения списка всех шаблонов
-  static Future<List<TemplateModel>> getAllTemplates() async {
+  static Future<List<TemplateModel>> getAllTemplates({bool forceRefresh = false}) async {
     await Future.delayed(const Duration(milliseconds: 500));
 
     // Загружаем сохраненные шаблоны или используем дефолтные
-    return _templates;
+    // Всегда возвращаем новый список с новыми объектами для правильного обновления UI
+    return _templates.map((template) => TemplateModel(
+      id: template.id,
+      category: template.category,
+      categoryColor: template.categoryColor,
+      title: template.title,
+      description: template.description,
+    )).toList();
   }
 
   // Временное хранилище шаблонов (в будущем будет API)
@@ -38,6 +45,13 @@ class TemplateService {
       id: 1,
       category: 'Продажи',
       categoryColor: const Color(0x80007B0C), // Зеленый цвет с прозрачностью
+      title: 'Оптимизируйте время публикации в социальных сетях для максимального охвата',
+      description: 'Наши данные показывают, что ваша аудитория наиболее активна с 18:00 до 21:00 по будням.',
+    ),
+    TemplateModel(
+      id: 2,
+      category: 'Стратеги',
+      categoryColor: const Color(0x806F00E6), // Зеленый цвет с прозрачностью
       title: 'Оптимизируйте время публикации в социальных сетях для максимального охвата',
       description: 'Наши данные показывают, что ваша аудитория наиболее активна с 18:00 до 21:00 по будням.',
     ),

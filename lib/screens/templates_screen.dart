@@ -34,10 +34,13 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
   }
 
   Future<void> _loadTemplates() async {
+    // Загружаем данные из сервиса
     final templates = await TemplateService.getAllTemplates();
+    
     if (mounted) {
       setState(() {
-        _templates = templates;
+        // Всегда обновляем список новыми данными
+        _templates = List<TemplateModel>.from(templates);
         _isLoading = false;
       });
     }
@@ -49,7 +52,30 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
   }
 
   Future<void> _refreshTemplates() async {
-    await _loadTemplates();
+    // Сбрасываем состояние для полной перестройки страницы
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+        _templates = [];
+      });
+      // Сбрасываем позицию прокрутки
+      _scrollController.jumpTo(0);
+    }
+    
+    // Небольшая задержка для отображения состояния загрузки
+    await Future.delayed(const Duration(milliseconds: 100));
+    
+    // Перезагружаем данные - принудительно обновляем с forceRefresh
+    final templates = await TemplateService.getAllTemplates(forceRefresh: true);
+    
+    if (mounted) {
+      // Всегда обновляем список, даже если кажется, что данные не изменились
+      setState(() {
+        // Создаем новый список для принудительного обновления UI
+        _templates = List<TemplateModel>.from(templates);
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -74,110 +100,98 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
         bottom: false,
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
-            : _templates.isEmpty
-                ? CustomRefreshIndicator(
-                    onRefresh: _refreshTemplates,
-                    designWidth: _designWidth,
-                    designHeight: _designHeight,
-                    child: SingleChildScrollView(
-                      controller: _scrollController,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: scaleHeight(16)),
-                          Center(
-                            child: Text(
-                              'Шаблоны',
-                              style: GoogleFonts.montserrat(
-                                fontSize: scaleHeight(20),
-                                fontWeight: FontWeight.w500,
-                                color: const Color(0xFF201D2F),
-                                height: 1,
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Фиксированный заголовок
+                  SizedBox(height: scaleHeight(16)),
+                  Center(
+                    child: Text(
+                      'Шаблоны',
+                      style: GoogleFonts.montserrat(
+                        fontSize: scaleHeight(20),
+                        fontWeight: FontWeight.w500,
+                        color: const Color(0xFF201D2F),
+                        height: 1,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: scaleHeight(34)),
+                  // Прокручиваемый контент
+                  Expanded(
+                    child: _templates.isEmpty
+                        ? CustomRefreshIndicator(
+                            onRefresh: _refreshTemplates,
+                            designWidth: _designWidth,
+                            designHeight: _designHeight,
+                            child: SingleChildScrollView(
+                              controller: _scrollController,
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              child: SizedBox(
+                                height: MediaQuery.of(context).size.height * 0.6,
+                                child: Center(
+                                  child: Text(
+                                    'Шаблоны не найдены',
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                          SizedBox(height: scaleHeight(34)),
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.6,
-                            child: Center(
-                              child: Text(
-                                'Шаблоны не найдены',
-                                style: GoogleFonts.montserrat(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.black,
+                          )
+                        : CustomRefreshIndicator(
+                            onRefresh: _refreshTemplates,
+                            designWidth: _designWidth,
+                            designHeight: _designHeight,
+                            child: SingleChildScrollView(
+                              controller: _scrollController,
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: scaleWidth(24),
+                                ),
+                                child: Column(
+                                  children: [
+                                    for (int i = 0; i < _templates.length; i++)
+                                      Padding(
+                                        padding: EdgeInsets.only(
+                                          bottom: i < _templates.length - 1
+                                              ? scaleHeight(20)
+                                              : 0,
+                                        ),
+                                        child: _TemplateCard(
+                                          template: _templates[i],
+                                          designWidth: _designWidth,
+                                          designHeight: _designHeight,
+                                          onApplyTemplate: widget.onApplyTemplate,
+                                          onEditTemplate: (text, onSaved) {
+                                            if (widget.onEditTemplate != null) {
+                                              widget.onEditTemplate!(
+                                                text,
+                                                (editedText) {
+                                                  _updateTemplate(
+                                                      _templates[i].id,
+                                                      editedText);
+                                                  onSaved(editedText);
+                                                },
+                                              );
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                    // Отступ после последнего контейнера для нав бара
+                                    SizedBox(height: scaleHeight(20)),
+                                  ],
                                 ),
                               ),
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  )
-                : CustomRefreshIndicator(
-                    onRefresh: _refreshTemplates,
-                    designWidth: _designWidth,
-                    designHeight: _designHeight,
-                    child: SingleChildScrollView(
-                      controller: _scrollController,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: scaleHeight(16)),
-                          Center(
-                            child: Text(
-                              'Шаблоны',
-                              style: GoogleFonts.montserrat(
-                                fontSize: scaleHeight(20),
-                                fontWeight: FontWeight.w500,
-                                color: const Color(0xFF201D2F),
-                                height: 1,
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: scaleHeight(34)),
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: scaleWidth(24),
-                            ),
-                            child: Column(
-                              children: [
-                                for (int i = 0; i < _templates.length; i++)
-                                  Padding(
-                                    padding: EdgeInsets.only(
-                                      bottom: i < _templates.length - 1
-                                          ? scaleHeight(20)
-                                          : 0,
-                                    ),
-                                    child: _TemplateCard(
-                                      template: _templates[i],
-                                      designWidth: _designWidth,
-                                      designHeight: _designHeight,
-                                      onApplyTemplate: widget.onApplyTemplate,
-                                      onEditTemplate: (text, onSaved) {
-                                        if (widget.onEditTemplate != null) {
-                                          widget.onEditTemplate!(
-                                            text,
-                                            (editedText) {
-                                              _updateTemplate(
-                                                  _templates[i].id,
-                                                  editedText);
-                                              onSaved(editedText);
-                                            },
-                                          );
-                                        }
-                                      },
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                   ),
+                ],
+              ),
       ),
     );
   }

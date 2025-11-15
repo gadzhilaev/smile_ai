@@ -16,6 +16,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final ScrollController _scrollController = ScrollController();
 
   Future<void> _refreshProfile() async {
+    // Сбрасываем позицию прокрутки для полной перестройки страницы
+    if (mounted) {
+      _scrollController.jumpTo(0);
+    }
     // Здесь будет логика обновления данных профиля
     await Future.delayed(const Duration(milliseconds: 500));
   }
