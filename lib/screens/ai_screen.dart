@@ -5,7 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AiScreen extends StatefulWidget {
-  const AiScreen({super.key});
+  const AiScreen({
+    super.key,
+    this.autoGenerateText,
+    this.editText,
+    this.onTextSaved,
+  });
+
+  final String? autoGenerateText;
+  final String? editText;
+  final ValueChanged<String>? onTextSaved;
 
   @override
   State<AiScreen> createState() => _AiScreenState();
@@ -37,6 +46,59 @@ class _AiScreenState extends State<AiScreen> {
   bool _hasConversation = false;
   Timer? _typingTimer;
   double _currentTypingIndex = 0;
+  bool _isEditMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeScreen();
+  }
+
+  void _initializeScreen() {
+    // Если передан текст для редактирования, загружаем его в поле ввода
+    if (widget.editText != null) {
+      _inputController.text = widget.editText!;
+      _isEditMode = true;
+    }
+    // Если передан текст для автогенерации, запускаем генерацию
+    else if (widget.autoGenerateText != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _startAutoGeneration(widget.autoGenerateText!);
+      });
+    }
+  }
+
+  void _startAutoGeneration(String text) {
+    setState(() {
+      _hasConversation = true;
+      _isTyping = true;
+      _currentTypingIndex = 0;
+      _messages.add(_ChatMessage(text: '', isUser: false));
+    });
+
+    _scrollToBottom();
+
+    _typingTimer?.cancel();
+    _typingTimer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
+      setState(() {
+        if (_currentTypingIndex >= text.length) {
+          timer.cancel();
+          _messages[_messages.length - 1] = _ChatMessage(
+            text: text,
+            isUser: false,
+          );
+          _isTyping = false;
+        } else {
+          _currentTypingIndex += 1;
+          _messages[_messages.length - 1] = _ChatMessage(
+            text: text.substring(0, _currentTypingIndex.toInt()),
+            isUser: false,
+          );
+        }
+      });
+      _scrollToBottom();
+    });
+  }
 
   @override
   void dispose() {
@@ -47,15 +109,56 @@ class _AiScreenState extends State<AiScreen> {
   }
 
   void _sendMessage() {
-    if (_inputController.text.trim().isEmpty || _isTyping) {
+    final text = _inputController.text.trim();
+    if (text.isEmpty || _isTyping) {
       return;
     }
 
-    final String userText = _inputController.text.trim();
+    // Если режим редактирования, сохраняем текст и выходим из режима редактирования
+    if (_isEditMode && widget.onTextSaved != null) {
+      widget.onTextSaved!(text);
+      _isEditMode = false;
+      // После сохранения продолжаем обычный чат
+      FocusScope.of(context).unfocus();
+      setState(() {
+        _hasConversation = true;
+        _messages.add(_ChatMessage(text: text, isUser: true));
+        _isTyping = true;
+        _currentTypingIndex = 0;
+        _messages.add(const _ChatMessage(text: '', isUser: false));
+        _inputController.clear();
+      });
+
+      _scrollToBottom();
+
+      _typingTimer?.cancel();
+      _typingTimer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
+        setState(() {
+          if (_currentTypingIndex >= _assistantReply.length) {
+            timer.cancel();
+            _messages[_messages.length - 1] = _ChatMessage(
+              text: _assistantReply,
+              isUser: false,
+            );
+            _isTyping = false;
+          } else {
+            _currentTypingIndex += 1;
+            _messages[_messages.length - 1] = _ChatMessage(
+              text: _assistantReply.substring(0, _currentTypingIndex.toInt()),
+              isUser: false,
+            );
+          }
+        });
+        _scrollToBottom();
+      });
+      return;
+    }
+
+    // Обычная отправка сообщения
     FocusScope.of(context).unfocus();
     setState(() {
       _hasConversation = true;
-      _messages.add(_ChatMessage(text: userText, isUser: true));
+      _messages.add(_ChatMessage(text: text, isUser: true));
       _isTyping = true;
       _currentTypingIndex = 0;
       _messages.add(const _ChatMessage(text: '', isUser: false));

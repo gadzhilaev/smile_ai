@@ -21,20 +21,63 @@ class _HomeScreenState extends State<HomeScreen> {
   static const Color _accentColor = Color(0xFFAD2023);
 
   int _currentIndex = 0;
+  String? _autoGenerateText;
+  String? _editText;
+  ValueChanged<String>? _onTextSaved;
+  int _aiScreenKey = 0;
+  int _templatesScreenKey = 0;
 
-  final List<Widget> _screens = const [
-    AiScreen(),
-    TemplatesScreen(),
-    AnalyticsScreen(),
-    ProfileScreen(),
-  ];
+  void navigateToAiScreen({
+    String? autoGenerateText,
+    String? editText,
+    ValueChanged<String>? onTextSaved,
+  }) {
+    setState(() {
+      _currentIndex = 0;
+      _autoGenerateText = autoGenerateText;
+      _editText = editText;
+      _onTextSaved = onTextSaved;
+      _aiScreenKey++; // Изменяем ключ для пересоздания экрана
+    });
+  }
+
+  void _refreshTemplates() {
+    setState(() {
+      _templatesScreenKey++; // Обновляем ключ для пересоздания TemplatesScreen
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
-        children: _screens,
+        children: [
+          AiScreen(
+            key: ValueKey(_aiScreenKey),
+            autoGenerateText: _autoGenerateText,
+            editText: _editText,
+            onTextSaved: _onTextSaved,
+          ),
+          TemplatesScreen(
+            key: ValueKey(_templatesScreenKey),
+            onApplyTemplate: (text) {
+              navigateToAiScreen(autoGenerateText: text);
+            },
+            onEditTemplate: (text, onSaved) {
+              navigateToAiScreen(
+                editText: text,
+                onTextSaved: (editedText) {
+                  onSaved(editedText);
+                  // Обновляем список шаблонов после сохранения
+                  _refreshTemplates();
+                },
+              );
+            },
+          ),
+          const AnalyticsScreen(),
+          const ProfileScreen(),
+        ],
       ),
       bottomNavigationBar: MainBottomNavBar(
         designWidth: _designWidth,
@@ -45,10 +88,16 @@ class _HomeScreenState extends State<HomeScreen> {
         onTap: (index) {
           setState(() {
             _currentIndex = index;
+            // Сбрасываем параметры при ручном переключении
+            if (index != 0) {
+              _autoGenerateText = null;
+              _editText = null;
+              _onTextSaved = null;
+              _aiScreenKey++;
+            }
           });
         },
       ),
     );
   }
 }
-

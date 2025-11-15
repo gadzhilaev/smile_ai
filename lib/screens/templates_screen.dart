@@ -5,7 +5,14 @@ import '../models/template_model.dart';
 import '../services/template_service.dart';
 
 class TemplatesScreen extends StatefulWidget {
-  const TemplatesScreen({super.key});
+  const TemplatesScreen({
+    super.key,
+    this.onApplyTemplate,
+    this.onEditTemplate,
+  });
+
+  final ValueChanged<String>? onApplyTemplate;
+  final void Function(String, ValueChanged<String>)? onEditTemplate;
 
   @override
   State<TemplatesScreen> createState() => _TemplatesScreenState();
@@ -26,10 +33,17 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
 
   Future<void> _loadTemplates() async {
     final templates = await TemplateService.getAllTemplates();
-    setState(() {
-      _templates = templates;
-      _isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        _templates = templates;
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _updateTemplate(int id, String newTitle) async {
+    await TemplateService.updateTemplateTitle(id, newTitle);
+    await _loadTemplates();
   }
 
   @override
@@ -94,6 +108,19 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                                       template: _templates[i],
                                       designWidth: _designWidth,
                                       designHeight: _designHeight,
+                                      onApplyTemplate: widget.onApplyTemplate,
+                                      onEditTemplate: (text, onSaved) {
+                                        if (widget.onEditTemplate != null) {
+                                          widget.onEditTemplate!(
+                                            text,
+                                            (editedText) {
+                                              _updateTemplate(
+                                                  _templates[i].id, editedText);
+                                              onSaved(editedText);
+                                            },
+                                          );
+                                        }
+                                      },
                                     ),
                                   ),
                               ],
@@ -113,11 +140,15 @@ class _TemplateCard extends StatelessWidget {
     required this.template,
     required this.designWidth,
     required this.designHeight,
+    this.onApplyTemplate,
+    this.onEditTemplate,
   });
 
   final TemplateModel template;
   final double designWidth;
   final double designHeight;
+  final ValueChanged<String>? onApplyTemplate;
+  final void Function(String, ValueChanged<String>)? onEditTemplate;
 
   @override
   Widget build(BuildContext context) {
@@ -221,7 +252,12 @@ class _TemplateCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               InkWell(
-                onTap: () {},
+                onTap: () {
+                  if (onApplyTemplate != null) {
+                    onApplyTemplate!(
+                        'Тогда начнём с позиционирования: кто твой клиент, чем ты отличаешься, какая у тебя история. на этом можно построить сайт, визуал и');
+                  }
+                },
                 borderRadius: BorderRadius.circular(scaleHeight(16)),
                 child: Container(
                   width: scaleWidth(187),
@@ -251,7 +287,13 @@ class _TemplateCard extends StatelessWidget {
                 ),
               ),
               InkWell(
-                onTap: () {},
+                onTap: () {
+                  if (onEditTemplate != null) {
+                    onEditTemplate!(template.title, (editedText) {
+                      // Callback будет вызван из AiScreen после сохранения
+                    });
+                  }
+                },
                 borderRadius: BorderRadius.circular(scaleHeight(16)),
                 child: Container(
                   width: scaleWidth(152),

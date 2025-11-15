@@ -21,22 +21,43 @@ class TemplateService {
   static Future<List<TemplateModel>> getAllTemplates() async {
     await Future.delayed(const Duration(milliseconds: 500));
 
-    return [
-      TemplateModel(
-        id: 0,
-        category: 'Маркетинг',
-        categoryColor: const Color(0x80D300E6), // Фиолетовый цвет с прозрачностью
-        title: 'Оптимизируйте время публикации в социальных сетях для максимального охвата',
-        description: 'Наши данные показывают, что ваша аудитория наиболее активна с 18:00 до 21:00 по будням.',
-      ),
-      TemplateModel(
-        id: 1,
-        category: 'Продажи',
-        categoryColor: const Color(0x80007B0C), // Зеленый цвет с прозрачностью
-        title: 'Оптимизируйте время публикации в социальных сетях для максимального охвата',
-        description: 'Наши данные показывают, что ваша аудитория наиболее активна с 18:00 до 21:00 по будням.',
-      ),
-    ];
+    // Загружаем сохраненные шаблоны или используем дефолтные
+    return _templates;
+  }
+
+  // Временное хранилище шаблонов (в будущем будет API)
+  static final List<TemplateModel> _templates = [
+    TemplateModel(
+      id: 0,
+      category: 'Маркетинг',
+      categoryColor: const Color(0x80D300E6), // Фиолетовый цвет с прозрачностью
+      title: 'Оптимизируйте время публикации в социальных сетях для максимального охвата',
+      description: 'Наши данные показывают, что ваша аудитория наиболее активна с 18:00 до 21:00 по будням.',
+    ),
+    TemplateModel(
+      id: 1,
+      category: 'Продажи',
+      categoryColor: const Color(0x80007B0C), // Зеленый цвет с прозрачностью
+      title: 'Оптимизируйте время публикации в социальных сетях для максимального охвата',
+      description: 'Наши данные показывают, что ваша аудитория наиболее активна с 18:00 до 21:00 по будням.',
+    ),
+  ];
+
+  // Метод для обновления названия шаблона
+  static Future<void> updateTemplateTitle(int id, String newTitle) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    
+    final index = _templates.indexWhere((t) => t.id == id);
+    if (index != -1) {
+      final template = _templates[index];
+      _templates[index] = TemplateModel(
+        id: template.id,
+        category: template.category,
+        categoryColor: template.categoryColor,
+        title: newTitle,
+        description: template.description,
+      );
+    }
   }
 }
 
