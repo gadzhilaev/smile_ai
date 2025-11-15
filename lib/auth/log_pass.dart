@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../screens/main_screen.dart';
+import '../screens/home_screen.dart';
 import '../widgets/auth_input_field.dart';
 import '../widgets/auth_submit_button.dart';
 
@@ -77,10 +77,10 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
       _errorMessage = null;
     });
 
-    FocusScope.of(context).unfocus();
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute<void>(builder: (_) => const MainScreen()),
-    );
+      FocusScope.of(context).unfocus();
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(builder: (_) => const HomeScreen()),
+      );
   }
 
   @override

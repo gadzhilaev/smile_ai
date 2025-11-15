@@ -4,16 +4,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../widgets/bottom_nav_bar.dart';
-
-class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+class AiScreen extends StatefulWidget {
+  const AiScreen({super.key});
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  State<AiScreen> createState() => _AiScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _AiScreenState extends State<AiScreen> {
   static const double _designWidth = 428;
   static const double _designHeight = 926;
 
@@ -454,12 +452,6 @@ class _MainScreenState extends State<MainScreen> {
             ],
           ),
         ),
-      ),
-      bottomNavigationBar: MainBottomNavBar(
-        designWidth: _designWidth,
-        designHeight: _designHeight,
-        primaryColor: _primaryTextColor,
-        accentColor: _accentColor,
       ),
     );
   }

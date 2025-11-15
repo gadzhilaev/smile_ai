@@ -8,12 +8,16 @@ class MainBottomNavBar extends StatelessWidget {
     required this.designHeight,
     required this.primaryColor,
     required this.accentColor,
+    required this.currentIndex,
+    required this.onTap,
   });
 
   final double designWidth;
   final double designHeight;
   final Color primaryColor;
   final Color accentColor;
+  final int currentIndex;
+  final ValueChanged<int> onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -39,11 +43,14 @@ class MainBottomNavBar extends StatelessWidget {
               child: Align(
                 alignment: Alignment.center,
                 child: _NavItem(
-                  iconPath: 'assets/nav_bar/select/ai.png',
+                  iconPath: currentIndex == 0
+                      ? 'assets/nav_bar/select/ai.png'
+                      : 'assets/nav_bar/unselect/ai2.png',
                   label: 'AI',
-                  labelColor: accentColor,
+                  labelColor: currentIndex == 0 ? accentColor : primaryColor,
                   designWidth: designWidth,
                   designHeight: designHeight,
+                  onTap: () => onTap(0),
                 ),
               ),
             ),
@@ -51,11 +58,14 @@ class MainBottomNavBar extends StatelessWidget {
               child: Align(
                 alignment: Alignment.center,
                 child: _NavItem(
-                  iconPath: 'assets/nav_bar/unselect/bookmark.png',
+                  iconPath: currentIndex == 1
+                      ? 'assets/nav_bar/select/bookmark.png'
+                      : 'assets/nav_bar/unselect/bookmark.png',
                   label: 'Шаблоны',
-                  labelColor: primaryColor,
+                  labelColor: currentIndex == 1 ? accentColor : primaryColor,
                   designWidth: designWidth,
                   designHeight: designHeight,
+                  onTap: () => onTap(1),
                 ),
               ),
             ),
@@ -63,11 +73,14 @@ class MainBottomNavBar extends StatelessWidget {
               child: Align(
                 alignment: Alignment.center,
                 child: _NavItem(
-                  iconPath: 'assets/nav_bar/unselect/analytics.png',
+                  iconPath: currentIndex == 2
+                      ? 'assets/nav_bar/select/analytics.png'
+                      : 'assets/nav_bar/unselect/analytics.png',
                   label: 'Аналитика',
-                  labelColor: primaryColor,
+                  labelColor: currentIndex == 2 ? accentColor : primaryColor,
                   designWidth: designWidth,
                   designHeight: designHeight,
+                  onTap: () => onTap(2),
                 ),
               ),
             ),
@@ -75,11 +88,14 @@ class MainBottomNavBar extends StatelessWidget {
               child: Align(
                 alignment: Alignment.center,
                 child: _NavItem(
-                  iconPath: 'assets/nav_bar/unselect/person.png',
+                  iconPath: currentIndex == 3
+                      ? 'assets/nav_bar/select/person.png'
+                      : 'assets/nav_bar/unselect/person.png',
                   label: 'Профиль',
-                  labelColor: primaryColor,
+                  labelColor: currentIndex == 3 ? accentColor : primaryColor,
                   designWidth: designWidth,
                   designHeight: designHeight,
+                  onTap: () => onTap(3),
                 ),
               ),
             ),
@@ -97,6 +113,7 @@ class _NavItem extends StatelessWidget {
     required this.labelColor,
     required this.designWidth,
     required this.designHeight,
+    required this.onTap,
   });
 
   final String iconPath;
@@ -104,6 +121,7 @@ class _NavItem extends StatelessWidget {
   final Color labelColor;
   final double designWidth;
   final double designHeight;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -114,26 +132,33 @@ class _NavItem extends StatelessWidget {
     double scaleWidth(double value) => value * widthFactor;
     double scaleHeight(double value) => value * heightFactor;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Image.asset(
-          iconPath,
-          width: scaleWidth(24),
-          height: scaleHeight(24),
-          fit: BoxFit.contain,
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(scaleWidth(8)),
+      child: Padding(
+        padding: EdgeInsets.all(scaleWidth(8)),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              iconPath,
+              width: scaleWidth(24),
+              height: scaleHeight(24),
+              fit: BoxFit.contain,
+            ),
+            SizedBox(height: scaleHeight(4)),
+            Text(
+              label,
+              style: GoogleFonts.montserrat(
+                fontSize: scaleHeight(10),
+                fontWeight: FontWeight.w500,
+                color: labelColor,
+                height: 1,
+              ),
+            ),
+          ],
         ),
-        SizedBox(height: scaleHeight(4)),
-        Text(
-          label,
-          style: GoogleFonts.montserrat(
-            fontSize: scaleHeight(10),
-            fontWeight: FontWeight.w500,
-            color: labelColor,
-            height: 1,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
