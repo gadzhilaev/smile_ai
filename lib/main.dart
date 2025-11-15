@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'settings/style.dart';
-
+import 'services/notification_service.dart';
 import 'auth/login.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Инициализируем уведомления и запрашиваем разрешения
+  await NotificationService.instance.initialize();
+  await NotificationService.instance.requestPermissions();
+  
   runApp(const MainApp());
 }
 

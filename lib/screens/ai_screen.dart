@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
 import '../settings/style.dart';
+import '../services/notification_service.dart';
 
 class AiScreen extends StatefulWidget {
   const AiScreen({
@@ -88,6 +89,8 @@ class _AiScreenState extends State<AiScreen> {
             isUser: false,
           );
           _isTyping = false;
+          // Отправляем уведомление о завершении генерации
+          NotificationService.instance.showAiMessageNotification(text);
         } else {
           _currentTypingIndex += 1;
           _messages[_messages.length - 1] = _ChatMessage(
@@ -141,6 +144,8 @@ class _AiScreenState extends State<AiScreen> {
               isUser: false,
             );
             _isTyping = false;
+            // Отправляем уведомление о завершении генерации
+            NotificationService.instance.showAiMessageNotification(_assistantReply);
           } else {
             _currentTypingIndex += 1;
             _messages[_messages.length - 1] = _ChatMessage(
@@ -177,6 +182,8 @@ class _AiScreenState extends State<AiScreen> {
             isUser: false,
           );
           _isTyping = false;
+          // Отправляем уведомление о завершении генерации
+          NotificationService.instance.showAiMessageNotification(_assistantReply);
         } else {
           _currentTypingIndex += 1;
           _messages[_messages.length - 1] = _ChatMessage(
