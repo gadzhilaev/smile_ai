@@ -24,7 +24,17 @@ class _AccountScreenState extends State<AccountScreen> {
   final FocusNode _phoneFocus = FocusNode();
 
   String? _selectedCountry = 'russia';
-  String? _selectedGender;
+  String? _selectedGender = 'male';
+
+  @override
+  void initState() {
+    super.initState();
+    // Предзаполняем данные пользователя
+    _fullNameController.text = 'Тест';
+    _usernameController.text = 'test';
+    _emailController.text = 'test@test.ru'; // Email пользователя
+    _phoneController.text = '+7 777 777-77-77'; // Номер телефона все 7
+  }
 
   @override
   void dispose() {
