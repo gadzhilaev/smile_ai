@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../settings/style.dart';
+import '../l10n/app_localizations.dart';
 
 class MainBottomNavBar extends StatelessWidget {
   const MainBottomNavBar({
@@ -43,60 +44,84 @@ class MainBottomNavBar extends StatelessWidget {
             Expanded(
               child: Align(
                 alignment: Alignment.center,
-                child: _NavItem(
-                  iconPath: currentIndex == 0
-                      ? 'assets/nav_bar/select/ai.svg'
-                      : 'assets/nav_bar/unselect/ai.svg',
-                  label: 'AI',
-                  labelColor: currentIndex == 0 ? accentColor : primaryColor,
+                child: Builder(
+                  builder: (context) {
+                    final l = AppLocalizations.of(context)!;
+                    return _NavItem(
+                      iconPath: currentIndex == 0
+                          ? 'assets/nav_bar/select/ai.svg'
+                          : 'assets/nav_bar/unselect/ai.svg',
+                      label: l.navAi,
+                      labelColor:
+                          currentIndex == 0 ? accentColor : primaryColor,
                   designWidth: designWidth,
                   designHeight: designHeight,
-                  onTap: () => onTap(0),
+                      onTap: () => onTap(0),
+                    );
+                  },
                 ),
               ),
             ),
             Expanded(
               child: Align(
                 alignment: Alignment.center,
-                child: _NavItem(
-                  iconPath: currentIndex == 1
-                      ? 'assets/nav_bar/select/bookmark.svg'
-                      : 'assets/nav_bar/unselect/bookmark.svg',
-                  label: 'Шаблоны',
-                  labelColor: currentIndex == 1 ? accentColor : primaryColor,
+                child: Builder(
+                  builder: (context) {
+                    final l = AppLocalizations.of(context)!;
+                    return _NavItem(
+                      iconPath: currentIndex == 1
+                          ? 'assets/nav_bar/select/bookmark.svg'
+                          : 'assets/nav_bar/unselect/bookmark.svg',
+                      label: l.navTemplates,
+                      labelColor:
+                          currentIndex == 1 ? accentColor : primaryColor,
                   designWidth: designWidth,
                   designHeight: designHeight,
-                  onTap: () => onTap(1),
+                      onTap: () => onTap(1),
+                    );
+                  },
                 ),
               ),
             ),
             Expanded(
               child: Align(
                 alignment: Alignment.center,
-                child: _NavItem(
-                  iconPath: currentIndex == 2
-                      ? 'assets/nav_bar/select/analytics.svg'
-                      : 'assets/nav_bar/unselect/analytics.svg',
-                  label: 'Аналитика',
-                  labelColor: currentIndex == 2 ? accentColor : primaryColor,
+                child: Builder(
+                  builder: (context) {
+                    final l = AppLocalizations.of(context)!;
+                    return _NavItem(
+                      iconPath: currentIndex == 2
+                          ? 'assets/nav_bar/select/analytics.svg'
+                          : 'assets/nav_bar/unselect/analytics.svg',
+                      label: l.navAnalytics,
+                      labelColor:
+                          currentIndex == 2 ? accentColor : primaryColor,
                   designWidth: designWidth,
                   designHeight: designHeight,
-                  onTap: () => onTap(2),
+                      onTap: () => onTap(2),
+                    );
+                  },
                 ),
               ),
             ),
             Expanded(
               child: Align(
                 alignment: Alignment.center,
-                child: _NavItem(
-                  iconPath: currentIndex == 3
-                      ? 'assets/nav_bar/select/person.svg'
-                      : 'assets/nav_bar/unselect/person.svg',
-                  label: 'Профиль',
-                  labelColor: currentIndex == 3 ? accentColor : primaryColor,
+                child: Builder(
+                  builder: (context) {
+                    final l = AppLocalizations.of(context)!;
+                    return _NavItem(
+                      iconPath: currentIndex == 3
+                          ? 'assets/nav_bar/select/person.svg'
+                          : 'assets/nav_bar/unselect/person.svg',
+                      label: l.navProfile,
+                      labelColor:
+                          currentIndex == 3 ? accentColor : primaryColor,
                   designWidth: designWidth,
                   designHeight: designHeight,
-                  onTap: () => onTap(3),
+                      onTap: () => onTap(3),
+                    );
+                  },
                 ),
               ),
             ),
@@ -139,20 +164,20 @@ class _NavItem extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.all(scaleWidth(8)),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
+      mainAxisSize: MainAxisSize.min,
+      children: [
             SvgPicture.asset(
-              iconPath,
-              width: scaleWidth(24),
-              height: scaleHeight(24),
-              fit: BoxFit.contain,
-            ),
-            SizedBox(height: scaleHeight(4)),
-            Text(
-              label,
+          iconPath,
+          width: scaleWidth(24),
+          height: scaleHeight(24),
+          fit: BoxFit.contain,
+        ),
+        SizedBox(height: scaleHeight(4)),
+        Text(
+          label,
               style: AppTextStyle.navBarLabel(scaleHeight(10), labelColor),
-            ),
-          ],
+        ),
+      ],
         ),
       ),
     );

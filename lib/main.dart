@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'l10n/app_localizations.dart';
 import 'services/notification_service.dart';
+import 'services/language_service.dart';
 import 'auth/login.dart';
 
 void main() async {
@@ -10,6 +13,9 @@ void main() async {
 
   // Держим нативный splash, пока идёт инициализация
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
+  // Загружаем сохранённый язык до запуска приложения
+  await LanguageService.instance.init();
 
   runApp(const MainApp());
 
@@ -35,19 +41,37 @@ Future<void> _initializeAppAsync() async {
   }
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends StatefulWidget {
   const MainApp({super.key});
 
   @override
+  State<MainApp> createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        scaffoldBackgroundColor: Colors.white,
-        useMaterial3: true,
-      ),
-      // Сразу открываем экран ввода e-mail, без Flutter-сплэша
-      home: const EmailScreen(),
+    return ValueListenableBuilder<Locale>(
+      valueListenable: LanguageService.instance.localeNotifier,
+      builder: (context, locale, _) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            scaffoldBackgroundColor: Colors.white,
+            useMaterial3: true,
+          ),
+          locale: locale,
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          // Сразу открываем экран ввода e-mail, без Flutter-сплэша
+          home: const EmailScreen(),
+        );
+      },
     );
   }
 }

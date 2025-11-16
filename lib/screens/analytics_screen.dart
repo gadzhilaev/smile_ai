@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../settings/style.dart';
 import '../settings/colors.dart';
+import '../l10n/app_localizations.dart';
 
 import '../models/analytics_model.dart';
 import '../services/analytics_service.dart';
@@ -67,6 +68,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     double scaleWidth(double value) => value * widthFactor;
     double scaleHeight(double value) => value * heightFactor;
 
+    final l = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: AppColors.backgroundMain,
       body: SafeArea(
@@ -110,7 +113,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           children: [
                           SizedBox(height: scaleHeight(37)),
                           Text(
-                            'Топ направлений недели',
+                            l.analyticsTitle,
                             style: AppTextStyle.screenTitle(
                               scaleHeight(20),
                               color: AppColors.primaryText,
@@ -121,7 +124,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Тренд №1',
+                                l.analyticsTrend1,
                                 style: AppTextStyle.trendTitle(
                                   scaleHeight(18),
                                   AppColors.textSuccess,
@@ -151,14 +154,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                             children: [
                               Expanded(
                                 child: Text(
-                                  'на столько  увеличилась вовлеченность\nпо сравнению с прошлой неделей',
+                                  l.analyticsTrendDeltaDescription,
                                   style: AppTextStyle.bodyTextLight(
                                       scaleHeight(10)),
                                 ),
                               ),
                               SizedBox(width: scaleWidth(8)),
                               Text(
-                                '7 дн',
+                                l.analytics7Days,
                                 style: AppTextStyle.bodyTextMedium(
                                   scaleHeight(12),
                                   color: AppColors.textDarkGrey,
@@ -203,9 +206,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                     ),
                                     SizedBox(width: scaleWidth(8)),
                                     Text(
-                                      'Почему?',
+                                      l.analyticsWhy,
                                       style: AppTextStyle.trendTitle(
-                                          scaleHeight(18), Colors.black),
+                                        scaleHeight(18),
+                                        Colors.black,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -225,7 +230,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               _TrendContainer(
-                                title: 'Растущие',
+                                title: l.analyticsCategoryGrowing,
                                 items: _analytics!.growingTrends,
                                 itemColor: const Color(0xFF178751),
                                 iconPath: 'assets/icons/icon_tr_up.svg',
@@ -234,7 +239,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                               ),
                               SizedBox(width: scaleWidth(14)),
                               _TrendContainer(
-                                title: 'Падающие',
+                                title: l.analyticsCategoryFalling,
                                 items: _analytics!.fallingTrends,
                                 itemColor: const Color(0xFF76090B),
                                 iconPath: 'assets/icons/icon_tr_down.svg',

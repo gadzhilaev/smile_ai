@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../settings/style.dart';
 import '../settings/colors.dart';
+import '../l10n/app_localizations.dart';
 import '../services/notification_settings_service.dart';
 import '../services/notification_service.dart';
 
@@ -94,6 +95,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     double scaleWidth(double value) => value * widthFactor;
     double scaleHeight(double value) => value * heightFactor;
 
+    final l = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: GestureDetector(
@@ -132,7 +135,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       Expanded(
                         child: Center(
                           child: Text(
-                            'Уведомления',
+                            l.notificationsTitle,
                             style: AppTextStyle.screenTitle(scaleHeight(20)),
                           ),
                         ),
@@ -150,13 +153,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     children: [
                       // Заголовок "Общие"
                       Text(
-                        'Общие',
+                        l.notificationsSectionGeneral,
                         style: AppTextStyle.screenTitle(scaleHeight(16)),
                       ),
                       SizedBox(height: scaleHeight(14)),
                       // Все уведомления
                       _NotificationSwitchRow(
-                        title: 'Все уведомления',
+                        title: l.notificationsAll,
                         value: _allNotifications,
                         onChanged: _updateAllNotifications,
                         scaleWidth: scaleWidth,
@@ -165,7 +168,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       SizedBox(height: scaleHeight(12)),
                       // Звук
                       _NotificationSwitchRow(
-                        title: 'Звук',
+                        title: l.notificationsSound,
                         value: _sound,
                         onChanged: _updateSound,
                         scaleWidth: scaleWidth,
@@ -174,7 +177,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       SizedBox(height: scaleHeight(12)),
                       // Вибрация
                       _NotificationSwitchRow(
-                        title: 'Вибрация',
+                        title: l.notificationsVibration,
                         value: _vibration,
                         onChanged: _updateVibration,
                         scaleWidth: scaleWidth,
@@ -197,13 +200,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       SizedBox(height: scaleHeight(18)),
                       // Заголовок "Системные уведомления"
                       Text(
-                        'Системные уведомления',
+                        l.notificationsSectionSystem,
                         style: AppTextStyle.screenTitle(scaleHeight(16)),
                       ),
                       SizedBox(height: scaleHeight(16)),
                       // Обновления
                       _NotificationSwitchRow(
-                        title: 'Обновления',
+                        title: l.notificationsUpdates,
                         value: _updates,
                         onChanged: _updateUpdates,
                         scaleWidth: scaleWidth,
@@ -212,7 +215,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       SizedBox(height: scaleHeight(12)),
                       // Продвижение
                       _NotificationSwitchRow(
-                        title: 'Продвижение',
+                        title: l.notificationsPromotions,
                         value: _promotions,
                         onChanged: _updatePromotions,
                         scaleWidth: scaleWidth,

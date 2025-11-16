@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../settings/style.dart';
 import '../settings/colors.dart';
+import '../l10n/app_localizations.dart';
+import '../services/language_service.dart';
 
 class LanguageScreen extends StatefulWidget {
   const LanguageScreen({super.key});
@@ -17,6 +19,13 @@ class _LanguageScreenState extends State<LanguageScreen> {
   String _selectedLanguage = 'ru'; // 'ru' или 'en'
 
   @override
+  void initState() {
+    super.initState();
+    final current = LanguageService.instance.localeNotifier.value;
+    _selectedLanguage = current.languageCode == 'en' ? 'en' : 'ru';
+  }
+
+  @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final double widthFactor = size.width / _designWidth;
@@ -24,6 +33,8 @@ class _LanguageScreenState extends State<LanguageScreen> {
 
     double scaleWidth(double value) => value * widthFactor;
     double scaleHeight(double value) => value * heightFactor;
+
+    final localization = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -63,7 +74,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
                       Expanded(
                         child: Center(
                           child: Text(
-                            'Язык',
+                            localization.languageTitle,
                             style: AppTextStyle.screenTitle(scaleHeight(20)),
                           ),
                         ),
@@ -79,18 +90,20 @@ class _LanguageScreenState extends State<LanguageScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Заголовок "Предложенные"
+                      // Заголовок "Предложенные" / "Suggested"
                       Text(
-                        'Предложенные',
+                        localization.languageSectionSuggested,
                         style: AppTextStyle.screenTitle(scaleHeight(16)),
                       ),
                       SizedBox(height: scaleHeight(14)),
                       _LanguageRadioRow(
-                        title: 'Русский',
+                        title: localization.languageRussian,
                         isSelected: _selectedLanguage == 'ru',
                         onTap: () {
                           setState(() {
                             _selectedLanguage = 'ru';
+                            LanguageService.instance
+                                .setLocale(const Locale('ru'));
                           });
                         },
                         scaleWidth: scaleWidth,
@@ -98,11 +111,13 @@ class _LanguageScreenState extends State<LanguageScreen> {
                       ),
                       SizedBox(height: scaleHeight(12)),
                       _LanguageRadioRow(
-                        title: 'Английский',
+                        title: localization.languageEnglish,
                         isSelected: _selectedLanguage == 'en',
                         onTap: () {
                           setState(() {
                             _selectedLanguage = 'en';
+                            LanguageService.instance
+                                .setLocale(const Locale('en'));
                           });
                         },
                         scaleWidth: scaleWidth,

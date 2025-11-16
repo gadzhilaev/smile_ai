@@ -1,0 +1,59 @@
+{
+  "appTitle": "Smile AI",
+
+  "navAi": "AI",
+  "navTemplates": "Templates",
+  "navAnalytics": "Analytics",
+  "navProfile": "Profile",
+
+  "templatesTitle": "Templates",
+  "templatesEmpty": "No templates found",
+
+  "analyticsTitle": "Top trends of the week",
+  "analyticsTrend1": "Top trend",
+  "analyticsTrendDeltaDescription": "Engagement has increased this much compared to last week",
+  "analytics7Days": "7 days",
+  "analyticsWhy": "Why?",
+
+  "profileTitle": "Profile",
+
+  "profileMenuAccount": "Account",
+  "profileMenuNotifications": "Notifications",
+  "profileMenuLanguage": "Language",
+  "profileMenuPrivacy": "Data and privacy",
+  "profileMenuTheme": "Theme",
+  "profileMenuSupport": "Support",
+  "profileMenuFaq": "FAQ",
+  "profileMenuPolicy": "Privacy policy",
+
+  "notificationsTitle": "Notifications",
+  "notificationsSectionGeneral": "General",
+  "notificationsSectionSystem": "System notifications",
+  "notificationsAll": "All notifications",
+  "notificationsSound": "Sound",
+  "notificationsVibration": "Vibration",
+  "notificationsUpdates": "Updates",
+  "notificationsPromotions": "Promotions",
+
+  "languageTitle": "Language",
+  "languageSectionSuggested": "Suggested",
+  "languageRussian": "Russian",
+  "languageEnglish": "English",
+
+  "aiGreeting": "Hi, you can ask me anything",
+  "aiSuggestionsTitle": "Maybe these prompts will help you...",
+  "aiSuggestion1": "Hello",
+  "aiSuggestion2": "How are you?",
+  "aiSuggestion3": "What can you do?",
+  "aiSuggestion4": "Ask me something",
+  "aiSuggestion5": "Help me",
+  "aiSuggestion6": "Advice",
+
+  "analyticsCategoryGrowing": "Rising",
+  "analyticsCategoryFalling": "Falling",
+
+  "templateApply": "Apply template",
+  "templateEdit": "Edit"
+}
+
+

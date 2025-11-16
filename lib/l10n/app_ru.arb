@@ -1,0 +1,59 @@
+{
+  "appTitle": "Smile AI",
+
+  "navAi": "AI",
+  "navTemplates": "Шаблоны",
+  "navAnalytics": "Аналитика",
+  "navProfile": "Профиль",
+
+  "templatesTitle": "Шаблоны",
+  "templatesEmpty": "Шаблоны не найдены",
+
+  "analyticsTitle": "Топ направлений недели",
+  "analyticsTrend1": "Тренд №1",
+  "analyticsTrendDeltaDescription": "на столько  увеличилась вовлеченность\nпо сравнению с прошлой неделей",
+  "analytics7Days": "7 дн",
+  "analyticsWhy": "Почему?",
+
+  "profileTitle": "Профиль",
+
+  "profileMenuAccount": "Учетная запись",
+  "profileMenuNotifications": "Уведомления",
+  "profileMenuLanguage": "Язык",
+  "profileMenuPrivacy": "Данные и конфиденциальность",
+  "profileMenuTheme": "Тема",
+  "profileMenuSupport": "Поддержка",
+  "profileMenuFaq": "Часто задаваемые вопросы",
+  "profileMenuPolicy": "Политика конфиденциальности",
+
+  "notificationsTitle": "Уведомления",
+  "notificationsSectionGeneral": "Общие",
+  "notificationsSectionSystem": "Системные уведомления",
+  "notificationsAll": "Все уведомления",
+  "notificationsSound": "Звук",
+  "notificationsVibration": "Вибрация",
+  "notificationsUpdates": "Обновления",
+  "notificationsPromotions": "Продвижение",
+
+  "languageTitle": "Язык",
+  "languageSectionSuggested": "Предложенные",
+  "languageRussian": "Русский",
+  "languageEnglish": "English",
+
+  "aiGreeting": "Привет, ты можешь спросить меня",
+  "aiSuggestionsTitle": "Может эти слова тебе помогут...",
+  "aiSuggestion1": "Привет",
+  "aiSuggestion2": "Как дела?",
+  "aiSuggestion3": "Что умеешь?",
+  "aiSuggestion4": "Спроси меня",
+  "aiSuggestion5": "Помоги",
+  "aiSuggestion6": "Совет",
+
+  "analyticsCategoryGrowing": "Растущие",
+  "analyticsCategoryFalling": "Падающие",
+
+  "templateApply": "Применить шаблон",
+  "templateEdit": "Редактировать"
+}
+
+

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../settings/style.dart';
 import '../settings/colors.dart';
+import '../l10n/app_localizations.dart';
 import '../services/notification_service.dart';
 
 class AiScreen extends StatefulWidget {
@@ -32,14 +33,6 @@ class _AiScreenState extends State<AiScreen> {
   static const Color _accentColor = AppColors.accentRed;
   static const String _assistantReply =
       'Хорошо. цель — стабильный доход или масштаб? от этого зависит стратегия: быстрые продажи или долгосрочный бренд.';
-  static const List<String> _suggestions = <String>[
-    'Привет',
-    'Как дела?',
-    'Что умеешь?',
-    'Спроси меня',
-    'Помоги',
-    'Совет',
-  ];
 
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
@@ -225,6 +218,7 @@ class _AiScreenState extends State<AiScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final size = MediaQuery.of(context).size;
     final double widthFactor = size.width / _designWidth;
     final double heightFactor = size.height / _designHeight;
@@ -294,7 +288,7 @@ class _AiScreenState extends State<AiScreen> {
                     SizedBox(width: scaleWidth(8)),
                     Expanded(
                       child: Text(
-                        'Привет, ты можешь спросить меня',
+                        l.aiGreeting,
                         style: AppTextStyle.bodyTextMedium(
                           scaleHeight(15),
                           color: _primaryTextColor,
@@ -335,7 +329,7 @@ class _AiScreenState extends State<AiScreen> {
                         SizedBox(width: scaleWidth(8)),
                         Expanded(
                           child: Text(
-                            'Может эти слова тебе помогут...',
+                            l.aiSuggestionsTitle,
                             style: AppTextStyle.bodyTextMedium(
                               scaleHeight(16),
                               color: _primaryTextColor,
@@ -348,7 +342,14 @@ class _AiScreenState extends State<AiScreen> {
                     Wrap(
                       spacing: scaleWidth(12),
                       runSpacing: scaleHeight(12),
-                      children: _suggestions
+                      children: <String>[
+                        l.aiSuggestion1,
+                        l.aiSuggestion2,
+                        l.aiSuggestion3,
+                        l.aiSuggestion4,
+                        l.aiSuggestion5,
+                        l.aiSuggestion6,
+                      ]
                           .map(
                             (chip) => _SuggestionChip(
                               text: chip,

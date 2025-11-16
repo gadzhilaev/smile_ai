@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../settings/style.dart';
 import '../settings/colors.dart';
+import '../l10n/app_localizations.dart';
 
 import '../models/template_model.dart';
 import '../services/template_service.dart';
@@ -94,6 +95,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
     double scaleWidth(double value) => value * widthFactor;
     double scaleHeight(double value) => value * heightFactor;
 
+    final l = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: AppColors.backgroundMain,
       body: SafeArea(
@@ -108,7 +111,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                   SizedBox(height: scaleHeight(16)),
                   Center(
                     child: Text(
-                      'Шаблоны',
+                      l.templatesTitle,
                       style: AppTextStyle.screenTitleMedium(scaleHeight(20)),
                     ),
                   ),
@@ -126,10 +129,10 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                               child: SizedBox(
                                 height: MediaQuery.of(context).size.height * 0.6,
                                 child: Center(
-                                  child: Text(
-                                    'Шаблоны не найдены',
-                                    style: AppTextStyle.bodyTextMedium(16),
-                                  ),
+                                    child: Text(
+                                      l.templatesEmpty,
+                                      style: AppTextStyle.bodyTextMedium(16),
+                                    ),
                                 ),
                               ),
                             ),
@@ -206,6 +209,7 @@ class _TemplateCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final size = MediaQuery.of(context).size;
     final double widthFactor = size.width / designWidth;
     final double heightFactor = size.height / designHeight;
@@ -316,7 +320,7 @@ class _TemplateCard extends StatelessWidget {
                   ),
                   alignment: Alignment.center,
                   child: Text(
-                    'Применить шаблон',
+                    l.templateApply,
                     style: AppTextStyle.templateButton(scaleHeight(14)),
                   ),
                 ),
@@ -339,7 +343,7 @@ class _TemplateCard extends StatelessWidget {
                   ),
                   alignment: Alignment.center,
                   child: Text(
-                    'Редактировать',
+                    l.templateEdit,
                     style: AppTextStyle.templateButtonWhite(scaleHeight(14)),
                   ),
                 ),
