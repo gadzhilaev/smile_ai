@@ -319,4 +319,79 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get templateTitle35 => 'Дай рекомендации по улучшению работы бизнеса';
+
+  @override
+  String get privacyTitle => 'Политика конфиденциальности';
+
+  @override
+  String get privacyHeading => 'Политика конфиденциальности Smile AI';
+
+  @override
+  String get privacyIntro => 'Мы уважаем вашу конфиденциальность и стремимся обеспечить безопасное использование нашего приложения.';
+
+  @override
+  String get privacySection1Title => '1. Какие данные мы собираем';
+
+  @override
+  String get privacySection1Body => 'Мы можем получать:\n • сообщения, которые вы отправляете в чат;\n • данные профиля (имя, название бизнеса, email — если указан);\n • технические данные устройства (модель, OS, язык);\n • статистику использования (анонимную).\n\nМы не собираем данные, не связанные с работой сервиса.';
+
+  @override
+  String get privacySection2Title => '2. Как мы используем данные';
+
+  @override
+  String get privacySection2Body => 'Данные используются только для:\n • генерации ответов нейросети,\n • работы функций приложения,\n • улучшения стабильности и качества обслуживания.\n\nМы не используем ваши сообщения для обучения моделей.';
+
+  @override
+  String get privacySection3Title => '3. Передача данных третьим лицам';
+
+  @override
+  String get privacySection3Body => 'Мы не передаём данные сторонним компаниям.\nИсключение — технические сервисы (например, хостинг), которые обеспечивают работу приложения и получают только минимально необходимую информацию.';
+
+  @override
+  String get privacySection4Title => '4. Хранение и безопасность';
+
+  @override
+  String get privacySection4Body => ' • Данные передаются по защищённому соединению.\n • Используются современные методы шифрования и защиты.\n • Доступ к серверам ограничён.';
+
+  @override
+  String get privacySection5Title => '5. Удаление данных';
+
+  @override
+  String get privacySection5Body => 'Вы можете запросить удаление всех данных. После удаления восстановить их невозможно.';
+
+  @override
+  String get privacySection6Title => '6. Изменения политики';
+
+  @override
+  String get privacySection6Body => 'Мы можем обновлять политику конфиденциальности. Обновления публикуются в приложении.';
+
+  @override
+  String get privacySection7Title => '7. Контакты';
+
+  @override
+  String get privacySection7Body => 'По вопросам: support@smileai.app';
+
+  @override
+  String get dataPrivacyIntroTitle => 'Smile AI заботится о вашей конфиденциальности.';
+
+  @override
+  String get dataPrivacyIntroBody => 'Мы собираем минимум информации, необходимой для работы сервиса. Все данные передаются по защищённому соединению и не используются для обучения глобальных моделей ИИ.';
+
+  @override
+  String get dataPrivacyWhatTitle => 'Что мы собираем:';
+
+  @override
+  String get dataPrivacyWhatBody => '• данные, которые вы указываете сами — сообщения, название бизнеса, настройки профиля;\n• технические данные — модель устройства, версия ОС, язык приложения;\n• анонимная статистика использования (опционально).';
+
+  @override
+  String get dataPrivacyWhyTitle => 'Для чего это нужно:';
+
+  @override
+  String get dataPrivacyWhyBody => '• корректная работа ИИ-чата;\n• улучшение качества ответа в текущем диалоге;\n• повышение стабильности приложения.';
+
+  @override
+  String get dataPrivacyNoShare => 'Мы не передаём данные третьим лицам, кроме технических сервисов, необходимых для обработки запросов.';
+
+  @override
+  String get dataPrivacyDelete => 'Вы можете запросить удаление данных в любой момент.';
 }

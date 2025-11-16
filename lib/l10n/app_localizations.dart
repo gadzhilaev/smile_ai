@@ -718,6 +718,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Give recommendations to improve business performance'**
   String get templateTitle35;
+
+  /// No description provided for @privacyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy policy'**
+  String get privacyTitle;
+
+  /// No description provided for @privacyHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Smile AI Privacy Policy'**
+  String get privacyHeading;
+
+  /// No description provided for @privacyIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'We respect your privacy and aim to ensure safe use of our application.'**
+  String get privacyIntro;
+
+  /// No description provided for @privacySection1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'1. What data we collect'**
+  String get privacySection1Title;
+
+  /// No description provided for @privacySection1Body.
+  ///
+  /// In en, this message translates to:
+  /// **'We may receive:\n • messages you send to the chat;\n • profile data (name, business name, email — if provided);\n • technical device data (model, OS, language);\n • usage statistics (anonymous).\n\nWe do not collect data that is not related to the service operation.'**
+  String get privacySection1Body;
+
+  /// No description provided for @privacySection2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'2. How we use the data'**
+  String get privacySection2Title;
+
+  /// No description provided for @privacySection2Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Data is used only for:\n • generating AI responses,\n • operating app functions,\n • improving stability and quality of the service.\n\nWe do not use your messages to train models.'**
+  String get privacySection2Body;
+
+  /// No description provided for @privacySection3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'3. Data sharing with third parties'**
+  String get privacySection3Title;
+
+  /// No description provided for @privacySection3Body.
+  ///
+  /// In en, this message translates to:
+  /// **'We do not share data with third-party companies.\nException — technical services (e.g., hosting) that keep the app running and receive only the minimum required information.'**
+  String get privacySection3Body;
+
+  /// No description provided for @privacySection4Title.
+  ///
+  /// In en, this message translates to:
+  /// **'4. Storage and security'**
+  String get privacySection4Title;
+
+  /// No description provided for @privacySection4Body.
+  ///
+  /// In en, this message translates to:
+  /// **' • Data is transmitted over a secure connection.\n • Modern encryption and protection methods are used.\n • Access to servers is restricted.'**
+  String get privacySection4Body;
+
+  /// No description provided for @privacySection5Title.
+  ///
+  /// In en, this message translates to:
+  /// **'5. Data deletion'**
+  String get privacySection5Title;
+
+  /// No description provided for @privacySection5Body.
+  ///
+  /// In en, this message translates to:
+  /// **'You can request deletion of all data. After deletion, it cannot be restored.'**
+  String get privacySection5Body;
+
+  /// No description provided for @privacySection6Title.
+  ///
+  /// In en, this message translates to:
+  /// **'6. Changes to the policy'**
+  String get privacySection6Title;
+
+  /// No description provided for @privacySection6Body.
+  ///
+  /// In en, this message translates to:
+  /// **'We may update the privacy policy. Updates are published in the app.'**
+  String get privacySection6Body;
+
+  /// No description provided for @privacySection7Title.
+  ///
+  /// In en, this message translates to:
+  /// **'7. Contacts'**
+  String get privacySection7Title;
+
+  /// No description provided for @privacySection7Body.
+  ///
+  /// In en, this message translates to:
+  /// **'For questions: support@smileai.app'**
+  String get privacySection7Body;
+
+  /// No description provided for @dataPrivacyIntroTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Smile AI cares about your privacy.'**
+  String get dataPrivacyIntroTitle;
+
+  /// No description provided for @dataPrivacyIntroBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We collect only the minimum information required for the service to work. All data is transmitted over a secure connection and is not used to train global AI models.'**
+  String get dataPrivacyIntroBody;
+
+  /// No description provided for @dataPrivacyWhatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What we collect:'**
+  String get dataPrivacyWhatTitle;
+
+  /// No description provided for @dataPrivacyWhatBody.
+  ///
+  /// In en, this message translates to:
+  /// **'• data you provide yourself — messages, business name, profile settings;\n• technical data — device model, OS version, app language;\n• anonymous usage statistics (optional).'**
+  String get dataPrivacyWhatBody;
+
+  /// No description provided for @dataPrivacyWhyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why we need this:'**
+  String get dataPrivacyWhyTitle;
+
+  /// No description provided for @dataPrivacyWhyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'• correct operation of the AI chat;\n• improving answer quality in the current dialog;\n• increasing app stability.'**
+  String get dataPrivacyWhyBody;
+
+  /// No description provided for @dataPrivacyNoShare.
+  ///
+  /// In en, this message translates to:
+  /// **'We do not share data with third parties, except for technical services required to process requests.'**
+  String get dataPrivacyNoShare;
+
+  /// No description provided for @dataPrivacyDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'You can request data deletion at any time.'**
+  String get dataPrivacyDelete;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

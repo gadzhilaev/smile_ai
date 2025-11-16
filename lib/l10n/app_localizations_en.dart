@@ -319,4 +319,79 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get templateTitle35 => 'Give recommendations to improve business performance';
+
+  @override
+  String get privacyTitle => 'Privacy policy';
+
+  @override
+  String get privacyHeading => 'Smile AI Privacy Policy';
+
+  @override
+  String get privacyIntro => 'We respect your privacy and aim to ensure safe use of our application.';
+
+  @override
+  String get privacySection1Title => '1. What data we collect';
+
+  @override
+  String get privacySection1Body => 'We may receive:\n • messages you send to the chat;\n • profile data (name, business name, email — if provided);\n • technical device data (model, OS, language);\n • usage statistics (anonymous).\n\nWe do not collect data that is not related to the service operation.';
+
+  @override
+  String get privacySection2Title => '2. How we use the data';
+
+  @override
+  String get privacySection2Body => 'Data is used only for:\n • generating AI responses,\n • operating app functions,\n • improving stability and quality of the service.\n\nWe do not use your messages to train models.';
+
+  @override
+  String get privacySection3Title => '3. Data sharing with third parties';
+
+  @override
+  String get privacySection3Body => 'We do not share data with third-party companies.\nException — technical services (e.g., hosting) that keep the app running and receive only the minimum required information.';
+
+  @override
+  String get privacySection4Title => '4. Storage and security';
+
+  @override
+  String get privacySection4Body => ' • Data is transmitted over a secure connection.\n • Modern encryption and protection methods are used.\n • Access to servers is restricted.';
+
+  @override
+  String get privacySection5Title => '5. Data deletion';
+
+  @override
+  String get privacySection5Body => 'You can request deletion of all data. After deletion, it cannot be restored.';
+
+  @override
+  String get privacySection6Title => '6. Changes to the policy';
+
+  @override
+  String get privacySection6Body => 'We may update the privacy policy. Updates are published in the app.';
+
+  @override
+  String get privacySection7Title => '7. Contacts';
+
+  @override
+  String get privacySection7Body => 'For questions: support@smileai.app';
+
+  @override
+  String get dataPrivacyIntroTitle => 'Smile AI cares about your privacy.';
+
+  @override
+  String get dataPrivacyIntroBody => 'We collect only the minimum information required for the service to work. All data is transmitted over a secure connection and is not used to train global AI models.';
+
+  @override
+  String get dataPrivacyWhatTitle => 'What we collect:';
+
+  @override
+  String get dataPrivacyWhatBody => '• data you provide yourself — messages, business name, profile settings;\n• technical data — device model, OS version, app language;\n• anonymous usage statistics (optional).';
+
+  @override
+  String get dataPrivacyWhyTitle => 'Why we need this:';
+
+  @override
+  String get dataPrivacyWhyBody => '• correct operation of the AI chat;\n• improving answer quality in the current dialog;\n• increasing app stability.';
+
+  @override
+  String get dataPrivacyNoShare => 'We do not share data with third parties, except for technical services required to process requests.';
+
+  @override
+  String get dataPrivacyDelete => 'You can request data deletion at any time.';
 }

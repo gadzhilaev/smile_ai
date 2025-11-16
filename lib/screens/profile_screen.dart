@@ -10,6 +10,8 @@ import 'account_screen.dart';
 import 'notifications_screen.dart';
 import 'language_screen.dart';
 import 'theme_screen.dart';
+import 'privacy_policy_screen.dart';
+import 'data_privacy_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -242,13 +244,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           child: Column(
                             children: [
-                              _ProfileMenuItem(
-                                iconPath: isDark
-                                    ? 'assets/profile_icons/dark/profile_privacy_dark.svg'
-                                    : 'assets/profile_icons/light/profile_privacy.svg',
-                                title: l.profileMenuPrivacy,
-                                designWidth: _designWidth,
-                                designHeight: _designHeight,
+                              InkWell(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          const DataPrivacyScreen(),
+                                    ),
+                                  );
+                                },
+                                child: _ProfileMenuItem(
+                                  iconPath: isDark
+                                      ? 'assets/profile_icons/dark/profile_privacy_dark.svg'
+                                      : 'assets/profile_icons/light/profile_privacy.svg',
+                                  title: l.profileMenuPrivacy,
+                                  designWidth: _designWidth,
+                                  designHeight: _designHeight,
+                                ),
                               ),
                               SizedBox(height: scaleHeight(12)),
                               InkWell(
@@ -322,13 +334,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 designHeight: _designHeight,
                               ),
                               SizedBox(height: scaleHeight(12)),
-                              _ProfileMenuItem(
-                                iconPath: isDark
-                                    ? 'assets/profile_icons/dark/profile_lock_dark.svg'
-                                    : 'assets/profile_icons/light/profile_lock.svg',
-                                title: l.profileMenuPolicy,
-                                designWidth: _designWidth,
-                                designHeight: _designHeight,
+                              InkWell(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => const PrivacyPolicyScreen(),
+                                    ),
+                                  );
+                                },
+                                child: _ProfileMenuItem(
+                                  iconPath: isDark
+                                      ? 'assets/profile_icons/dark/profile_lock_dark.svg'
+                                      : 'assets/profile_icons/light/profile_lock.svg',
+                                  title: l.profileMenuPolicy,
+                                  designWidth: _designWidth,
+                                  designHeight: _designHeight,
+                                ),
                               ),
                             ],
                           ),

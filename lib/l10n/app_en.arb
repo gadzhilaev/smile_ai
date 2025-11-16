@@ -126,6 +126,46 @@
   "templateTitle33": "Make a demand forecast",
   "templateTitle34": "Analyze the weak points of the business",
   "templateTitle35": "Give recommendations to improve business performance"
+,
+
+  "privacyTitle": "Privacy policy",
+  "privacyHeading": "Smile AI Privacy Policy",
+  "privacyIntro": "We respect your privacy and aim to ensure safe use of our application.",
+
+  "privacySection1Title": "1. What data we collect",
+  "privacySection1Body": "We may receive:\n • messages you send to the chat;\n • profile data (name, business name, email — if provided);\n • technical device data (model, OS, language);\n • usage statistics (anonymous).\n\nWe do not collect data that is not related to the service operation.",
+
+  "privacySection2Title": "2. How we use the data",
+  "privacySection2Body": "Data is used only for:\n • generating AI responses,\n • operating app functions,\n • improving stability and quality of the service.\n\nWe do not use your messages to train models.",
+
+  "privacySection3Title": "3. Data sharing with third parties",
+  "privacySection3Body": "We do not share data with third-party companies.\nException — technical services (e.g., hosting) that keep the app running and receive only the minimum required information.",
+
+  "privacySection4Title": "4. Storage and security",
+  "privacySection4Body": " • Data is transmitted over a secure connection.\n • Modern encryption and protection methods are used.\n • Access to servers is restricted.",
+
+  "privacySection5Title": "5. Data deletion",
+  "privacySection5Body": "You can request deletion of all data. After deletion, it cannot be restored.",
+
+  "privacySection6Title": "6. Changes to the policy",
+  "privacySection6Body": "We may update the privacy policy. Updates are published in the app.",
+
+  "privacySection7Title": "7. Contacts",
+  "privacySection7Body": "For questions: support@smileai.app"
+
+,
+
+  "dataPrivacyIntroTitle": "Smile AI cares about your privacy.",
+  "dataPrivacyIntroBody": "We collect only the minimum information required for the service to work. All data is transmitted over a secure connection and is not used to train global AI models.",
+
+  "dataPrivacyWhatTitle": "What we collect:",
+  "dataPrivacyWhatBody": "• data you provide yourself — messages, business name, profile settings;\n• technical data — device model, OS version, app language;\n• anonymous usage statistics (optional).",
+
+  "dataPrivacyWhyTitle": "Why we need this:",
+  "dataPrivacyWhyBody": "• correct operation of the AI chat;\n• improving answer quality in the current dialog;\n• increasing app stability.",
+
+  "dataPrivacyNoShare": "We do not share data with third parties, except for technical services required to process requests.",
+  "dataPrivacyDelete": "You can request data deletion at any time."
 }
 
 
