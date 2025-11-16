@@ -49,9 +49,9 @@
   "aiSuggestion5": "Help me",
   "aiSuggestion6": "Advice",
 
-  "aiStopGeneration_en": "Stop generation...",
-  "aiInputPlaceholder_en": "Enter your question..."
-
+  "aiStopGeneration": "Stop generation...",
+  "aiInputPlaceholder": "Enter your question...",
+ 
   "analyticsCategoryGrowing": "Rising",
   "analyticsCategoryFalling": "Falling",
 
@@ -76,7 +76,56 @@
 
   "authRegisterPlaceholder": "Registration screen will be here",
 
-  "aiCopyToast": "Text copied"
+  "aiCopyToast": "Text copied",
+
+  "templateCategoryMarketing": "Marketing",
+  "templateCategorySales": "Sales",
+  "templateCategoryStrategy": "Strategy",
+  "templateCategorySupport": "Support",
+  "templateCategoryStaff": "Team",
+  "templateCategoryAnalytics": "Analytics",
+
+  "templateTitle0": "Create a high-converting social media post",
+  "templateTitle1": "Write an attractive product description for a catalog",
+  "templateTitle2": "Create an ad text up to 150 characters",
+  "templateTitle3": "Come up with an idea for a viral Reels or TikTok",
+  "templateTitle4": "Create an email newsletter text for clients",
+  "templateTitle5": "Make a weekly content plan for a business",
+
+  "templateTitle6": "Create a call script for selling a service",
+  "templateTitle7": "Prepare answers to typical client objections",
+  "templateTitle8": "Write a short commercial proposal",
+  "templateTitle9": "Write effective chat message text for a client",
+  "templateTitle10": "Prepare a closing phrase to finalize a deal",
+  "templateTitle11": "Create a short cold message for first contact",
+
+  "templateTitle12": "Make a 3-month business growth plan",
+  "templateTitle13": "Make a brief analysis of main competitors",
+  "templateTitle14": "Suggest ideas to expand the service line",
+  "templateTitle15": "Create a SWOT analysis for the company",
+  "templateTitle16": "Suggest a strategy to increase profit",
+  "templateTitle17": "Formulate a unique selling proposition",
+
+  "templateTitle18": "Write a polite reply to an unhappy client",
+  "templateTitle19": "Write a correct message about a delay",
+  "templateTitle20": "Create an order confirmation message",
+  "templateTitle21": "Write usage instructions for a product",
+  "templateTitle22": "Create a proper apology message",
+  "templateTitle23": "Write a professional reply to a client question",
+
+  "templateTitle24": "Give constructive feedback to an employee",
+  "templateTitle25": "Create a short announcement for the team",
+  "templateTitle26": "Write a motivational message for employees",
+  "templateTitle27": "Make a daily task list for an employee",
+  "templateTitle28": "Create a set of corporate rules",
+  "templateTitle29": "Write an attractive job vacancy text",
+
+  "templateTitle30": "Make a brief sales analysis",
+  "templateTitle31": "Create a weekly performance report",
+  "templateTitle32": "Evaluate an ad campaign’s effectiveness",
+  "templateTitle33": "Make a demand forecast",
+  "templateTitle34": "Analyze the weak points of the business",
+  "templateTitle35": "Give recommendations to improve business performance"
 }
 
 

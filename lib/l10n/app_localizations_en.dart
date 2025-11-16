@@ -193,4 +193,130 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiCopyToast => 'Text copied';
+
+  @override
+  String get templateCategoryMarketing => 'Marketing';
+
+  @override
+  String get templateCategorySales => 'Sales';
+
+  @override
+  String get templateCategoryStrategy => 'Strategy';
+
+  @override
+  String get templateCategorySupport => 'Support';
+
+  @override
+  String get templateCategoryStaff => 'Team';
+
+  @override
+  String get templateCategoryAnalytics => 'Analytics';
+
+  @override
+  String get templateTitle0 => 'Create a high-converting social media post';
+
+  @override
+  String get templateTitle1 => 'Write an attractive product description for a catalog';
+
+  @override
+  String get templateTitle2 => 'Create an ad text up to 150 characters';
+
+  @override
+  String get templateTitle3 => 'Come up with an idea for a viral Reels or TikTok';
+
+  @override
+  String get templateTitle4 => 'Create an email newsletter text for clients';
+
+  @override
+  String get templateTitle5 => 'Make a weekly content plan for a business';
+
+  @override
+  String get templateTitle6 => 'Create a call script for selling a service';
+
+  @override
+  String get templateTitle7 => 'Prepare answers to typical client objections';
+
+  @override
+  String get templateTitle8 => 'Write a short commercial proposal';
+
+  @override
+  String get templateTitle9 => 'Write effective chat message text for a client';
+
+  @override
+  String get templateTitle10 => 'Prepare a closing phrase to finalize a deal';
+
+  @override
+  String get templateTitle11 => 'Create a short cold message for first contact';
+
+  @override
+  String get templateTitle12 => 'Make a 3-month business growth plan';
+
+  @override
+  String get templateTitle13 => 'Make a brief analysis of main competitors';
+
+  @override
+  String get templateTitle14 => 'Suggest ideas to expand the service line';
+
+  @override
+  String get templateTitle15 => 'Create a SWOT analysis for the company';
+
+  @override
+  String get templateTitle16 => 'Suggest a strategy to increase profit';
+
+  @override
+  String get templateTitle17 => 'Formulate a unique selling proposition';
+
+  @override
+  String get templateTitle18 => 'Write a polite reply to an unhappy client';
+
+  @override
+  String get templateTitle19 => 'Write a correct message about a delay';
+
+  @override
+  String get templateTitle20 => 'Create an order confirmation message';
+
+  @override
+  String get templateTitle21 => 'Write usage instructions for a product';
+
+  @override
+  String get templateTitle22 => 'Create a proper apology message';
+
+  @override
+  String get templateTitle23 => 'Write a professional reply to a client question';
+
+  @override
+  String get templateTitle24 => 'Give constructive feedback to an employee';
+
+  @override
+  String get templateTitle25 => 'Create a short announcement for the team';
+
+  @override
+  String get templateTitle26 => 'Write a motivational message for employees';
+
+  @override
+  String get templateTitle27 => 'Make a daily task list for an employee';
+
+  @override
+  String get templateTitle28 => 'Create a set of corporate rules';
+
+  @override
+  String get templateTitle29 => 'Write an attractive job vacancy text';
+
+  @override
+  String get templateTitle30 => 'Make a brief sales analysis';
+
+  @override
+  String get templateTitle31 => 'Create a weekly performance report';
+
+  @override
+  String get templateTitle32 => 'Evaluate an ad campaign’s effectiveness';
+
+  @override
+  String get templateTitle33 => 'Make a demand forecast';
+
+  @override
+  String get templateTitle34 => 'Analyze the weak points of the business';
+
+  @override
+  String get templateTitle35 => 'Give recommendations to improve business performance';
 }

@@ -1,8 +1,13 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/template_model.dart';
 
 class TemplateService {
+  static const String _titlePrefKeyPrefix = 'template_title_';
+
   // Имитация загрузки данных с API
   static Future<TemplateModel> getTemplateById(int id) async {
     // Имитация задержки сети
@@ -23,18 +28,47 @@ class TemplateService {
   }) async {
     await Future.delayed(const Duration(milliseconds: 500));
 
-    // Загружаем сохраненные шаблоны или используем дефолтные
-    // Всегда возвращаем новый список с новыми объектами для правильного обновления UI
-    return _templates
-        .map(
-          (template) => TemplateModel(
+    final prefs = await SharedPreferences.getInstance();
+    final random = Random();
+
+    // Загружаем сохраненные шаблоны или используем дефолтные.
+    // Всегда возвращаем новый список с новыми объектами для правильного обновления UI.
+    final list = _templates
+        .map((template) {
+          final overrideTitle =
+              prefs.getString('$_titlePrefKeyPrefix${template.id}');
+          return TemplateModel(
             id: template.id,
             category: template.category,
             categoryColor: template.categoryColor,
-            title: template.title,
-          ),
-        )
-        .toList();
+            title: overrideTitle ?? template.title,
+            isCustom: overrideTitle != null,
+          );
+        }).toList();
+
+    // Перемешиваем порядок шаблонов
+    list.shuffle(random);
+
+    // Подправляем порядок, чтобы не было более 2 подряд из одной категории
+    for (int i = 0; i <= list.length - 3; i++) {
+      final cat = list[i].category;
+      if (list[i + 1].category == cat && list[i + 2].category == cat) {
+        int swapIndex = -1;
+        for (int j = i + 3; j < list.length; j++) {
+          if (list[j].category != cat) {
+            swapIndex = j;
+            break;
+          }
+        }
+        if (swapIndex != -1) {
+          final tmp = list[i + 2];
+          list[i + 2] = list[swapIndex];
+          list[swapIndex] = tmp;
+        }
+      }
+    }
+
+    return list;
   }
 
   // Временное хранилище шаблонов (в будущем будет API)
@@ -272,6 +306,7 @@ class TemplateService {
   static Future<void> updateTemplateTitle(int id, String newTitle) async {
     await Future.delayed(const Duration(milliseconds: 300));
 
+    // Обновляем in‑memory список
     final index = _templates.indexWhere((t) => t.id == id);
     if (index != -1) {
       final template = _templates[index];
@@ -280,7 +315,12 @@ class TemplateService {
         category: template.category,
         categoryColor: template.categoryColor,
         title: newTitle,
+        isCustom: true,
       );
     }
+
+    // Сохраняем изменение в SharedPreferences, чтобы оно переживало перезапуск приложения
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('$_titlePrefKeyPrefix$id', newTitle);
   }
 }

@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../models/template_model.dart';
 import '../services/template_service.dart';
 import '../widgets/custom_refresh_indicator.dart';
+import 'templates_screen_localized_title_helper.dart';
 
 class TemplatesScreen extends StatefulWidget {
   const TemplatesScreen({
@@ -277,7 +278,24 @@ class _TemplateCard extends StatelessWidget {
                 ),
                 alignment: Alignment.center,
                 child: Text(
-                  template.category,
+                  () {
+                    switch (template.category) {
+                      case 'Маркетинг':
+                        return l.templateCategoryMarketing;
+                      case 'Продажи':
+                        return l.templateCategorySales;
+                      case 'Стратегия':
+                        return l.templateCategoryStrategy;
+                      case 'Поддержка':
+                        return l.templateCategorySupport;
+                      case 'Персонал':
+                        return l.templateCategoryStaff;
+                      case 'Аналитика':
+                        return l.templateCategoryAnalytics;
+                      default:
+                        return template.category;
+                    }
+                  }(),
                   style: AppTextStyle.templateCategory(scaleHeight(12)),
                   textAlign: TextAlign.center,
                 ),
@@ -286,9 +304,11 @@ class _TemplateCard extends StatelessWidget {
           ),
           SizedBox(height: scaleHeight(7.5)),
           Align(
-            alignment: Alignment.center,
+            alignment: Alignment.centerLeft,
             child: Text(
-              template.title,
+              template.isCustom
+                  ? template.title
+                  : localizedTemplateTitle(l, template.id),
               textAlign: TextAlign.left,
               style: AppTextStyle.templateTitle(
                 scaleHeight(16),

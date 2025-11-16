@@ -193,4 +193,130 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get aiCopyToast => 'Текст скопирован';
+
+  @override
+  String get templateCategoryMarketing => 'Маркетинг';
+
+  @override
+  String get templateCategorySales => 'Продажи';
+
+  @override
+  String get templateCategoryStrategy => 'Стратегия';
+
+  @override
+  String get templateCategorySupport => 'Поддержка';
+
+  @override
+  String get templateCategoryStaff => 'Персонал';
+
+  @override
+  String get templateCategoryAnalytics => 'Аналитика';
+
+  @override
+  String get templateTitle0 => 'Создай продающий пост для соцсетей';
+
+  @override
+  String get templateTitle1 => 'Напиши привлекательное описание товара для каталога';
+
+  @override
+  String get templateTitle2 => 'Создай рекламный текст до 150 символов';
+
+  @override
+  String get templateTitle3 => 'Придумай идею для вирусного Reels или TikTok';
+
+  @override
+  String get templateTitle4 => 'Создай текст email-рассылки для клиентов';
+
+  @override
+  String get templateTitle5 => 'Составь контент-план на неделю для бизнеса';
+
+  @override
+  String get templateTitle6 => 'Создай скрипт звонка для продажи услуги';
+
+  @override
+  String get templateTitle7 => 'Составь ответы на типичные возражения клиентов';
+
+  @override
+  String get templateTitle8 => 'Создай короткое коммерческое предложение';
+
+  @override
+  String get templateTitle9 => 'Напиши эффективный текст для общения с клиентом в чате';
+
+  @override
+  String get templateTitle10 => 'Подготовь финальную фразу для закрытия сделки';
+
+  @override
+  String get templateTitle11 => 'Создай короткое холодное сообщение для первого контакта';
+
+  @override
+  String get templateTitle12 => 'Составь план развития бизнеса на 3 месяца';
+
+  @override
+  String get templateTitle13 => 'Сделай краткий анализ основных конкурентов';
+
+  @override
+  String get templateTitle14 => 'Придумай идеи для расширения линейки услуг';
+
+  @override
+  String get templateTitle15 => 'Составь SWOT-анализ компании';
+
+  @override
+  String get templateTitle16 => 'Предложи стратегию увеличения прибыли';
+
+  @override
+  String get templateTitle17 => 'Сформулируй уникальное торговое предложение';
+
+  @override
+  String get templateTitle18 => 'Составь вежливый ответ недовольному клиенту';
+
+  @override
+  String get templateTitle19 => 'Напиши корректное сообщение о задержке выполнения';
+
+  @override
+  String get templateTitle20 => 'Создай сообщение о подтверждении заказа';
+
+  @override
+  String get templateTitle21 => 'Составь инструкцию по использованию продукта';
+
+  @override
+  String get templateTitle22 => 'Создай корректное сообщение с извинением';
+
+  @override
+  String get templateTitle23 => 'Напиши профессиональный ответ на вопрос клиента';
+
+  @override
+  String get templateTitle24 => 'Составь корректную обратную связь сотруднику';
+
+  @override
+  String get templateTitle25 => 'Создай короткое объявление для коллектива';
+
+  @override
+  String get templateTitle26 => 'Напиши мотивационное сообщение для сотрудников';
+
+  @override
+  String get templateTitle27 => 'Составь список задач для сотрудника на день';
+
+  @override
+  String get templateTitle28 => 'Составь набор корпоративных правил';
+
+  @override
+  String get templateTitle29 => 'Создай текст привлекательной вакансии';
+
+  @override
+  String get templateTitle30 => 'Сделай краткий анализ продаж';
+
+  @override
+  String get templateTitle31 => 'Создай отчёт о результатах работы за неделю';
+
+  @override
+  String get templateTitle32 => 'Оцени эффективность рекламной кампании';
+
+  @override
+  String get templateTitle33 => 'Сделай прогноз спроса';
+
+  @override
+  String get templateTitle34 => 'Проанализируй слабые места бизнеса';
+
+  @override
+  String get templateTitle35 => 'Дай рекомендации по улучшению работы бизнеса';
 }

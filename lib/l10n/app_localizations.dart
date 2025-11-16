@@ -341,8 +341,16 @@ abstract class AppLocalizations {
   /// **'Advice'**
   String get aiSuggestion6;
 
+  /// No description provided for @aiStopGeneration.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop generation...'**
   String get aiStopGeneration;
 
+  /// No description provided for @aiInputPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your question...'**
   String get aiInputPlaceholder;
 
   /// No description provided for @analyticsCategoryGrowing.
@@ -458,6 +466,258 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Text copied'**
   String get aiCopyToast;
+
+  /// No description provided for @templateCategoryMarketing.
+  ///
+  /// In en, this message translates to:
+  /// **'Marketing'**
+  String get templateCategoryMarketing;
+
+  /// No description provided for @templateCategorySales.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales'**
+  String get templateCategorySales;
+
+  /// No description provided for @templateCategoryStrategy.
+  ///
+  /// In en, this message translates to:
+  /// **'Strategy'**
+  String get templateCategoryStrategy;
+
+  /// No description provided for @templateCategorySupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get templateCategorySupport;
+
+  /// No description provided for @templateCategoryStaff.
+  ///
+  /// In en, this message translates to:
+  /// **'Team'**
+  String get templateCategoryStaff;
+
+  /// No description provided for @templateCategoryAnalytics.
+  ///
+  /// In en, this message translates to:
+  /// **'Analytics'**
+  String get templateCategoryAnalytics;
+
+  /// No description provided for @templateTitle0.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a high-converting social media post'**
+  String get templateTitle0;
+
+  /// No description provided for @templateTitle1.
+  ///
+  /// In en, this message translates to:
+  /// **'Write an attractive product description for a catalog'**
+  String get templateTitle1;
+
+  /// No description provided for @templateTitle2.
+  ///
+  /// In en, this message translates to:
+  /// **'Create an ad text up to 150 characters'**
+  String get templateTitle2;
+
+  /// No description provided for @templateTitle3.
+  ///
+  /// In en, this message translates to:
+  /// **'Come up with an idea for a viral Reels or TikTok'**
+  String get templateTitle3;
+
+  /// No description provided for @templateTitle4.
+  ///
+  /// In en, this message translates to:
+  /// **'Create an email newsletter text for clients'**
+  String get templateTitle4;
+
+  /// No description provided for @templateTitle5.
+  ///
+  /// In en, this message translates to:
+  /// **'Make a weekly content plan for a business'**
+  String get templateTitle5;
+
+  /// No description provided for @templateTitle6.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a call script for selling a service'**
+  String get templateTitle6;
+
+  /// No description provided for @templateTitle7.
+  ///
+  /// In en, this message translates to:
+  /// **'Prepare answers to typical client objections'**
+  String get templateTitle7;
+
+  /// No description provided for @templateTitle8.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a short commercial proposal'**
+  String get templateTitle8;
+
+  /// No description provided for @templateTitle9.
+  ///
+  /// In en, this message translates to:
+  /// **'Write effective chat message text for a client'**
+  String get templateTitle9;
+
+  /// No description provided for @templateTitle10.
+  ///
+  /// In en, this message translates to:
+  /// **'Prepare a closing phrase to finalize a deal'**
+  String get templateTitle10;
+
+  /// No description provided for @templateTitle11.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a short cold message for first contact'**
+  String get templateTitle11;
+
+  /// No description provided for @templateTitle12.
+  ///
+  /// In en, this message translates to:
+  /// **'Make a 3-month business growth plan'**
+  String get templateTitle12;
+
+  /// No description provided for @templateTitle13.
+  ///
+  /// In en, this message translates to:
+  /// **'Make a brief analysis of main competitors'**
+  String get templateTitle13;
+
+  /// No description provided for @templateTitle14.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggest ideas to expand the service line'**
+  String get templateTitle14;
+
+  /// No description provided for @templateTitle15.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a SWOT analysis for the company'**
+  String get templateTitle15;
+
+  /// No description provided for @templateTitle16.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggest a strategy to increase profit'**
+  String get templateTitle16;
+
+  /// No description provided for @templateTitle17.
+  ///
+  /// In en, this message translates to:
+  /// **'Formulate a unique selling proposition'**
+  String get templateTitle17;
+
+  /// No description provided for @templateTitle18.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a polite reply to an unhappy client'**
+  String get templateTitle18;
+
+  /// No description provided for @templateTitle19.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a correct message about a delay'**
+  String get templateTitle19;
+
+  /// No description provided for @templateTitle20.
+  ///
+  /// In en, this message translates to:
+  /// **'Create an order confirmation message'**
+  String get templateTitle20;
+
+  /// No description provided for @templateTitle21.
+  ///
+  /// In en, this message translates to:
+  /// **'Write usage instructions for a product'**
+  String get templateTitle21;
+
+  /// No description provided for @templateTitle22.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a proper apology message'**
+  String get templateTitle22;
+
+  /// No description provided for @templateTitle23.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a professional reply to a client question'**
+  String get templateTitle23;
+
+  /// No description provided for @templateTitle24.
+  ///
+  /// In en, this message translates to:
+  /// **'Give constructive feedback to an employee'**
+  String get templateTitle24;
+
+  /// No description provided for @templateTitle25.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a short announcement for the team'**
+  String get templateTitle25;
+
+  /// No description provided for @templateTitle26.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a motivational message for employees'**
+  String get templateTitle26;
+
+  /// No description provided for @templateTitle27.
+  ///
+  /// In en, this message translates to:
+  /// **'Make a daily task list for an employee'**
+  String get templateTitle27;
+
+  /// No description provided for @templateTitle28.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a set of corporate rules'**
+  String get templateTitle28;
+
+  /// No description provided for @templateTitle29.
+  ///
+  /// In en, this message translates to:
+  /// **'Write an attractive job vacancy text'**
+  String get templateTitle29;
+
+  /// No description provided for @templateTitle30.
+  ///
+  /// In en, this message translates to:
+  /// **'Make a brief sales analysis'**
+  String get templateTitle30;
+
+  /// No description provided for @templateTitle31.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a weekly performance report'**
+  String get templateTitle31;
+
+  /// No description provided for @templateTitle32.
+  ///
+  /// In en, this message translates to:
+  /// **'Evaluate an ad campaign’s effectiveness'**
+  String get templateTitle32;
+
+  /// No description provided for @templateTitle33.
+  ///
+  /// In en, this message translates to:
+  /// **'Make a demand forecast'**
+  String get templateTitle33;
+
+  /// No description provided for @templateTitle34.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyze the weak points of the business'**
+  String get templateTitle34;
+
+  /// No description provided for @templateTitle35.
+  ///
+  /// In en, this message translates to:
+  /// **'Give recommendations to improve business performance'**
+  String get templateTitle35;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

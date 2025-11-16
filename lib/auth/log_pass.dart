@@ -187,7 +187,7 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
                     hintFontSize: scaleHeight(16),
                     floatingLabelFontSize: scaleHeight(11),
                     textFontSize: scaleHeight(15),
-                    hintText: 'Пароль',
+                    hintText: l.authPasswordHint,
                     labelText: l.authPasswordHint,
                     isObscure: true,
                     keyboardType: TextInputType.visiblePassword,
