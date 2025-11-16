@@ -448,6 +448,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Registration screen will be here'**
   String get authRegisterPlaceholder;
+
+  /// No description provided for @aiCopyToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Text copied'**
+  String get aiCopyToast;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

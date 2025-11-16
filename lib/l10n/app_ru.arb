@@ -71,7 +71,9 @@
   "authPasswordHint": "Пароль",
   "authPasswordErrorWrong": "Неверный пароль",
 
-  "authRegisterPlaceholder": "Здесь будет экран регистрации"
+  "authRegisterPlaceholder": "Здесь будет экран регистрации",
+
+  "aiCopyToast": "Текст скопирован"
 }
 
 

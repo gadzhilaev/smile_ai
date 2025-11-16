@@ -294,7 +294,9 @@ class _AiScreenState extends State<AiScreen> {
                         l.aiGreeting,
                         style: AppTextStyle.bodyTextMedium(
                           scaleHeight(15),
-                          color: _primaryTextColor,
+                          color: isDark
+                              ? AppColors.white
+                              : _primaryTextColor,
                         ).copyWith(height: 24 / 15),
                       ),
                     ),
@@ -336,7 +338,9 @@ class _AiScreenState extends State<AiScreen> {
                             l.aiSuggestionsTitle,
                             style: AppTextStyle.bodyTextMedium(
                               scaleHeight(16),
-                              color: _primaryTextColor,
+                              color: isDark
+                                  ? AppColors.white
+                                  : _primaryTextColor,
                             ),
                           ),
                         ),
@@ -361,6 +365,10 @@ class _AiScreenState extends State<AiScreen> {
                               designHeight: _designHeight,
                               accentColor: _accentColor,
                               primaryTextColor: _primaryTextColor,
+                              onTap: () {
+                                _inputController.text = chip;
+                                _sendMessage();
+                              },
                             ),
                           )
                           .toList(),
@@ -579,6 +587,7 @@ class _SuggestionChip extends StatelessWidget {
     required this.designHeight,
     required this.accentColor,
     required this.primaryTextColor,
+    required this.onTap,
   });
 
   final String text;
@@ -586,6 +595,7 @@ class _SuggestionChip extends StatelessWidget {
   final double designHeight;
   final Color accentColor;
   final Color primaryTextColor;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -599,21 +609,25 @@ class _SuggestionChip extends StatelessWidget {
     double scaleWidth(double value) => value * widthFactor;
     double scaleHeight(double value) => value * heightFactor;
 
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: scaleWidth(10),
-        vertical: scaleHeight(10),
-      ),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.darkBackgroundCard : AppColors.white,
-        borderRadius: BorderRadius.circular(scaleHeight(20)),
-        border: Border.all(color: accentColor, width: 1),
-      ),
-      child: Text(
-        text,
-        style: AppTextStyle.bodyTextMedium(
-          scaleHeight(14),
-          color: primaryTextColor,
+    return InkWell(
+      borderRadius: BorderRadius.circular(scaleHeight(20)),
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: scaleWidth(10),
+          vertical: scaleHeight(10),
+        ),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.darkBackgroundCard : AppColors.white,
+          borderRadius: BorderRadius.circular(scaleHeight(20)),
+          border: Border.all(color: accentColor, width: 1),
+        ),
+        child: Text(
+          text,
+          style: AppTextStyle.bodyTextMedium(
+            scaleHeight(14),
+            color: isDark ? AppColors.white : primaryTextColor,
+          ),
         ),
       ),
     );
@@ -687,7 +701,37 @@ class _MessageBubble extends StatelessWidget {
           bubble,
           SizedBox(width: scaleWidth(10)),
           GestureDetector(
-            onTap: () => Clipboard.setData(ClipboardData(text: message.text)),
+            onTap: () {
+              Clipboard.setData(ClipboardData(text: message.text));
+
+              final l = AppLocalizations.of(context)!;
+              final overlay = Overlay.of(context);
+
+              final theme = Theme.of(context);
+              final isDark = theme.brightness == Brightness.dark;
+              final textColor =
+                  isDark ? AppColors.white : AppColors.black;
+
+              final overlayEntry = OverlayEntry(
+                builder: (context) => IgnorePointer(
+                  child: Center(
+                    child: Text(
+                      l.aiCopyToast,
+                      style: AppTextStyle.bodyTextMedium(
+                        16,
+                        color: textColor,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              );
+
+              overlay.insert(overlayEntry);
+              Future.delayed(const Duration(seconds: 1), () {
+                overlayEntry.remove();
+              });
+            },
             child: SvgPicture.asset(
               isDark
                   ? 'assets/icons/dark/icon_copy_dark.svg'

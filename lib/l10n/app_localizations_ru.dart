@@ -184,4 +184,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get authRegisterPlaceholder => 'Здесь будет экран регистрации';
+
+  @override
+  String get aiCopyToast => 'Текст скопирован';
 }

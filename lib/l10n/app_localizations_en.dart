@@ -184,4 +184,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get authRegisterPlaceholder => 'Registration screen will be here';
+
+  @override
+  String get aiCopyToast => 'Text copied';
 }

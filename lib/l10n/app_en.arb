@@ -71,7 +71,9 @@
   "authPasswordHint": "Password",
   "authPasswordErrorWrong": "Incorrect password",
 
-  "authRegisterPlaceholder": "Registration screen will be here"
+  "authRegisterPlaceholder": "Registration screen will be here",
+
+  "aiCopyToast": "Text copied"
 }
 
 
