@@ -394,4 +394,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dataPrivacyDelete => 'You can request data deletion at any time.';
+
+  @override
+  String get faqQuestion1 => 'Does Smile AI use my messages for training?';
+
+  @override
+  String get faqAnswer1 => 'No. Your messages are used only to respond within the current session. We do not store or use your chats to train AI models.';
+
+  @override
+  String get faqQuestion2 => 'Who can see my chats?';
+
+  @override
+  String get faqAnswer2 => 'Only you. The team does not have access to your content. Support can see small fragments of messages only if you send them yourself in a request.';
+
+  @override
+  String get faqQuestion3 => 'What happens if I delete my account?';
+
+  @override
+  String get faqAnswer3 => 'All data will be permanently deleted: chats, settings, request history. It will not be possible to restore them.';
+
+  @override
+  String get faqQuestion4 => 'Do you share data with other companies?';
+
+  @override
+  String get faqAnswer4 => 'No. The only exception is technical services (servers, cloud storage) that work only as infrastructure and do not have access to your content.';
+
+  @override
+  String get faqQuestion5 => 'How secure is the app?';
+
+  @override
+  String get faqAnswer5 => 'The connection is encrypted (HTTPS/SSL), data is stored on protected servers, and multi-level security and continuous monitoring are used.';
 }

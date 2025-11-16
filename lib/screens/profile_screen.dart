@@ -11,6 +11,7 @@ import 'notifications_screen.dart';
 import 'language_screen.dart';
 import 'theme_screen.dart';
 import 'privacy_policy_screen.dart';
+import 'faq_screen.dart';
 import 'data_privacy_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -325,13 +326,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 designHeight: _designHeight,
                               ),
                               SizedBox(height: scaleHeight(12)),
-                              _ProfileMenuItem(
-                                iconPath: isDark
-                                    ? 'assets/profile_icons/dark/profile_faq_dark.svg'
-                                    : 'assets/profile_icons/light/profile_faq.svg',
-                                title: l.profileMenuFaq,
-                                designWidth: _designWidth,
-                                designHeight: _designHeight,
+                              InkWell(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => const FaqScreen(),
+                                    ),
+                                  );
+                                },
+                                child: _ProfileMenuItem(
+                                  iconPath: isDark
+                                      ? 'assets/profile_icons/dark/profile_faq_dark.svg'
+                                      : 'assets/profile_icons/light/profile_faq.svg',
+                                  title: l.profileMenuFaq,
+                                  designWidth: _designWidth,
+                                  designHeight: _designHeight,
+                                ),
                               ),
                               SizedBox(height: scaleHeight(12)),
                               InkWell(

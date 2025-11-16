@@ -165,7 +165,22 @@
   "dataPrivacyWhyBody": "• correct operation of the AI chat;\n• improving answer quality in the current dialog;\n• increasing app stability.",
 
   "dataPrivacyNoShare": "We do not share data with third parties, except for technical services required to process requests.",
-  "dataPrivacyDelete": "You can request data deletion at any time."
+  "dataPrivacyDelete": "You can request data deletion at any time.",
+
+  "faqQuestion1": "Does Smile AI use my messages for training?",
+  "faqAnswer1": "No. Your messages are used only to respond within the current session. We do not store or use your chats to train AI models.",
+
+  "faqQuestion2": "Who can see my chats?",
+  "faqAnswer2": "Only you. The team does not have access to your content. Support can see small fragments of messages only if you send them yourself in a request.",
+
+  "faqQuestion3": "What happens if I delete my account?",
+  "faqAnswer3": "All data will be permanently deleted: chats, settings, request history. It will not be possible to restore them.",
+
+  "faqQuestion4": "Do you share data with other companies?",
+  "faqAnswer4": "No. The only exception is technical services (servers, cloud storage) that work only as infrastructure and do not have access to your content.",
+
+  "faqQuestion5": "How secure is the app?",
+  "faqAnswer5": "The connection is encrypted (HTTPS/SSL), data is stored on protected servers, and multi-level security and continuous monitoring are used."
 }
 
 
