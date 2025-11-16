@@ -11,8 +11,11 @@ android {
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
+        // Включаем Java 11 + desugaring для поддержки новых API,
+        // которые использует flutter_local_notifications
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -41,4 +44,9 @@ android {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // Требуется flutter_local_notifications для корректной работы на старых API
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 }
