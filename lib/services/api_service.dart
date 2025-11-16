@@ -129,5 +129,61 @@ class ApiService {
       };
     }
   }
+
+  /// Регистрация пользователя
+  /// Возвращает Map с ключами 'token' (String), 'user' (Map), 'message' (String) при успехе (201)
+  /// Или 'error' (String) при ошибке
+  Future<Map<String, dynamic>> register({
+    required String email,
+    required String password,
+    required String fullName,
+    required String nickname,
+    required String phone,
+    required String country,
+    required String gender,
+  }) async {
+    try {
+      final url = Uri.parse('$_baseUrl/api/auth/register');
+      debugPrint('ApiService: register at URL: $url');
+      
+      final requestBody = {
+        'email': email,
+        'password': password,
+        'full_name': fullName,
+        'nickname': nickname,
+        'phone': phone,
+        'country': country,
+        'gender': gender,
+      };
+      
+      debugPrint('ApiService: register request body: $requestBody');
+      
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(requestBody),
+      );
+      
+      debugPrint('ApiService: register response status code: ${response.statusCode}');
+      debugPrint('ApiService: register response body: ${response.body}');
+
+      if (response.statusCode == 201) {
+        final decoded = json.decode(response.body) as Map<String, dynamic>;
+        debugPrint('ApiService: register decoded response: $decoded');
+        return decoded;
+      } else {
+        final decoded = json.decode(response.body) as Map<String, dynamic>;
+        debugPrint('ApiService: register error response: $decoded');
+        return decoded;
+      }
+    } catch (e) {
+      debugPrint('ApiService: error during register: $e');
+      return {
+        'error': 'Network error',
+      };
+    }
+  }
 }
 

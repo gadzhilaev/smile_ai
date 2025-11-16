@@ -4,6 +4,9 @@ import 'package:flutter/services.dart';
 import '../settings/style.dart';
 import '../settings/colors.dart';
 import '../services/profile_service.dart';
+import '../services/api_service.dart';
+import '../services/auth_service.dart';
+import '../utils/env_utils.dart';
 import '../l10n/app_localizations.dart';
 import '../screens/home_screen.dart';
 
@@ -38,6 +41,7 @@ class _RegistrationDataScreenState extends State<RegistrationDataScreen> {
 
   String? _selectedCountry = 'russia';
   String? _selectedGender = 'male';
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -46,21 +50,147 @@ class _RegistrationDataScreenState extends State<RegistrationDataScreen> {
     _emailController.text = widget.email;
   }
 
-  void _saveProfileData() {
-    // Сохраняем данные в сервис
-    ProfileService.instance.updateProfile(
-      fullName: _fullNameController.text.trim(),
-      username: _usernameController.text.trim(),
-      email: _emailController.text.trim(),
-      phone: _phoneController.text.trim(),
-      country: _selectedCountry,
-      gender: _selectedGender,
-    );
+  String _getCountryName(String? countryCode) {
+    switch (countryCode) {
+      case 'russia':
+        return 'Россия';
+      case 'kazakhstan':
+        return 'Казахстан';
+      case 'belarus':
+        return 'Беларусь';
+      default:
+        return 'Россия';
+    }
+  }
 
-    // Переходим на главный экран
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute<void>(builder: (_) => const HomeScreen()),
-    );
+  String _getGenderName(String? genderCode) {
+    switch (genderCode) {
+      case 'male':
+        return 'Мужской';
+      case 'female':
+        return 'Женский';
+      default:
+        return 'Мужской';
+    }
+  }
+
+  Future<void> _saveProfileData() async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final fullName = _fullNameController.text.trim();
+      final nickname = _usernameController.text.trim();
+      final email = _emailController.text.trim();
+      final phone = _phoneController.text.trim();
+      final country = _getCountryName(_selectedCountry);
+      final gender = _getGenderName(_selectedGender);
+
+      // Отправляем POST запрос на регистрацию
+      final result = await ApiService.instance.register(
+        email: email,
+        password: widget.password,
+        fullName: fullName,
+        nickname: nickname,
+        phone: phone,
+        country: country,
+        gender: gender,
+      );
+
+      if (!mounted) return;
+
+      // Проверяем результат
+      if (result.containsKey('error')) {
+        // Ошибка регистрации
+        setState(() {
+          _isLoading = false;
+        });
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['error'] ?? 'Ошибка регистрации'),
+            backgroundColor: AppColors.textError,
+          ),
+        );
+        return;
+      }
+
+      // Успешная регистрация
+      final token = result['token'] as String?;
+      if (token == null || token.isEmpty) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Ошибка: токен не получен'),
+            backgroundColor: AppColors.textError,
+          ),
+        );
+        return;
+      }
+
+      // Сохраняем токен в AuthService
+      await AuthService.instance.init();
+      await AuthService.instance.saveToken(token);
+
+      // Сохраняем токен в .env
+      try {
+        await EnvUtils.updateTokenInEnv(token);
+      } catch (e) {
+        debugPrint('RegistrationDataScreen: could not save token to .env: $e');
+        // Продолжаем выполнение, так как токен уже сохранен в AuthService
+      }
+
+      // Сохраняем данные пользователя в .env (кроме пароля)
+      try {
+        await EnvUtils.updateUserDataInEnv(
+          email: email,
+          fullName: fullName,
+          nickname: nickname,
+          phone: phone,
+          country: country,
+          gender: gender,
+        );
+      } catch (e) {
+        debugPrint('RegistrationDataScreen: could not save user data to .env: $e');
+        // Продолжаем выполнение
+      }
+
+      // Сохраняем данные в ProfileService
+      ProfileService.instance.updateProfile(
+        fullName: fullName,
+        username: nickname,
+        email: email,
+        phone: phone,
+        country: _selectedCountry,
+        gender: _selectedGender,
+      );
+
+      if (!mounted) return;
+
+      // Переходим на главный экран
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute<void>(builder: (_) => const HomeScreen()),
+        (route) => false,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      
+      setState(() {
+        _isLoading = false;
+      });
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Ошибка регистрации: $e'),
+          backgroundColor: AppColors.textError,
+        ),
+      );
+    }
   }
 
   @override
@@ -221,22 +351,35 @@ class _RegistrationDataScreenState extends State<RegistrationDataScreen> {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: scaleWidth(26)),
                   child: InkWell(
-                    onTap: () {
-                      _saveProfileData();
-                    },
+                    onTap: _isLoading ? null : _saveProfileData,
                     child: Container(
                       width: scaleWidth(376),
                       height: scaleHeight(53),
                       decoration: BoxDecoration(
-                        color: AppColors.primaryBlue,
+                        color: _isLoading
+                            ? AppColors.primaryBlue.withValues(alpha: 0.6)
+                            : AppColors.primaryBlue,
                         borderRadius: BorderRadius.circular(scaleHeight(9)),
                       ),
                       alignment: Alignment.center,
-                      child: Text(
-                        'Сохранить',
-                        style: AppTextStyle.screenTitle(scaleHeight(16),
-                            color: Colors.white),
-                      ),
+                      child: _isLoading
+                          ? SizedBox(
+                              width: scaleHeight(20),
+                              height: scaleHeight(20),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: const AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
+                              ),
+                            )
+                          : Text(
+                              'Сохранить',
+                              style: AppTextStyle.screenTitle(
+                                scaleHeight(16),
+                                color: Colors.white,
+                              ),
+                            ),
                     ),
                   ),
                 ),

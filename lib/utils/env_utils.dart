@@ -178,5 +178,103 @@ class EnvUtils {
       rethrow;
     }
   }
+
+  /// Обновить данные пользователя в .env файле (кроме пароля)
+  static Future<void> updateUserDataInEnv({
+    required String email,
+    required String fullName,
+    required String nickname,
+    required String phone,
+    required String country,
+    required String gender,
+  }) async {
+    try {
+      final envPath = await _getEnvFilePath();
+      final envFile = File(envPath);
+      
+      String content = '';
+      
+      if (await envFile.exists()) {
+        content = await envFile.readAsString();
+        debugPrint('EnvUtils: .env file exists, current content length: ${content.length}');
+      } else {
+        debugPrint('EnvUtils: .env file does not exist, will create new one');
+      }
+      
+      // Ищем существующие строки с данными пользователя
+      final lines = content.split('\n');
+      final Map<String, String> userData = {
+        'USER_EMAIL': email,
+        'USER_FULL_NAME': fullName,
+        'USER_NICKNAME': nickname,
+        'USER_PHONE': phone,
+        'USER_COUNTRY': country,
+        'USER_GENDER': gender,
+      };
+      
+      // Обновляем или добавляем каждое поле
+      for (final entry in userData.entries) {
+        bool found = false;
+        for (int i = 0; i < lines.length; i++) {
+          if (lines[i].startsWith('${entry.key}=')) {
+            lines[i] = '${entry.key}=${entry.value}';
+            found = true;
+            debugPrint('EnvUtils: found existing ${entry.key} line, updating it');
+            break;
+          }
+        }
+        
+        if (!found) {
+          debugPrint('EnvUtils: ${entry.key} line not found, adding new one');
+          if (content.isNotEmpty && !content.endsWith('\n')) {
+            lines.add('');
+          }
+          lines.add('${entry.key}=${entry.value}');
+        }
+      }
+      
+      // Записываем обратно в файл
+      final newContent = lines.join('\n');
+      debugPrint('EnvUtils: writing user data to file: $envPath');
+      
+      // Создаем родительские директории, если их нет
+      final parentDir = envFile.parent;
+      if (!await parentDir.exists()) {
+        await parentDir.create(recursive: true);
+        debugPrint('EnvUtils: created parent directory: ${parentDir.path}');
+      }
+      
+      // Записываем файл
+      await envFile.writeAsString(newContent, flush: true);
+      debugPrint('EnvUtils: user data write completed');
+      
+      // Проверяем, что файл действительно записался
+      if (await envFile.exists()) {
+        final writtenContent = await envFile.readAsString();
+        debugPrint('EnvUtils: file exists after write, content length: ${writtenContent.length}');
+        
+        // Проверяем, что данные действительно в файле
+        bool allDataFound = true;
+        for (final entry in userData.entries) {
+          if (!writtenContent.contains('${entry.key}=${entry.value}')) {
+            allDataFound = false;
+            debugPrint('EnvUtils: WARNING - ${entry.key} not found in written file!');
+          }
+        }
+        
+        if (allDataFound) {
+          debugPrint('EnvUtils: SUCCESS - all user data verified in file');
+        }
+      } else {
+        debugPrint('EnvUtils: ERROR - file does not exist after write!');
+        throw Exception('Failed to write .env file: file does not exist after write');
+      }
+    } catch (e, stackTrace) {
+      debugPrint('EnvUtils: error updating user data in .env: $e');
+      debugPrint('EnvUtils: error type: ${e.runtimeType}');
+      debugPrint('EnvUtils: stack trace: $stackTrace');
+      rethrow;
+    }
+  }
 }
 
