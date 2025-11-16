@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../settings/style.dart';
+import '../settings/colors.dart';
 import '../services/profile_service.dart';
 
 class AccountScreen extends StatefulWidget {
@@ -216,7 +217,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       width: scaleWidth(376),
                       height: scaleHeight(53),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1573FE),
+                color: AppColors.primaryBlue,
                         borderRadius: BorderRadius.circular(scaleHeight(9)),
                       ),
                       alignment: Alignment.center,
@@ -447,7 +448,7 @@ class _PhoneInputFieldState extends State<_PhoneInputField> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(scaleHeight(8)),
         border: Border.all(
-          color: const Color(0xFFDBDBDB),
+          color: AppColors.borderLight,
           width: 1,
         ),
       ),
@@ -460,7 +461,7 @@ class _PhoneInputFieldState extends State<_PhoneInputField> {
             height: scaleHeight(24),
             decoration: BoxDecoration(
               border: Border.all(
-                color: const Color(0xFFDBDBDB),
+                color: AppColors.borderLight,
                 width: 1,
               ),
               borderRadius: BorderRadius.circular(4),
@@ -497,7 +498,7 @@ class _PhoneInputFieldState extends State<_PhoneInputField> {
                       focusNode: widget.focusNode,
                       keyboardType: TextInputType.phone,
                       style: AppTextStyle.fieldText(scaleHeight(14)),
-                      cursorColor: const Color(0xFF212121),
+                      cursorColor: AppColors.textPrimary,
                       decoration: InputDecoration(
                         hintText: showLabel ? null : widget.hintText,
                         hintStyle: AppTextStyle.fieldHint(scaleHeight(10)),

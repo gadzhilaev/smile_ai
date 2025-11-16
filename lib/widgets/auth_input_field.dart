@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../settings/style.dart';
+import '../settings/colors.dart';
 
 class AuthInputField extends StatelessWidget {
   const AuthInputField({
@@ -47,15 +48,15 @@ class AuthInputField extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool isActiveState = isActive && !showError;
     final Color borderColor = showError
-        ? const Color(0xFFDF1525)
+        ? AppColors.textError
         : isActiveState
-        ? const Color(0xFF1573FE)
-        : const Color(0xFFE4E4E4);
+            ? AppColors.primaryBlue
+            : AppColors.borderDefault;
     final Color backgroundColor = showError
-        ? const Color(0xFFFFECEF)
+        ? AppColors.inputErrorBg
         : isActiveState
-        ? const Color(0xFFF3F8FF)
-        : Colors.white;
+            ? AppColors.inputActiveBg
+            : AppColors.white;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
@@ -86,7 +87,7 @@ class AuthInputField extends StatelessWidget {
                 focusNode: focusNode,
                 obscureText: isObscure,
                 style: AppTextStyle.bodyText(textFontSize),
-                cursorColor: const Color(0xFF1573FE),
+                cursorColor: AppColors.primaryBlue,
                 decoration: InputDecoration(
                   hintText: isActive ? null : hintText,
                   hintStyle: AppTextStyle.fieldHintAuth(hintFontSize),

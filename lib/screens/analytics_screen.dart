@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../settings/style.dart';
+import '../settings/colors.dart';
 
 import '../models/analytics_model.dart';
 import '../services/analytics_service.dart';
@@ -67,7 +68,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     double scaleHeight(double value) => value * heightFactor;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F7),
+      backgroundColor: AppColors.backgroundMain,
       body: SafeArea(
         top: true,
         bottom: false,
@@ -110,8 +111,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           SizedBox(height: scaleHeight(37)),
                           Text(
                             'Топ направлений недели',
-                            style: AppTextStyle.screenTitle(scaleHeight(20),
-                                color: const Color(0xFF201D2F)),
+                            style: AppTextStyle.screenTitle(
+                              scaleHeight(20),
+                              color: AppColors.primaryText,
+                            ),
                           ),
                           SizedBox(height: scaleHeight(16)),
                           Row(
@@ -120,7 +123,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                               Text(
                                 'Тренд №1',
                                 style: AppTextStyle.trendTitle(
-                                    scaleHeight(18), const Color(0xFF178751)),
+                                  scaleHeight(18),
+                                  AppColors.textSuccess,
+                                ),
                               ),
                               SizedBox(width: scaleWidth(11)),
                               Expanded(
@@ -136,7 +141,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           Text(
                             _analytics!.trendPercentage,
                             style: AppTextStyle.trendPercentage(
-                                scaleHeight(64), const Color(0xFF178751)),
+                              scaleHeight(64),
+                              AppColors.textSuccess,
+                            ),
                           ),
                           SizedBox(height: scaleHeight(3)),
                           Row(
@@ -153,8 +160,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                               Text(
                                 '7 дн',
                                 style: AppTextStyle.bodyTextMedium(
-                                    scaleHeight(12),
-                                    color: const Color(0xFF9E9E9E)),
+                                  scaleHeight(12),
+                                  color: AppColors.textDarkGrey,
+                                ),
                               ),
                             ],
                           ),

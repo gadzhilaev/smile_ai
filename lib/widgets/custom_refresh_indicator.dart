@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../settings/colors.dart';
 
 class CustomRefreshIndicator extends StatefulWidget {
   const CustomRefreshIndicator({
@@ -29,8 +30,8 @@ class _CustomRefreshIndicatorState extends State<CustomRefreshIndicator> {
 
     return RefreshIndicator(
       onRefresh: widget.onRefresh,
-      color: const Color(0xFFAD2023),
-      backgroundColor: Colors.white,
+      color: AppColors.accentRed,
+      backgroundColor: AppColors.white,
       strokeWidth: 3.0,
       displacement: scaleHeight(40),
       child: widget.child,

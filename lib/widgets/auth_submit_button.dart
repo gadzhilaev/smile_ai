@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../settings/style.dart';
+import '../settings/colors.dart';
 
 class AuthSubmitButton extends StatelessWidget {
   const AuthSubmitButton({
@@ -22,11 +23,11 @@ class AuthSubmitButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color backgroundColor = isEnabled
-        ? const Color(0xFF1573FE)
+        ? AppColors.primaryBlue
         : const Color(0xFFD9D9D9);
     final Color textColor = isEnabled
-        ? const Color(0xFFFFFFFF)
-        : const Color(0xFF757575);
+        ? AppColors.white
+        : AppColors.textSecondary;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),

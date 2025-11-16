@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../settings/style.dart';
+import '../settings/colors.dart';
 
 import '../widgets/custom_refresh_indicator.dart';
 import '../services/profile_service.dart';
@@ -51,7 +52,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final double actualTopSectionHeight = topSectionHeight + topPadding;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F7),
+      backgroundColor: AppColors.backgroundMain,
       body: CustomRefreshIndicator(
         onRefresh: _refreshProfile,
         designWidth: _designWidth,
@@ -68,11 +69,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Container(
                     height: actualTopSectionHeight,
                     width: double.infinity,
-                    color: const Color(0xFFF0EBEB),
+                    color: AppColors.backgroundSection,
                   ),
                   // Нижняя секция с фоном #F7F7F7
                   Container(
-                    color: const Color(0xFFF7F7F7),
+                    color: AppColors.backgroundMain,
                     child: Column(
                       children: [
                         SizedBox(height: scaleHeight(11) + scaleHeight(130) / 2),

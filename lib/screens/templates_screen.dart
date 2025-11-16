@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../settings/style.dart';
+import '../settings/colors.dart';
 
 import '../models/template_model.dart';
 import '../services/template_service.dart';
@@ -94,7 +95,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
     double scaleHeight(double value) => value * heightFactor;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F7),
+      backgroundColor: AppColors.backgroundMain,
       body: SafeArea(
         top: true,
         bottom: false,
@@ -216,17 +217,17 @@ class _TemplateCard extends StatelessWidget {
       width: double.infinity,
       height: scaleHeight(251),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(scaleHeight(12)),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x1F18274B),
+            color: AppColors.overlayShadow,
             offset: Offset(0, 14),
             blurRadius: 64,
             spreadRadius: -4,
           ),
           BoxShadow(
-            color: Color(0x1F18274B),
+            color: AppColors.overlayShadow,
             offset: Offset(0, 8),
             blurRadius: 22,
             spreadRadius: -6,
@@ -247,7 +248,7 @@ class _TemplateCard extends StatelessWidget {
                 width: scaleWidth(42),
                 height: scaleHeight(42),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFD9D9D9),
+                  color: AppColors.borderLight,
                   shape: BoxShape.circle,
                 ),
               ),

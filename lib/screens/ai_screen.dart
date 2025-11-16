@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../settings/style.dart';
+import '../settings/colors.dart';
 import '../services/notification_service.dart';
 
 class AiScreen extends StatefulWidget {
@@ -26,9 +27,9 @@ class _AiScreenState extends State<AiScreen> {
   static const double _designWidth = 428;
   static const double _designHeight = 926;
 
-  static const Color _backgroundColor = Color(0xFFF7F7F7);
-  static const Color _primaryTextColor = Color(0xFF201D2F);
-  static const Color _accentColor = Color(0xFFAD2023);
+  static const Color _backgroundColor = AppColors.backgroundMain;
+  static const Color _primaryTextColor = AppColors.primaryText;
+  static const Color _accentColor = AppColors.accentRed;
   static const String _assistantReply =
       'Хорошо. цель — стабильный доход или масштаб? от этого зависит стратегия: быстрые продажи или долгосрочный бренд.';
   static const List<String> _suggestions = <String>[
@@ -399,9 +400,9 @@ class _AiScreenState extends State<AiScreen> {
                       alignment: Alignment.centerRight,
                       child: SvgPicture.asset(
                         'assets/icons/icon_mes.svg',
-                        width: scaleWidth(24),
-                        height: scaleHeight(24),
-                        fit: BoxFit.contain,
+                          width: scaleWidth(24),
+                          height: scaleHeight(24),
+                          fit: BoxFit.contain,
                       ),
                     ),
                   ],
@@ -411,7 +412,7 @@ class _AiScreenState extends State<AiScreen> {
               Container(
                 width: double.infinity,
                 height: 1,
-                color: const Color(0xFF9E9E9E),
+                color: AppColors.textDarkGrey,
               ),
               SizedBox(height: scaleHeight(24)),
               Expanded(child: conversationArea),
@@ -424,7 +425,7 @@ class _AiScreenState extends State<AiScreen> {
                       width: scaleWidth(253),
                       height: scaleHeight(44),
                       decoration: BoxDecoration(
-                        border: Border.all(color: const Color(0xFFE4E4E4)),
+                        border: Border.all(color: AppColors.borderDefault),
                         borderRadius: BorderRadius.circular(scaleHeight(12)),
                       ),
                       padding: EdgeInsets.symmetric(horizontal: scaleWidth(16)),
@@ -507,7 +508,7 @@ class _AiScreenState extends State<AiScreen> {
                                   hintText: 'Введите вопрос...',
                                   hintStyle: AppTextStyle.bodyTextMedium(
                                     scaleHeight(16),
-                                    color: const Color(0xFF9E9E9E),
+                                    color: AppColors.textDarkGrey,
                                   ),
                                   border: InputBorder.none,
                                   isDense: true,

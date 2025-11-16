@@ -11,12 +11,12 @@ dependencies:
     sdk: flutter
   flutter_local_notifications: ^17.2.3
   flutter_svg: ^2.0.10+1
+  flutter_native_splash: ^2.4.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
-  flutter_native_splash: ^2.4.0
 
 flutter:
   uses-material-design: true
@@ -123,10 +123,15 @@ flutter:
     - assets/nav_bar/select/
     - assets/nav_bar/unselect/
     - assets/profile_icons/
+    - assets/splash/
 
 flutter_native_splash:
   color: "#FFFFFF"
-  image: assets/images/bot.png
+  image: assets/splash/logo.png
+  branding: assets/splash/branding.png
   android_12:
-    image: assets/images/bot.png
-    icon_background_color: "#FFFFFF"
+    image: assets/splash/android_logo.png
+    branding: assets/splash/android_branding.png
+  android: true
+  ios: true
+  web: false

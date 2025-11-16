@@ -1,26 +1,37 @@
 import 'package:flutter/material.dart';
-import 'settings/style.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+
 import 'services/notification_service.dart';
 import 'auth/login.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  
-  // Запускаем приложение сразу, инициализацию уведомлений делаем в фоне
+  final WidgetsBinding widgetsBinding =
+      WidgetsFlutterBinding.ensureInitialized();
+
+  // Держим нативный splash, пока идёт инициализация
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
   runApp(const MainApp());
-  
-  // Инициализируем уведомления в фоне после запуска приложения
-  _initializeNotificationsInBackground();
+
+  // Параллельно инициализируем уведомления и "загрузку данных"
+  _initializeAppAsync();
 }
 
-// Инициализация уведомлений в фоне, чтобы не блокировать запуск приложения
-void _initializeNotificationsInBackground() async {
+Future<void> _initializeAppAsync() async {
   try {
+    debugPrint('Startup: initializing notifications...');
     await NotificationService.instance.initialize();
     await NotificationService.instance.requestPermissions();
+
+    debugPrint('Startup: loading initial API data...');
+    // Имитируем запрос к API и ожидание данных (3 секунды)
+    await Future.delayed(const Duration(seconds: 3));
+    debugPrint('Startup: API data loaded successfully');
   } catch (e) {
-    // Игнорируем ошибки инициализации, чтобы не блокировать приложение
-    debugPrint('Notification initialization error: $e');
+    debugPrint('Startup initialization error: $e');
+  } finally {
+    // Убираем нативный splash только после инициализации/ожидания
+    FlutterNativeSplash.remove();
   }
 }
 
@@ -35,77 +46,8 @@ class MainApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
         useMaterial3: true,
       ),
-      home: const SplashScreen(),
-    );
-  }
-}
-
-class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
-
-  @override
-  State<SplashScreen> createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends State<SplashScreen> {
-  static const double _designWidth = 428;
-  static const double _designHeight = 926;
-  static const Duration _splashDuration = Duration(seconds: 2);
-
-  @override
-  void initState() {
-    super.initState();
-    _navigateToEmail();
-  }
-
-  void _navigateToEmail() {
-    Future.delayed(_splashDuration, () {
-      if (!mounted) return;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute<void>(builder: (_) => const EmailScreen()),
-      );
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, _) {
-        final size = MediaQuery.of(context).size;
-        final widthFactor = size.width / _designWidth;
-        final heightFactor = size.height / _designHeight;
-
-        double scaleWidth(double value) => value * widthFactor;
-        double scaleHeight(double value) => value * heightFactor;
-
-        return Scaffold(
-          backgroundColor: Colors.white,
-          body: SafeArea(
-            child: Stack(
-              children: [
-                Center(
-                  child: Image.asset(
-                    'assets/images/bot.png',
-                    width: scaleWidth(309),
-                    height: scaleHeight(464),
-                    fit: BoxFit.contain,
-                  ),
-                ),
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: scaleHeight(35),
-                  child: Text(
-                    'Smile AI',
-                    textAlign: TextAlign.center,
-                    style: AppTextStyle.screenTitle(scaleWidth(40)),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+      // Сразу открываем экран ввода e-mail, без Flutter-сплэша
+      home: const EmailScreen(),
     );
   }
 }

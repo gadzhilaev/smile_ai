@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'colors.dart';
 
 class AppTextStyle {
   // Базовый метод для создания стиля (Montserrat)
@@ -31,7 +32,7 @@ class AppTextStyle {
     return _base(
       fontSize: fontSize,
       fontWeight: FontWeight.w500,
-      color: color ?? const Color(0xFF201D2F),
+      color: color ?? AppColors.primaryText,
     );
   }
 
@@ -74,7 +75,7 @@ class AppTextStyle {
     return _base(
       fontSize: fontSize,
       fontWeight: FontWeight.w400,
-      color: const Color(0xFF757575),
+      color: AppColors.textSecondary,
     );
   }
 
@@ -82,7 +83,7 @@ class AppTextStyle {
     return _base(
       fontSize: fontSize,
       fontWeight: FontWeight.w400,
-      color: const Color(0xFF212121),
+      color: AppColors.textPrimary,
     );
   }
 
@@ -90,7 +91,7 @@ class AppTextStyle {
     return _base(
       fontSize: fontSize,
       fontWeight: FontWeight.w400,
-      color: const Color(0xFF757575),
+      color: AppColors.textSecondary,
     );
   }
 
@@ -98,7 +99,7 @@ class AppTextStyle {
     return _base(
       fontSize: fontSize,
       fontWeight: FontWeight.w400,
-      color: const Color(0xFFA3A3A3),
+      color: AppColors.textGrey,
     );
   }
 
@@ -106,7 +107,7 @@ class AppTextStyle {
     return _base(
       fontSize: fontSize,
       fontWeight: FontWeight.w400,
-      color: const Color(0xFFA3A3A3),
+      color: AppColors.textGrey,
     );
   }
 
@@ -115,7 +116,7 @@ class AppTextStyle {
     return _base(
       fontSize: fontSize,
       fontWeight: FontWeight.w400,
-      color: const Color(0xFF212121),
+      color: AppColors.textPrimary,
     );
   }
 
@@ -182,7 +183,7 @@ class AppTextStyle {
     return _base(
       fontSize: fontSize,
       fontWeight: FontWeight.w500,
-      color: const Color(0xFF98A7BD),
+      color: AppColors.textMuted,
       height: 18 / 12,
     );
   }
@@ -208,7 +209,7 @@ class AppTextStyle {
     return _base(
       fontSize: fontSize,
       fontWeight: FontWeight.w400,
-      color: color ?? const Color(0xFF212121),
+      color: color ?? AppColors.textPrimary,
       height: height,
     );
   }

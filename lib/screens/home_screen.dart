@@ -5,6 +5,7 @@ import 'templates_screen.dart';
 import 'analytics_screen.dart';
 import 'profile_screen.dart';
 import '../widgets/bottom_nav_bar.dart';
+import '../settings/colors.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,8 +18,8 @@ class _HomeScreenState extends State<HomeScreen> {
   static const double _designWidth = 428;
   static const double _designHeight = 926;
 
-  static const Color _primaryTextColor = Color(0xFF201D2F);
-  static const Color _accentColor = Color(0xFFAD2023);
+  static const Color _primaryTextColor = AppColors.primaryText;
+  static const Color _accentColor = AppColors.accentRed;
 
   int _currentIndex = 0;
   String? _autoGenerateText;

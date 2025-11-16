@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../settings/style.dart';
+import '../settings/colors.dart';
 import '../services/notification_settings_service.dart';
 import '../services/notification_service.dart';
 
@@ -187,7 +188,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         decoration: const BoxDecoration(
                           border: Border(
                             top: BorderSide(
-                              color: Color(0xFFEEEEEE),
+                              color: AppColors.dividerLight,
                               width: 1,
                             ),
                           ),
@@ -288,7 +289,7 @@ class _CustomSwitch extends StatelessWidget {
         width: scaleWidth(40),
         height: scaleHeight(20),
         decoration: BoxDecoration(
-          color: value ? const Color(0xFF1573FE) : const Color(0xFFD9D9D9),
+          color: value ? AppColors.primaryBlue : const Color(0xFFD9D9D9),
           borderRadius: BorderRadius.circular(scaleHeight(10)),
         ),
         child: Stack(
