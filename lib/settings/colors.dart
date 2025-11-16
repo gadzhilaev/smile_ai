@@ -47,6 +47,10 @@ class AppColors {
 
   // Прочее
   static const Color overlayShadow = Color(0x1F18274B);
+
+  // Радио-кнопки для выбора языка
+  static const Color radioInactiveBg = Color(0xFFE3EEFF);
+  static const Color radioInactiveBorder = Color(0xFFC7DDFF);
 }
 
 

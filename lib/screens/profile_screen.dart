@@ -7,6 +7,7 @@ import '../widgets/custom_refresh_indicator.dart';
 import '../services/profile_service.dart';
 import 'account_screen.dart';
 import 'notifications_screen.dart';
+import 'language_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -159,11 +160,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ),
                               SizedBox(height: scaleHeight(12)),
-                              _ProfileMenuItem(
-                                iconPath: 'assets/profile_icons/profile_language.svg',
-                                title: 'Язык',
-                                designWidth: _designWidth,
-                                designHeight: _designHeight,
+                              InkWell(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => const LanguageScreen(),
+                                    ),
+                                  );
+                                },
+                                child: _ProfileMenuItem(
+                                  iconPath:
+                                      'assets/profile_icons/profile_language.svg',
+                                  title: 'Язык',
+                                  designWidth: _designWidth,
+                                  designHeight: _designHeight,
+                                ),
                               ),
                             ],
                           ),
