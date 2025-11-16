@@ -125,9 +125,13 @@ flutter:
     - assets/fonts/montserrat/
     - assets/fonts/inter/
     - assets/icons/
+    - assets/icons/dark/
+    - assets/icons/light/
     - assets/nav_bar/select/
-    - assets/nav_bar/unselect/
-    - assets/profile_icons/
+    - assets/nav_bar/unselect/dark/
+    - assets/nav_bar/unselect/light/
+    - assets/profile_icons/dark/
+    - assets/profile_icons/light/
     - assets/splash/
 
 flutter_native_splash:

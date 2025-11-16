@@ -204,13 +204,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                               children: [
                                 Row(
                                   children: [
-                                    SvgPicture.asset(
-                                      'assets/icons/icon_brain.svg',
-                                      width: scaleWidth(24),
-                                      height: scaleHeight(24),
-                                      fit: BoxFit.contain,
-                                    ),
-                                    SizedBox(width: scaleWidth(8)),
                                     Text(
                                       l.analyticsWhy,
                                       style: AppTextStyle.trendTitle(

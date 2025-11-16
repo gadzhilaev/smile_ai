@@ -1,6 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../settings/style.dart';
+import '../settings/colors.dart';
+import '../l10n/app_localizations.dart';
 
 import 'register.dart';
 import 'log_pass.dart';
@@ -77,21 +79,23 @@ class _EmailScreenState extends State<EmailScreen> {
     final isRegistered = email.toLowerCase() == 'test@test.ru';
 
     setState(() {
+      final l = AppLocalizations.of(context)!;
+
       if (email.isEmpty) {
         _showError = true;
-        _errorMessage = 'Введите корректную почту';
+        _errorMessage = l.authEmailErrorInvalid;
         return;
       }
 
       if (!isEmailValid) {
         _showError = true;
-        _errorMessage = 'Введите корректную почту';
+        _errorMessage = l.authEmailErrorInvalid;
         return;
       }
 
       if (!isRegistered) {
         _showError = true;
-        _errorMessage = 'Эта почта не зарегистрирована';
+        _errorMessage = l.authEmailErrorNotRegistered;
         return;
       }
 
@@ -117,6 +121,10 @@ class _EmailScreenState extends State<EmailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final l = AppLocalizations.of(context)!;
+
     return LayoutBuilder(
       builder: (context, _) {
         final size = MediaQuery.of(context).size;
@@ -143,7 +151,8 @@ class _EmailScreenState extends State<EmailScreen> {
 
         return Scaffold(
           resizeToAvoidBottomInset: false,
-          backgroundColor: Colors.white,
+          backgroundColor:
+              isDark ? AppColors.darkBackgroundMain : AppColors.white,
           body: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () => FocusScope.of(context).unfocus(),
@@ -163,8 +172,11 @@ class _EmailScreenState extends State<EmailScreen> {
                         horizontal: scaleWidth(_leftOffset),
                       ),
                       child: Text(
-                        'Введите почту',
-                        style: AppTextStyle.bodyTextBold(scaleWidth(40)),
+                        l.authEmailTitle,
+                        style: AppTextStyle.bodyTextBold(
+                          scaleWidth(40),
+                          color: theme.colorScheme.onSurface,
+                        ),
                       ),
                     ),
                     SizedBox(height: scaleHeight(_titleFieldSpacing)),
@@ -185,8 +197,8 @@ class _EmailScreenState extends State<EmailScreen> {
                         hintFontSize: scaleHeight(16),
                         floatingLabelFontSize: scaleHeight(11),
                         textFontSize: scaleHeight(15),
-                        hintText: 'Email',
-                        labelText: 'Email',
+                        hintText: l.authEmailHint,
+                        labelText: l.authEmailHint,
                         keyboardType: TextInputType.emailAddress,
                         textInputAction: TextInputAction.done,
                         onSubmitted: (_) => _submitEmail(),
@@ -203,8 +215,10 @@ class _EmailScreenState extends State<EmailScreen> {
                         ),
                         child: Text(
                           _errorMessage!,
-                          style: AppTextStyle.bodyText(scaleHeight(10),
-                              color: const Color(0xFFDF1525)),
+                          style: AppTextStyle.bodyText(
+                            scaleHeight(10),
+                            color: AppColors.textError,
+                          ),
                         ),
                       ),
                     SizedBox(height: buttonSpacing),
@@ -213,7 +227,7 @@ class _EmailScreenState extends State<EmailScreen> {
                         horizontal: scaleWidth(_fieldHorizontalPadding),
                       ),
                       child: AuthSubmitButton(
-                        label: 'ВОЙТИ',
+                        label: l.authButtonLogin,
                         isEnabled: isButtonEnabled,
                         onPressed: isButtonEnabled ? _submitEmail : null,
                         buttonHeight: buttonHeight,
@@ -226,13 +240,18 @@ class _EmailScreenState extends State<EmailScreen> {
                       child: RichText(
                         textAlign: TextAlign.center,
                         text: TextSpan(
-                          text: 'Нет аккаунта? ',
-                          style: AppTextStyle.bodyText(scaleHeight(16)),
+                          text: l.authNoAccount,
+                          style: AppTextStyle.bodyText(
+                            scaleHeight(16),
+                            color: theme.colorScheme.onSurface,
+                          ),
                           children: [
                             TextSpan(
-                              text: 'Зарегистрируйтесь',
-                              style: AppTextStyle.bodyText(scaleHeight(16),
-                                  color: const Color(0xFF1774FE)),
+                              text: l.authRegister,
+                              style: AppTextStyle.bodyText(
+                                scaleHeight(16),
+                                color: AppColors.primaryBlue,
+                              ),
                               recognizer: _registerRecognizer,
                             ),
                           ],

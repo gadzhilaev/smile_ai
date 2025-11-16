@@ -58,7 +58,20 @@
   "themeTitle": "Тема",
   "themeSystem": "Как в системе",
   "themeLight": "Светлая тема",
-  "themeDark": "Тёмная тема"
+  "themeDark": "Тёмная тема",
+
+  "authEmailTitle": "Введите почту",
+  "authEmailHint": "Email",
+  "authEmailErrorInvalid": "Введите корректную почту",
+  "authEmailErrorNotRegistered": "Эта почта не зарегистрирована",
+  "authButtonLogin": "ВОЙТИ",
+  "authNoAccount": "Нет аккаунта? ",
+  "authRegister": "Зарегистрируйтесь",
+
+  "authPasswordHint": "Пароль",
+  "authPasswordErrorWrong": "Неверный пароль",
+
+  "authRegisterPlaceholder": "Здесь будет экран регистрации"
 }
 
 

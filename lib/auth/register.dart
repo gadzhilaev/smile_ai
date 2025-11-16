@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../settings/style.dart';
+import '../settings/colors.dart';
+import '../l10n/app_localizations.dart';
 
 class RegistrationPlaceholderScreen extends StatelessWidget {
   const RegistrationPlaceholderScreen({super.key});
@@ -10,6 +12,9 @@ class RegistrationPlaceholderScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final l = AppLocalizations.of(context)!;
     final widthFactor = size.width / _designWidth;
     final heightFactor = size.height / _designHeight;
 
@@ -17,7 +22,8 @@ class RegistrationPlaceholderScreen extends StatelessWidget {
     double scaleHeight(double value) => value * heightFactor;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor:
+          isDark ? AppColors.darkBackgroundMain : AppColors.white,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,7 +42,7 @@ class RegistrationPlaceholderScreen extends StatelessWidget {
                   child: Icon(
                     Icons.arrow_back,
                     size: scaleWidth(28),
-                    color: Colors.black,
+                    color: theme.colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -45,10 +51,12 @@ class RegistrationPlaceholderScreen extends StatelessWidget {
             Expanded(
               child: Center(
                 child: Text(
-                  'Здесь будет экран регистрации',
+                  l.authRegisterPlaceholder,
                   textAlign: TextAlign.center,
-                  style: AppTextStyle.bodyTextMedium(scaleWidth(20))
-                      .copyWith(height: 1.2),
+                  style: AppTextStyle.bodyTextMedium(
+                    scaleWidth(20),
+                    color: theme.colorScheme.onSurface,
+                  ).copyWith(height: 1.2),
                 ),
               ),
             ),

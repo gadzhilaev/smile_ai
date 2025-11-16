@@ -388,6 +388,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dark theme'**
   String get themeDark;
+
+  /// No description provided for @authEmailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email'**
+  String get authEmailTitle;
+
+  /// No description provided for @authEmailHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get authEmailHint;
+
+  /// No description provided for @authEmailErrorInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email'**
+  String get authEmailErrorInvalid;
+
+  /// No description provided for @authEmailErrorNotRegistered.
+  ///
+  /// In en, this message translates to:
+  /// **'This email is not registered'**
+  String get authEmailErrorNotRegistered;
+
+  /// No description provided for @authButtonLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'LOG IN'**
+  String get authButtonLogin;
+
+  /// No description provided for @authNoAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Don’t have an account? '**
+  String get authNoAccount;
+
+  /// No description provided for @authRegister.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign up'**
+  String get authRegister;
+
+  /// No description provided for @authPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get authPasswordHint;
+
+  /// No description provided for @authPasswordErrorWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect password'**
+  String get authPasswordErrorWrong;
+
+  /// No description provided for @authRegisterPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration screen will be here'**
+  String get authRegisterPlaceholder;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../settings/style.dart';
+import '../settings/colors.dart';
 import '../l10n/app_localizations.dart';
 
 class MainBottomNavBar extends StatelessWidget {
@@ -29,8 +30,15 @@ class MainBottomNavBar extends StatelessWidget {
 
     double scaleWidth(double value) => value * widthFactor;
 
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final Color effectivePrimaryColor =
+        isDark ? AppColors.darkSecondaryText : primaryColor;
+    final Color effectiveAccentColor = accentColor;
+
     return Container(
-      color: Colors.white,
+      color: isDark ? AppColors.darkBackgroundCard : AppColors.white,
       padding: EdgeInsets.only(
         left: scaleWidth(24),
         right: scaleWidth(24),
@@ -50,12 +58,15 @@ class MainBottomNavBar extends StatelessWidget {
                     return _NavItem(
                       iconPath: currentIndex == 0
                           ? 'assets/nav_bar/select/ai.svg'
-                          : 'assets/nav_bar/unselect/ai.svg',
+                          : (isDark
+                              ? 'assets/nav_bar/unselect/dark/ai.svg'
+                              : 'assets/nav_bar/unselect/light/ai.svg'),
                       label: l.navAi,
-                      labelColor:
-                          currentIndex == 0 ? accentColor : primaryColor,
-                  designWidth: designWidth,
-                  designHeight: designHeight,
+                      labelColor: currentIndex == 0
+                          ? effectiveAccentColor
+                          : effectivePrimaryColor,
+                      designWidth: designWidth,
+                      designHeight: designHeight,
                       onTap: () => onTap(0),
                     );
                   },
@@ -71,12 +82,15 @@ class MainBottomNavBar extends StatelessWidget {
                     return _NavItem(
                       iconPath: currentIndex == 1
                           ? 'assets/nav_bar/select/bookmark.svg'
-                          : 'assets/nav_bar/unselect/bookmark.svg',
+                          : (isDark
+                              ? 'assets/nav_bar/unselect/dark/bookmark.svg'
+                              : 'assets/nav_bar/unselect/light/bookmark.svg'),
                       label: l.navTemplates,
-                      labelColor:
-                          currentIndex == 1 ? accentColor : primaryColor,
-                  designWidth: designWidth,
-                  designHeight: designHeight,
+                      labelColor: currentIndex == 1
+                          ? effectiveAccentColor
+                          : effectivePrimaryColor,
+                      designWidth: designWidth,
+                      designHeight: designHeight,
                       onTap: () => onTap(1),
                     );
                   },
@@ -92,12 +106,15 @@ class MainBottomNavBar extends StatelessWidget {
                     return _NavItem(
                       iconPath: currentIndex == 2
                           ? 'assets/nav_bar/select/analytics.svg'
-                          : 'assets/nav_bar/unselect/analytics.svg',
+                          : (isDark
+                              ? 'assets/nav_bar/unselect/dark/analytics.svg'
+                              : 'assets/nav_bar/unselect/light/analytics.svg'),
                       label: l.navAnalytics,
-                      labelColor:
-                          currentIndex == 2 ? accentColor : primaryColor,
-                  designWidth: designWidth,
-                  designHeight: designHeight,
+                      labelColor: currentIndex == 2
+                          ? effectiveAccentColor
+                          : effectivePrimaryColor,
+                      designWidth: designWidth,
+                      designHeight: designHeight,
                       onTap: () => onTap(2),
                     );
                   },
@@ -113,12 +130,15 @@ class MainBottomNavBar extends StatelessWidget {
                     return _NavItem(
                       iconPath: currentIndex == 3
                           ? 'assets/nav_bar/select/person.svg'
-                          : 'assets/nav_bar/unselect/person.svg',
+                          : (isDark
+                              ? 'assets/nav_bar/unselect/dark/person.png'
+                              : 'assets/nav_bar/unselect/light/person.svg'),
                       label: l.navProfile,
-                      labelColor:
-                          currentIndex == 3 ? accentColor : primaryColor,
-                  designWidth: designWidth,
-                  designHeight: designHeight,
+                      labelColor: currentIndex == 3
+                          ? effectiveAccentColor
+                          : effectivePrimaryColor,
+                      designWidth: designWidth,
+                      designHeight: designHeight,
                       onTap: () => onTap(3),
                     );
                   },
@@ -158,26 +178,36 @@ class _NavItem extends StatelessWidget {
     double scaleWidth(double value) => value * widthFactor;
     double scaleHeight(double value) => value * heightFactor;
 
+    final bool isSvg = iconPath.toLowerCase().endsWith('.svg');
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(scaleWidth(8)),
       child: Padding(
         padding: EdgeInsets.all(scaleWidth(8)),
         child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-            SvgPicture.asset(
-          iconPath,
-          width: scaleWidth(24),
-          height: scaleHeight(24),
-          fit: BoxFit.contain,
-        ),
-        SizedBox(height: scaleHeight(4)),
-        Text(
-          label,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isSvg)
+              SvgPicture.asset(
+                iconPath,
+                width: scaleWidth(24),
+                height: scaleHeight(24),
+                fit: BoxFit.contain,
+              )
+            else
+              Image.asset(
+                iconPath,
+                width: scaleWidth(24),
+                height: scaleHeight(24),
+                fit: BoxFit.contain,
+              ),
+            SizedBox(height: scaleHeight(4)),
+            Text(
+              label,
               style: AppTextStyle.navBarLabel(scaleHeight(10), labelColor),
-        ),
-      ],
+            ),
+          ],
         ),
       ),
     );

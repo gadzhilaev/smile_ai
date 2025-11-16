@@ -154,4 +154,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get themeDark => 'Dark theme';
+
+  @override
+  String get authEmailTitle => 'Enter your email';
+
+  @override
+  String get authEmailHint => 'Email';
+
+  @override
+  String get authEmailErrorInvalid => 'Enter a valid email';
+
+  @override
+  String get authEmailErrorNotRegistered => 'This email is not registered';
+
+  @override
+  String get authButtonLogin => 'LOG IN';
+
+  @override
+  String get authNoAccount => 'Don’t have an account? ';
+
+  @override
+  String get authRegister => 'Sign up';
+
+  @override
+  String get authPasswordHint => 'Password';
+
+  @override
+  String get authPasswordErrorWrong => 'Incorrect password';
+
+  @override
+  String get authRegisterPlaceholder => 'Registration screen will be here';
 }

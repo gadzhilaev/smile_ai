@@ -154,4 +154,34 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get themeDark => 'Тёмная тема';
+
+  @override
+  String get authEmailTitle => 'Введите почту';
+
+  @override
+  String get authEmailHint => 'Email';
+
+  @override
+  String get authEmailErrorInvalid => 'Введите корректную почту';
+
+  @override
+  String get authEmailErrorNotRegistered => 'Эта почта не зарегистрирована';
+
+  @override
+  String get authButtonLogin => 'ВОЙТИ';
+
+  @override
+  String get authNoAccount => 'Нет аккаунта? ';
+
+  @override
+  String get authRegister => 'Зарегистрируйтесь';
+
+  @override
+  String get authPasswordHint => 'Пароль';
+
+  @override
+  String get authPasswordErrorWrong => 'Неверный пароль';
+
+  @override
+  String get authRegisterPlaceholder => 'Здесь будет экран регистрации';
 }

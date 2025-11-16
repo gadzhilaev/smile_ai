@@ -404,10 +404,12 @@ class _AiScreenState extends State<AiScreen> {
                     Align(
                       alignment: Alignment.centerRight,
                       child: SvgPicture.asset(
-                        'assets/icons/icon_mes.svg',
-                          width: scaleWidth(24),
-                          height: scaleHeight(24),
-                          fit: BoxFit.contain,
+                        isDark
+                            ? 'assets/icons/dark/icon_mes_dark.svg'
+                            : 'assets/icons/light/icon_mes.svg',
+                        width: scaleWidth(24),
+                        height: scaleHeight(24),
+                        fit: BoxFit.contain,
                       ),
                     ),
                   ],
@@ -478,7 +480,9 @@ class _AiScreenState extends State<AiScreen> {
                       child: Container(
                         height: scaleHeight(54),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: isDark
+                              ? AppColors.darkBackgroundCard
+                              : AppColors.white,
                           borderRadius: BorderRadius.circular(scaleHeight(12)),
                           boxShadow: const [
                             BoxShadow(
@@ -547,7 +551,9 @@ class _AiScreenState extends State<AiScreen> {
                         ),
                         child: Center(
                           child: Image.asset(
-                            'assets/icons/icon_teleg.png',
+                            isDark
+                                ? 'assets/icons/dark/icon_teleg_dark.png'
+                                : 'assets/icons/light/icon_teleg.png',
                             width: scaleWidth(24),
                             height: scaleHeight(24),
                             fit: BoxFit.contain,
@@ -683,7 +689,9 @@ class _MessageBubble extends StatelessWidget {
           GestureDetector(
             onTap: () => Clipboard.setData(ClipboardData(text: message.text)),
             child: SvgPicture.asset(
-              'assets/icons/icon_copy.svg',
+              isDark
+                  ? 'assets/icons/dark/icon_copy_dark.svg'
+                  : 'assets/icons/light/icon_copy.svg',
               width: scaleWidth(20),
               height: scaleHeight(30),
               fit: BoxFit.contain,

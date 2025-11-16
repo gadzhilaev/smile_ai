@@ -58,7 +58,20 @@
   "themeTitle": "Theme",
   "themeSystem": "Use system",
   "themeLight": "Light theme",
-  "themeDark": "Dark theme"
+  "themeDark": "Dark theme",
+
+  "authEmailTitle": "Enter your email",
+  "authEmailHint": "Email",
+  "authEmailErrorInvalid": "Enter a valid email",
+  "authEmailErrorNotRegistered": "This email is not registered",
+  "authButtonLogin": "LOG IN",
+  "authNoAccount": "Don’t have an account? ",
+  "authRegister": "Sign up",
+
+  "authPasswordHint": "Password",
+  "authPasswordErrorWrong": "Incorrect password",
+
+  "authRegisterPlaceholder": "Registration screen will be here"
 }
 
 

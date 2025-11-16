@@ -160,7 +160,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   }
                                 },
                                 child: _ProfileMenuItem(
-                                  iconPath: 'assets/profile_icons/profile_person.svg',
+                                  iconPath: isDark
+                                      ? 'assets/profile_icons/dark/profile_person_dark.svg'
+                                      : 'assets/profile_icons/light/profile_person.svg',
                                   title: l.profileMenuAccount,
                                   designWidth: _designWidth,
                                   designHeight: _designHeight,
@@ -177,7 +179,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   );
                                 },
                                 child: _ProfileMenuItem(
-                                  iconPath: 'assets/profile_icons/profile_notification.svg',
+                                  iconPath: isDark
+                                      ? 'assets/profile_icons/dark/profile_notification_dark.svg'
+                                      : 'assets/profile_icons/light/profile_notification.svg',
                                   title: l.profileMenuNotifications,
                                   designWidth: _designWidth,
                                   designHeight: _designHeight,
@@ -193,8 +197,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   );
                                 },
                                 child: _ProfileMenuItem(
-                                  iconPath:
-                                      'assets/profile_icons/profile_language.svg',
+                                  iconPath: isDark
+                                      ? 'assets/profile_icons/dark/profile_language_dark.svg'
+                                      : 'assets/profile_icons/light/profile_language.svg',
                                   title: l.profileMenuLanguage,
                                   designWidth: _designWidth,
                                   designHeight: _designHeight,
@@ -238,7 +243,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: Column(
                             children: [
                               _ProfileMenuItem(
-                                iconPath: 'assets/profile_icons/profile_privacy.svg',
+                                iconPath: isDark
+                                    ? 'assets/profile_icons/dark/profile_privacy_dark.svg'
+                                    : 'assets/profile_icons/light/profile_privacy.svg',
                                 title: l.profileMenuPrivacy,
                                 designWidth: _designWidth,
                                 designHeight: _designHeight,
@@ -253,7 +260,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   );
                                 },
                                 child: _ProfileMenuItem(
-                                  iconPath: 'assets/profile_icons/profile_theme.svg',
+                                  iconPath: isDark
+                                      ? 'assets/profile_icons/dark/profile_theme_dark.svg'
+                                      : 'assets/profile_icons/light/profile_theme.svg',
                                   title: l.profileMenuTheme,
                                   designWidth: _designWidth,
                                   designHeight: _designHeight,
@@ -296,21 +305,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: Column(
                             children: [
                               _ProfileMenuItem(
-                                iconPath: 'assets/profile_icons/profile_supp.svg',
+                                iconPath: isDark
+                                    ? 'assets/profile_icons/dark/profile_supp_dark.svg'
+                                    : 'assets/profile_icons/light/profile_supp.svg',
                                 title: l.profileMenuSupport,
                                 designWidth: _designWidth,
                                 designHeight: _designHeight,
                               ),
                               SizedBox(height: scaleHeight(12)),
                               _ProfileMenuItem(
-                                iconPath: 'assets/profile_icons/profile_faq.svg',
+                                iconPath: isDark
+                                    ? 'assets/profile_icons/dark/profile_faq_dark.svg'
+                                    : 'assets/profile_icons/light/profile_faq.svg',
                                 title: l.profileMenuFaq,
                                 designWidth: _designWidth,
                                 designHeight: _designHeight,
                               ),
                               SizedBox(height: scaleHeight(12)),
                               _ProfileMenuItem(
-                                iconPath: 'assets/profile_icons/profile_lock.svg',
+                                iconPath: isDark
+                                    ? 'assets/profile_icons/dark/profile_lock_dark.svg'
+                                    : 'assets/profile_icons/light/profile_lock.svg',
                                 title: l.profileMenuPolicy,
                                 designWidth: _designWidth,
                                 designHeight: _designHeight,

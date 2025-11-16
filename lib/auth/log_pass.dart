@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../settings/style.dart';
+import '../settings/colors.dart';
+import '../l10n/app_localizations.dart';
 
 import '../screens/home_screen.dart';
 import '../widgets/auth_input_field.dart';
@@ -66,8 +68,9 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
 
     if (password != _validPassword) {
       setState(() {
+        final l = AppLocalizations.of(context)!;
         _showError = true;
-        _errorMessage = 'Неверный пароль';
+        _errorMessage = l.authPasswordErrorWrong;
       });
       return;
     }
@@ -85,6 +88,9 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final l = AppLocalizations.of(context)!;
     return LayoutBuilder(
       builder: (context, _) {
         final size = MediaQuery.of(context).size;
@@ -112,7 +118,8 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
 
         return Scaffold(
           resizeToAvoidBottomInset: false,
-          backgroundColor: Colors.white,
+          backgroundColor:
+              isDark ? AppColors.darkBackgroundMain : AppColors.white,
           body: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () => FocusScope.of(context).unfocus(),
@@ -136,7 +143,7 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
                       child: Icon(
                         Icons.arrow_back,
                         size: scaleWidth(28),
-                        color: Colors.black,
+                        color: theme.colorScheme.onSurface,
                       ),
                     ),
                   ),
@@ -156,7 +163,10 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
                 Center(
                   child: Text(
                     widget.email,
-                      style: AppTextStyle.bodyText(scaleHeight(15)),
+                    style: AppTextStyle.bodyText(
+                      scaleHeight(15),
+                      color: theme.colorScheme.onSurface,
+                    ),
                   ),
                 ),
                 SizedBox(height: scaleHeight(42)),
@@ -178,7 +188,7 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
                     floatingLabelFontSize: scaleHeight(11),
                     textFontSize: scaleHeight(15),
                     hintText: 'Пароль',
-                    labelText: 'Пароль',
+                    labelText: l.authPasswordHint,
                     isObscure: true,
                     keyboardType: TextInputType.visiblePassword,
                     textInputAction: TextInputAction.done,
@@ -196,11 +206,9 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
                     ),
                     child: Text(
                       _errorMessage!,
-                        style: const TextStyle(
-                          fontSize: 10,
-                        fontWeight: FontWeight.w400,
-                          color: Color(0xFFDF1525),
-                        height: 1,
+                      style: AppTextStyle.bodyText(
+                        10,
+                        color: AppColors.textError,
                       ),
                     ),
                   ),
@@ -210,7 +218,7 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
                     horizontal: scaleWidth(_fieldHorizontalPadding),
                   ),
                   child: AuthSubmitButton(
-                    label: 'ВОЙТИ',
+                    label: l.authButtonLogin,
                     isEnabled: isButtonEnabled,
                     onPressed: isButtonEnabled ? _submitPassword : null,
                     buttonHeight: buttonHeight,
