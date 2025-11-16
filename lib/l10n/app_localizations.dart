@@ -341,6 +341,10 @@ abstract class AppLocalizations {
   /// **'Advice'**
   String get aiSuggestion6;
 
+  String get aiStopGeneration;
+
+  String get aiInputPlaceholder;
+
   /// No description provided for @analyticsCategoryGrowing.
   ///
   /// In en, this message translates to:

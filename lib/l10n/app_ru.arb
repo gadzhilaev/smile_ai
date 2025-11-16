@@ -49,6 +49,9 @@
   "aiSuggestion5": "Помоги",
   "aiSuggestion6": "Совет",
 
+  "aiStopGeneration_ru": "Остановить генерацию...",
+  "aiInputPlaceholder_ru": "Введите вопрос...",
+
   "analyticsCategoryGrowing": "Растущие",
   "analyticsCategoryFalling": "Падающие",
 

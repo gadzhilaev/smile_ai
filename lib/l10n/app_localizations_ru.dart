@@ -132,6 +132,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get aiSuggestion6 => 'Совет';
 
   @override
+  String get aiStopGeneration => 'Остановить генерацию...';
+
+  @override
+  String get aiInputPlaceholder => 'Введите вопрос...';
+
+  @override
   String get analyticsCategoryGrowing => 'Растущие';
 
   @override

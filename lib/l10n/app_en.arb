@@ -49,6 +49,9 @@
   "aiSuggestion5": "Help me",
   "aiSuggestion6": "Advice",
 
+  "aiStopGeneration_en": "Stop generation...",
+  "aiInputPlaceholder_en": "Enter your question..."
+
   "analyticsCategoryGrowing": "Rising",
   "analyticsCategoryFalling": "Falling",
 

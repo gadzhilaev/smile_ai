@@ -132,6 +132,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiSuggestion6 => 'Advice';
 
   @override
+  String get aiStopGeneration => 'Stop generation...';
+
+  @override
+  String get aiInputPlaceholder => 'Enter your question...';
+
+  @override
   String get analyticsCategoryGrowing => 'Rising';
 
   @override
