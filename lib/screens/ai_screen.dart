@@ -36,7 +36,7 @@ class _AiScreenState extends State<AiScreen> {
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
-  final List<_ChatMessage> _messages = [];
+  final List<ChatMessage> _messages = [];
   bool _isTyping = false;
   bool _hasConversation = false;
   Timer? _typingTimer;
@@ -46,6 +46,37 @@ class _AiScreenState extends State<AiScreen> {
   Timer? _copyToastTimer;
   int? _selectedChatIndexForContextMenu;
   OverlayEntry? _chatMenuOverlay;
+  
+  // История чатов
+  final List<ChatHistory> _chatHistory = [
+    ChatHistory(
+      id: '1',
+      title:       'Маркетинговая стратегия',
+      messages: [
+        ChatMessage(text: 'Привет', isUser: true),
+        ChatMessage(text: 'Хорошо. цель — стабильный доход или масштаб? от этого зависит стратегия: быстрые продажи или долгосрочный бренд.', isUser: false),
+      ],
+    ),
+    ChatHistory(
+      id: '2',
+      title: 'Разработка продукта',
+      messages: [
+        ChatMessage(text: 'Как разработать продукт?', isUser: true),
+        ChatMessage(text: 'Разработка продукта требует тщательного планирования и анализа потребностей рынка.', isUser: false),
+      ],
+    ),
+    ChatHistory(
+      id: '3',
+      title: 'Анализ конкурентов',
+      messages: [
+        ChatMessage(text: 'Помоги с анализом конкурентов', isUser: true),
+        ChatMessage(text: 'Анализ конкурентов поможет определить ваши преимущества и слабые места.', isUser: false),
+      ],
+    ),
+  ];
+  int? _currentChatId;
+  int? _editingChatIndex;
+  final Map<int, TextEditingController> _renameControllers = {};
 
   @override
   void initState() {
@@ -72,7 +103,7 @@ class _AiScreenState extends State<AiScreen> {
       _hasConversation = true;
       _isTyping = true;
       _currentTypingIndex = 0;
-      _messages.add(_ChatMessage(text: '', isUser: false));
+      _messages.add(ChatMessage(text: '', isUser: false));
     });
 
     _scrollToBottom();
@@ -82,7 +113,7 @@ class _AiScreenState extends State<AiScreen> {
       setState(() {
         if (_currentTypingIndex >= text.length) {
           timer.cancel();
-          _messages[_messages.length - 1] = _ChatMessage(
+          _messages[_messages.length - 1] = ChatMessage(
             text: text,
             isUser: false,
           );
@@ -91,7 +122,7 @@ class _AiScreenState extends State<AiScreen> {
           NotificationService.instance.showAiMessageNotification(text);
         } else {
           _currentTypingIndex += 1;
-          _messages[_messages.length - 1] = _ChatMessage(
+          _messages[_messages.length - 1] = ChatMessage(
             text: text.substring(0, _currentTypingIndex.toInt()),
             isUser: false,
           );
@@ -103,8 +134,8 @@ class _AiScreenState extends State<AiScreen> {
 
   void _showChatMenuOverlay() {
     if (_chatMenuOverlay != null) {
-      _chatMenuOverlay!.markNeedsBuild();
-      return;
+      _chatMenuOverlay!.remove();
+      _chatMenuOverlay = null;
     }
     
     final overlay = Overlay.of(context);
@@ -119,11 +150,36 @@ class _AiScreenState extends State<AiScreen> {
             },
             onNewChat: () {
               setState(() {
+                _saveCurrentChat(); // Сохраняем текущий чат перед созданием нового
+                _currentChatId = null;
                 _messages.clear();
                 _hasConversation = false;
                 _inputController.clear();
               });
               _hideChatMenuOverlay();
+            },
+            chatHistory: _chatHistory,
+            editingChatIndex: _editingChatIndex,
+            renameControllers: _renameControllers,
+            onChatTap: (index) {
+              _openChat(index);
+              setOverlayState(() {});
+            },
+            onDeleteChat: (index) {
+              _deleteChat(index);
+              setOverlayState(() {});
+            },
+            onRenameChat: (index) {
+              _startRenamingChat(index);
+              setOverlayState(() {});
+            },
+            onSaveRename: (index) {
+              _saveRenamedChat(index);
+              setOverlayState(() {});
+            },
+            onCancelRename: () {
+              _cancelRenamingChat();
+              setOverlayState(() {});
             },
             selectedChatIndex: _selectedChatIndexForContextMenu,
             onChatSelected: (index) {
@@ -160,7 +216,125 @@ class _AiScreenState extends State<AiScreen> {
     _chatMenuOverlay?.remove();
     _inputController.dispose();
     _scrollController.dispose();
+    for (var controller in _renameControllers.values) {
+      controller.dispose();
+    }
+    _renameControllers.clear();
     super.dispose();
+  }
+  
+  void _openChat(int index) {
+    if (index >= 0 && index < _chatHistory.length) {
+      _saveCurrentChat(); // Сохраняем текущий чат перед открытием другого
+      final chat = _chatHistory[index];
+      setState(() {
+        _currentChatId = int.tryParse(chat.id);
+        _messages.clear();
+        _messages.addAll(chat.messages);
+        _hasConversation = true;
+        _hideChatMenuOverlay();
+      });
+      _scrollToBottom();
+    }
+  }
+  
+  void _deleteChat(int index) {
+    if (index >= 0 && index < _chatHistory.length) {
+      setState(() {
+        if (_currentChatId != null && _chatHistory[index].id == _currentChatId.toString()) {
+          _currentChatId = null;
+          _messages.clear();
+          _hasConversation = false;
+        }
+        // Удаляем контроллер для удаляемого чата
+        if (_renameControllers.containsKey(index)) {
+          _renameControllers[index]?.dispose();
+          _renameControllers.remove(index);
+        }
+        // Обновляем индексы для контроллеров
+        final newControllers = <int, TextEditingController>{};
+        for (var entry in _renameControllers.entries) {
+          if (entry.key > index) {
+            newControllers[entry.key - 1] = entry.value;
+          } else if (entry.key < index) {
+            newControllers[entry.key] = entry.value;
+          }
+        }
+        _renameControllers.clear();
+        _renameControllers.addAll(newControllers);
+        // Сбрасываем editingChatIndex, если удаляемый чат редактировался
+        if (_editingChatIndex == index) {
+          _editingChatIndex = null;
+        } else if (_editingChatIndex != null && _editingChatIndex! > index) {
+          _editingChatIndex = _editingChatIndex! - 1;
+        }
+        _chatHistory.removeAt(index);
+      });
+      // Обновляем Overlay после удаления
+      if (_chatMenuOverlay != null) {
+        _chatMenuOverlay!.markNeedsBuild();
+      }
+    }
+  }
+  
+  void _startRenamingChat(int index) {
+    if (index >= 0 && index < _chatHistory.length) {
+      setState(() {
+        _editingChatIndex = index;
+        if (!_renameControllers.containsKey(index)) {
+          _renameControllers[index] = TextEditingController(text: _chatHistory[index].title);
+        }
+      });
+      // Обновляем Overlay, чтобы показать TextField
+      if (_chatMenuOverlay != null) {
+        _chatMenuOverlay!.markNeedsBuild();
+      }
+    }
+  }
+  
+  void _saveRenamedChat(int index) {
+    if (index >= 0 && index < _chatHistory.length && _renameControllers.containsKey(index)) {
+      final newTitle = _renameControllers[index]!.text.trim();
+      if (newTitle.isNotEmpty) {
+        setState(() {
+          _chatHistory[index] = ChatHistory(
+            id: _chatHistory[index].id,
+            title: newTitle,
+            messages: _chatHistory[index].messages,
+          );
+          _editingChatIndex = null;
+        });
+        // Обновляем Overlay после сохранения
+        if (_chatMenuOverlay != null) {
+          _chatMenuOverlay!.markNeedsBuild();
+        }
+      }
+    }
+  }
+  
+  void _cancelRenamingChat() {
+    setState(() {
+      _editingChatIndex = null;
+    });
+    // Обновляем Overlay после отмены
+    if (_chatMenuOverlay != null) {
+      _chatMenuOverlay!.markNeedsBuild();
+    }
+  }
+  
+  void _saveCurrentChat() {
+    if (_messages.isNotEmpty && _currentChatId != null) {
+      final chatIndex = _chatHistory.indexWhere((chat) => chat.id == _currentChatId.toString());
+      if (chatIndex != -1) {
+        setState(() {
+          _chatHistory[chatIndex] = ChatHistory(
+            id: _chatHistory[chatIndex].id,
+            title: _chatHistory[chatIndex].title,
+            messages: List.from(_messages),
+          );
+        });
+      }
+    }
   }
 
   void _showCopyToastOnce() {
@@ -190,10 +364,10 @@ class _AiScreenState extends State<AiScreen> {
       FocusScope.of(context).unfocus();
       setState(() {
         _hasConversation = true;
-        _messages.add(_ChatMessage(text: text, isUser: true));
+        _messages.add(ChatMessage(text: text, isUser: true));
         _isTyping = true;
         _currentTypingIndex = 0;
-        _messages.add(const _ChatMessage(text: '', isUser: false));
+        _messages.add(const ChatMessage(text: '', isUser: false));
         _inputController.clear();
       });
 
@@ -204,18 +378,20 @@ class _AiScreenState extends State<AiScreen> {
         setState(() {
           if (_currentTypingIndex >= _assistantReply.length) {
             timer.cancel();
-            _messages[_messages.length - 1] = _ChatMessage(
+            _messages[_messages.length - 1] = ChatMessage(
               text: _assistantReply,
               isUser: false,
             );
             _isTyping = false;
+            // Сохраняем чат после завершения генерации
+            _saveCurrentChat();
             // Отправляем уведомление о завершении генерации
             NotificationService.instance.showAiMessageNotification(
               _assistantReply,
             );
           } else {
             _currentTypingIndex += 1;
-            _messages[_messages.length - 1] = _ChatMessage(
+            _messages[_messages.length - 1] = ChatMessage(
               text: _assistantReply.substring(0, _currentTypingIndex.toInt()),
               isUser: false,
             );
@@ -230,10 +406,20 @@ class _AiScreenState extends State<AiScreen> {
     FocusScope.of(context).unfocus();
     setState(() {
       _hasConversation = true;
-      _messages.add(_ChatMessage(text: text, isUser: true));
+      _messages.add(ChatMessage(text: text, isUser: true));
+      // Если это новый чат, создаем его при первом сообщении
+      if (_currentChatId == null) {
+        final newChat = ChatHistory(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          title: text.length > 30 ? '${text.substring(0, 30)}...' : text,
+          messages: List.from(_messages),
+        );
+        _chatHistory.insert(0, newChat);
+        _currentChatId = int.tryParse(newChat.id);
+      }
       _isTyping = true;
       _currentTypingIndex = 0;
-      _messages.add(const _ChatMessage(text: '', isUser: false));
+      _messages.add(const ChatMessage(text: '', isUser: false));
       _inputController.clear();
     });
 
@@ -244,18 +430,20 @@ class _AiScreenState extends State<AiScreen> {
       setState(() {
         if (_currentTypingIndex >= _assistantReply.length) {
           timer.cancel();
-          _messages[_messages.length - 1] = _ChatMessage(
+          _messages[_messages.length - 1] = ChatMessage(
             text: _assistantReply,
             isUser: false,
           );
           _isTyping = false;
+          // Сохраняем чат после завершения генерации
+          _saveCurrentChat();
           // Отправляем уведомление о завершении генерации
           NotificationService.instance.showAiMessageNotification(
             _assistantReply,
           );
         } else {
           _currentTypingIndex += 1;
-          _messages[_messages.length - 1] = _ChatMessage(
+          _messages[_messages.length - 1] = ChatMessage(
             text: _assistantReply.substring(0, _currentTypingIndex.toInt()),
             isUser: false,
           );
@@ -755,7 +943,7 @@ class _MessageBubble extends StatelessWidget {
     required this.onCopy,
   });
 
-  final _ChatMessage message;
+  final ChatMessage message;
   final double designWidth;
   final double designHeight;
   final Color accentColor;
@@ -834,11 +1022,23 @@ class _MessageBubble extends StatelessWidget {
   }
 }
 
-class _ChatMessage {
-  const _ChatMessage({required this.text, required this.isUser});
+class ChatMessage {
+  const ChatMessage({required this.text, required this.isUser});
 
   final String text;
   final bool isUser;
+}
+
+class ChatHistory {
+  ChatHistory({
+    required this.id,
+    required this.title,
+    required this.messages,
+  });
+
+  final String id;
+  final String title;
+  final List<ChatMessage> messages;
 }
 
 class _ChatMenuDrawer extends StatelessWidget {
@@ -847,18 +1047,34 @@ class _ChatMenuDrawer extends StatelessWidget {
     required this.designHeight,
     required this.onClose,
     required this.onNewChat,
+    required this.chatHistory,
     this.selectedChatIndex,
     this.onChatSelected,
     this.onContextMenuClosed,
+    this.editingChatIndex,
+    this.renameControllers,
+    this.onChatTap,
+    this.onDeleteChat,
+    this.onRenameChat,
+    this.onSaveRename,
+    this.onCancelRename,
   });
 
   final double designWidth;
   final double designHeight;
   final VoidCallback onClose;
   final VoidCallback onNewChat;
+  final List<ChatHistory> chatHistory;
   final int? selectedChatIndex;
   final ValueChanged<int>? onChatSelected;
   final VoidCallback? onContextMenuClosed;
+  final int? editingChatIndex;
+  final Map<int, TextEditingController>? renameControllers;
+  final ValueChanged<int>? onChatTap;
+  final ValueChanged<int>? onDeleteChat;
+  final ValueChanged<int>? onRenameChat;
+  final ValueChanged<int>? onSaveRename;
+  final VoidCallback? onCancelRename;
 
   @override
   Widget build(BuildContext context) {
@@ -872,13 +1088,6 @@ class _ChatMenuDrawer extends StatelessWidget {
 
     double scaleWidth(double value) => value * widthFactor;
     double scaleHeight(double value) => value * heightFactor;
-
-    // Моковые данные чатов
-    final List<String> chatTitles = [
-      'Маркетинговая стратегия',
-      'Разработка продукта',
-      'Анализ конкурентов',
-    ];
 
     return GestureDetector(
       onTap: onClose,
@@ -994,31 +1203,77 @@ class _ChatMenuDrawer extends StatelessWidget {
                       Expanded(
                         child: ListView.builder(
                           padding: EdgeInsets.zero,
-                          itemCount: chatTitles.length,
+                          itemCount: chatHistory.length,
                           itemBuilder: (context, index) {
+                            final isEditing = editingChatIndex == index;
+                            final controller = renameControllers?[index];
                             return Padding(
                               padding: EdgeInsets.only(
                                 top: index == 0 ? 0 : scaleHeight(20),
-                                // bottom: index == chatTitles.length - 1 ? 0 : scaleHeight(20),
                               ),
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Flexible(
-                                    child: Text(
-                                      chatTitles[index],
-                                      style: AppTextStyle.screenTitle(
-                                        scaleHeight(15),
-                                        color: isDark
-                                            ? AppColors.white
-                                            : const Color(0xFF5B5B5B),
-                                      ).copyWith(
-                                        decoration: TextDecoration.none,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                    ),
+                                  Expanded(
+                                    child: isEditing && controller != null
+                                        ? Material(
+                                            color: Colors.transparent,
+                                            child: Focus(
+                                              onFocusChange: (hasFocus) {
+                                                if (!hasFocus && onSaveRename != null) {
+                                                  onSaveRename!(index);
+                                                }
+                                              },
+                                              child: TextField(
+                                                controller: controller,
+                                                style: AppTextStyle.screenTitle(
+                                                  scaleHeight(15),
+                                                  color: isDark
+                                                      ? AppColors.white
+                                                      : const Color(0xFF5B5B5B),
+                                                ).copyWith(
+                                                  decoration: TextDecoration.none,
+                                                ),
+                                                decoration: InputDecoration(
+                                                  border: InputBorder.none,
+                                                  isDense: true,
+                                                  contentPadding: EdgeInsets.zero,
+                                                ),
+                                                autofocus: true,
+                                                onSubmitted: (value) {
+                                                  if (onSaveRename != null) {
+                                                    onSaveRename!(index);
+                                                  }
+                                                },
+                                                onEditingComplete: () {
+                                                  if (onSaveRename != null) {
+                                                    onSaveRename!(index);
+                                                  }
+                                                },
+                                              ),
+                                            ),
+                                          )
+                                        : GestureDetector(
+                                            onTap: () {
+                                              if (onChatTap != null) {
+                                                onChatTap!(index);
+                                              }
+                                            },
+                                            child: Text(
+                                              chatHistory[index].title,
+                                              style: AppTextStyle.screenTitle(
+                                                scaleHeight(15),
+                                                color: isDark
+                                                    ? AppColors.white
+                                                    : const Color(0xFF5B5B5B),
+                                              ).copyWith(
+                                                decoration: TextDecoration.none,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                            ),
+                                          ),
                                   ),
                                   SizedBox(width: scaleWidth(12)),
                                   GestureDetector(
@@ -1072,7 +1327,24 @@ class _ChatMenuDrawer extends StatelessWidget {
                             child: _ChatContextMenu(
                               designWidth: designWidth,
                               designHeight: designHeight,
+                              chatIndex: selectedChatIndex!,
                               onClose: () {
+                                if (onContextMenuClosed != null) {
+                                  onContextMenuClosed!();
+                                }
+                              },
+                              onDelete: () {
+                                if (onDeleteChat != null) {
+                                  onDeleteChat!(selectedChatIndex!);
+                                }
+                                if (onContextMenuClosed != null) {
+                                  onContextMenuClosed!();
+                                }
+                              },
+                              onRename: () {
+                                if (onRenameChat != null) {
+                                  onRenameChat!(selectedChatIndex!);
+                                }
                                 if (onContextMenuClosed != null) {
                                   onContextMenuClosed!();
                                 }
@@ -1097,11 +1369,17 @@ class _ChatContextMenu extends StatelessWidget {
     required this.designWidth,
     required this.designHeight,
     required this.onClose,
+    required this.chatIndex,
+    this.onDelete,
+    this.onRename,
   });
 
   final double designWidth;
   final double designHeight;
   final VoidCallback onClose;
+  final int chatIndex;
+  final VoidCallback? onDelete;
+  final VoidCallback? onRename;
 
   @override
   Widget build(BuildContext context) {
@@ -1119,7 +1397,7 @@ class _ChatContextMenu extends StatelessWidget {
     return Container(
       width: scaleWidth(160),
       constraints: BoxConstraints(
-        minHeight: scaleHeight(100),
+        minHeight: scaleHeight(73),
       ),
       decoration: BoxDecoration(
         color: isDark
@@ -1136,22 +1414,6 @@ class _ChatContextMenu extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Поделиться
-          _ContextMenuItem(
-            iconPath: isDark
-                ? 'assets/icons/dark/icon_share.svg'
-                : 'assets/icons/light/icon_share.svg',
-            text: l.chatMenuShare,
-            textColor: isDark
-                ? AppColors.white
-                : const Color(0xFF5B5B5B),
-            designWidth: designWidth,
-            designHeight: designHeight,
-            onTap: () {
-              // TODO: Реализовать поделиться
-              onClose();
-            },
-          ),
           // Переименовать
           _ContextMenuItem(
             iconPath: isDark
@@ -1164,8 +1426,11 @@ class _ChatContextMenu extends StatelessWidget {
             designWidth: designWidth,
             designHeight: designHeight,
             onTap: () {
-              // TODO: Реализовать переименование
-              onClose();
+              if (onRename != null) {
+                onRename!();
+              } else {
+                onClose();
+              }
             },
           ),
           // Удалить
@@ -1176,8 +1441,11 @@ class _ChatContextMenu extends StatelessWidget {
             designWidth: designWidth,
             designHeight: designHeight,
             onTap: () {
-              // TODO: Реализовать удаление
-              onClose();
+              if (onDelete != null) {
+                onDelete!();
+              } else {
+                onClose();
+              }
             },
           ),
         ],
