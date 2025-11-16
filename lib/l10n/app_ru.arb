@@ -75,6 +75,20 @@
   "authPasswordErrorWrong": "Неверный пароль",
 
   "authRegisterPlaceholder": "Здесь будет экран регистрации",
+  "authRegisterTitle": "Регистрация",
+  "authHasAccount": "Есть аккаунт? ",
+  "authLogin": "Войдите",
+  "authButtonContinue": "ПРОДОЛЖИТЬ",
+  "authEmailAlreadyRegistered": "Эта почта уже зарегистрирована",
+  "authCodeTitle": "Код",
+  "authCodeMessage": "На вашу почту был отправлен код для\nподтверждения регистрации",
+  "authCodeErrorWrong": "Неверный код",
+  "authPasswordCreateTitle": "Создайте",
+  "authPasswordCreateSubtitle": "пароль",
+  "authPasswordConfirm": "Пароль",
+  "authPasswordErrorTooShort": "Пароль должен быть не менее 8 символов",
+  "authPasswordErrorMismatch": "Пароли не совпадают",
+  "authFillDataTitle": "Заполнить данные",
 
   "aiCopyToast": "Текст скопирован",
 

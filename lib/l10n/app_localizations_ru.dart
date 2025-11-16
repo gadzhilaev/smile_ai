@@ -192,6 +192,48 @@ class AppLocalizationsRu extends AppLocalizations {
   String get authRegisterPlaceholder => 'Здесь будет экран регистрации';
 
   @override
+  String get authRegisterTitle => 'Регистрация';
+
+  @override
+  String get authHasAccount => 'Есть аккаунт? ';
+
+  @override
+  String get authLogin => 'Войдите';
+
+  @override
+  String get authButtonContinue => 'ПРОДОЛЖИТЬ';
+
+  @override
+  String get authEmailAlreadyRegistered => 'Эта почта уже зарегистрирована';
+
+  @override
+  String get authCodeTitle => 'Код';
+
+  @override
+  String get authCodeMessage => 'На вашу почту был отправлен код для\nподтверждения регистрации';
+
+  @override
+  String get authCodeErrorWrong => 'Неверный код';
+
+  @override
+  String get authPasswordCreateTitle => 'Создайте';
+
+  @override
+  String get authPasswordCreateSubtitle => 'пароль';
+
+  @override
+  String get authPasswordConfirm => 'Пароль';
+
+  @override
+  String get authPasswordErrorTooShort => 'Пароль должен быть не менее 8 символов';
+
+  @override
+  String get authPasswordErrorMismatch => 'Пароли не совпадают';
+
+  @override
+  String get authFillDataTitle => 'Заполнить данные';
+
+  @override
   String get aiCopyToast => 'Текст скопирован';
 
   @override

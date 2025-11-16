@@ -461,6 +461,90 @@ abstract class AppLocalizations {
   /// **'Registration screen will be here'**
   String get authRegisterPlaceholder;
 
+  /// No description provided for @authRegisterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration'**
+  String get authRegisterTitle;
+
+  /// No description provided for @authHasAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Have an account? '**
+  String get authHasAccount;
+
+  /// No description provided for @authLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Log in'**
+  String get authLogin;
+
+  /// No description provided for @authButtonContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'CONTINUE'**
+  String get authButtonContinue;
+
+  /// No description provided for @authEmailAlreadyRegistered.
+  ///
+  /// In en, this message translates to:
+  /// **'This email is already registered'**
+  String get authEmailAlreadyRegistered;
+
+  /// No description provided for @authCodeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Code'**
+  String get authCodeTitle;
+
+  /// No description provided for @authCodeMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'A code has been sent to your email to\nconfirm registration'**
+  String get authCodeMessage;
+
+  /// No description provided for @authCodeErrorWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect code'**
+  String get authCodeErrorWrong;
+
+  /// No description provided for @authPasswordCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get authPasswordCreateTitle;
+
+  /// No description provided for @authPasswordCreateSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'password'**
+  String get authPasswordCreateSubtitle;
+
+  /// No description provided for @authPasswordConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get authPasswordConfirm;
+
+  /// No description provided for @authPasswordErrorTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 8 characters'**
+  String get authPasswordErrorTooShort;
+
+  /// No description provided for @authPasswordErrorMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match'**
+  String get authPasswordErrorMismatch;
+
+  /// No description provided for @authFillDataTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in data'**
+  String get authFillDataTitle;
+
   /// No description provided for @aiCopyToast.
   ///
   /// In en, this message translates to:

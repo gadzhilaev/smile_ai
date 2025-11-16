@@ -75,6 +75,20 @@
   "authPasswordErrorWrong": "Incorrect password",
 
   "authRegisterPlaceholder": "Registration screen will be here",
+  "authRegisterTitle": "Registration",
+  "authHasAccount": "Have an account? ",
+  "authLogin": "Log in",
+  "authButtonContinue": "CONTINUE",
+  "authEmailAlreadyRegistered": "This email is already registered",
+  "authCodeTitle": "Code",
+  "authCodeMessage": "A code has been sent to your email to\nconfirm registration",
+  "authCodeErrorWrong": "Incorrect code",
+  "authPasswordCreateTitle": "Create",
+  "authPasswordCreateSubtitle": "password",
+  "authPasswordConfirm": "Password",
+  "authPasswordErrorTooShort": "Password must be at least 8 characters",
+  "authPasswordErrorMismatch": "Passwords do not match",
+  "authFillDataTitle": "Fill in data",
 
   "aiCopyToast": "Text copied",
 

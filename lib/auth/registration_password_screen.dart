@@ -6,23 +6,26 @@ import '../l10n/app_localizations.dart';
 
 import '../widgets/auth_input_field.dart';
 import '../widgets/auth_submit_button.dart';
-import 'registration_code_screen.dart';
+import 'registration_data_screen.dart';
 
-class RegistrationPlaceholderScreen extends StatefulWidget {
-  const RegistrationPlaceholderScreen({super.key});
+class RegistrationPasswordScreen extends StatefulWidget {
+  const RegistrationPasswordScreen({super.key, required this.email});
+
+  final String email;
 
   @override
-  State<RegistrationPlaceholderScreen> createState() =>
-      _RegistrationPlaceholderScreenState();
+  State<RegistrationPasswordScreen> createState() =>
+      _RegistrationPasswordScreenState();
 }
 
-class _RegistrationPlaceholderScreenState
-    extends State<RegistrationPlaceholderScreen> {
+class _RegistrationPasswordScreenState
+    extends State<RegistrationPasswordScreen> {
   static const double _designWidth = 428;
   static const double _designHeight = 926;
   static const double _topOffset = 127;
   static const double _leftOffset = 28;
-  static const double _titleFieldSpacing = 83;
+  static const double _titleFieldSpacing = 49;
+  static const double _fieldSpacing = 26;
   static const double _fieldButtonSpacing = 25;
   static const double _fieldHorizontalPadding = 26;
   static const double _componentHeight = 53;
@@ -32,8 +35,11 @@ class _RegistrationPlaceholderScreenState
   static const double _buttonBorderRadius = 9;
   static const double _errorTextOffset = 21;
 
-  final TextEditingController _controller = TextEditingController();
-  final FocusNode _focusNode = FocusNode();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+  final FocusNode _passwordFocusNode = FocusNode();
+  final FocusNode _confirmPasswordFocusNode = FocusNode();
   bool _showError = false;
   String? _errorMessage;
   late final TapGestureRecognizer _loginRecognizer;
@@ -41,18 +47,26 @@ class _RegistrationPlaceholderScreenState
   @override
   void initState() {
     super.initState();
-    _focusNode.addListener(_onFieldStateChange);
-    _controller.addListener(_onFieldStateChange);
+    _passwordController.addListener(_onFieldStateChange);
+    _confirmPasswordController.addListener(_onFieldStateChange);
+    _passwordFocusNode.addListener(_onFieldStateChange);
+    _confirmPasswordFocusNode.addListener(_onFieldStateChange);
     _loginRecognizer = TapGestureRecognizer()
       ..onTap = _openLoginScreen;
   }
 
   @override
   void dispose() {
-    _focusNode
+    _passwordController
       ..removeListener(_onFieldStateChange)
       ..dispose();
-    _controller
+    _confirmPasswordController
+      ..removeListener(_onFieldStateChange)
+      ..dispose();
+    _passwordFocusNode
+      ..removeListener(_onFieldStateChange)
+      ..dispose();
+    _confirmPasswordFocusNode
       ..removeListener(_onFieldStateChange)
       ..dispose();
     _loginRecognizer.dispose();
@@ -69,51 +83,50 @@ class _RegistrationPlaceholderScreenState
     });
   }
 
-  bool _isValidEmail(String value) {
-    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
-    return emailRegex.hasMatch(value.trim());
-  }
-
-  void _submitEmail() {
-    final email = _controller.text.trim();
-    final isEmailValid = _isValidEmail(email);
-    final isAlreadyRegistered = email.toLowerCase() == 'test@test.ru';
+  void _submitPassword() {
+    final password = _passwordController.text.trim();
+    final confirmPassword = _confirmPasswordController.text.trim();
 
     setState(() {
       final l = AppLocalizations.of(context)!;
 
-      if (email.isEmpty) {
+      if (password.isEmpty || confirmPassword.isEmpty) {
         _showError = true;
-        _errorMessage = l.authEmailErrorInvalid;
+        _errorMessage = l.authPasswordErrorTooShort;
         return;
       }
 
-      if (!isEmailValid) {
+      if (password.length < 8) {
         _showError = true;
-        _errorMessage = l.authEmailErrorInvalid;
+        _errorMessage = l.authPasswordErrorTooShort;
         return;
       }
 
-      if (isAlreadyRegistered) {
+      if (password != confirmPassword) {
         _showError = true;
-        _errorMessage = l.authEmailAlreadyRegistered;
+        _errorMessage = l.authPasswordErrorMismatch;
         return;
       }
 
       _showError = false;
       _errorMessage = null;
+    });
 
+    if (!_showError) {
       FocusScope.of(context).unfocus();
       Navigator.of(context).push(
         MaterialPageRoute<void>(
-          builder: (_) => RegistrationCodeScreen(email: email),
+          builder: (_) => RegistrationDataScreen(
+            email: widget.email,
+            password: password,
+          ),
         ),
       );
-    });
+    }
   }
 
   void _openLoginScreen() {
-    Navigator.of(context).pop();
+    Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   @override
@@ -131,9 +144,13 @@ class _RegistrationPlaceholderScreenState
         double scaleWidth(double value) => value * widthFactor;
         double scaleHeight(double value) => value * heightFactor;
 
-        final bool isActive =
-            _focusNode.hasFocus || _controller.text.isNotEmpty;
-        final bool isButtonEnabled = _controller.text.isNotEmpty && !_showError;
+        final bool isPasswordActive =
+            _passwordFocusNode.hasFocus || _passwordController.text.isNotEmpty;
+        final bool isConfirmPasswordActive = _confirmPasswordFocusNode.hasFocus ||
+            _confirmPasswordController.text.isNotEmpty;
+        final bool isButtonEnabled = _passwordController.text.isNotEmpty &&
+            _confirmPasswordController.text.isNotEmpty &&
+            !_showError;
 
         final double fieldHeight = scaleHeight(_componentHeight);
         final double fieldBorderRadius = scaleHeight(_fieldBorderRadius);
@@ -168,12 +185,24 @@ class _RegistrationPlaceholderScreenState
                       padding: EdgeInsets.symmetric(
                         horizontal: scaleWidth(_leftOffset),
                       ),
-                      child: Text(
-                        l.authRegisterTitle,
-                        style: AppTextStyle.bodyTextBold(
-                          scaleWidth(40),
-                          color: theme.colorScheme.onSurface,
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l.authPasswordCreateTitle,
+                            style: AppTextStyle.bodyTextBold(
+                              scaleWidth(40),
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
+                          Text(
+                            l.authPasswordCreateSubtitle,
+                            style: AppTextStyle.bodyTextBold(
+                              scaleWidth(40),
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     SizedBox(height: scaleHeight(_titleFieldSpacing)),
@@ -182,9 +211,9 @@ class _RegistrationPlaceholderScreenState
                         horizontal: scaleWidth(_fieldHorizontalPadding),
                       ),
                       child: AuthInputField(
-                        controller: _controller,
-                        focusNode: _focusNode,
-                        isActive: isActive,
+                        controller: _passwordController,
+                        focusNode: _passwordFocusNode,
+                        isActive: isPasswordActive,
                         showError: _showError,
                         fieldHeight: fieldHeight,
                         borderRadius: fieldBorderRadius,
@@ -194,11 +223,40 @@ class _RegistrationPlaceholderScreenState
                         hintFontSize: scaleHeight(16),
                         floatingLabelFontSize: scaleHeight(11),
                         textFontSize: scaleHeight(15),
-                        hintText: l.authEmailHint,
-                        labelText: l.authEmailHint,
-                        keyboardType: TextInputType.emailAddress,
+                        hintText: l.authPasswordHint,
+                        labelText: l.authPasswordHint,
+                        isObscure: true,
+                        keyboardType: TextInputType.visiblePassword,
+                        textInputAction: TextInputAction.next,
+                        onSubmitted: (_) {
+                          _confirmPasswordFocusNode.requestFocus();
+                        },
+                      ),
+                    ),
+                    SizedBox(height: scaleHeight(_fieldSpacing)),
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: scaleWidth(_fieldHorizontalPadding),
+                      ),
+                      child: AuthInputField(
+                        controller: _confirmPasswordController,
+                        focusNode: _confirmPasswordFocusNode,
+                        isActive: isConfirmPasswordActive,
+                        showError: _showError,
+                        fieldHeight: fieldHeight,
+                        borderRadius: fieldBorderRadius,
+                        innerPadding: fieldInnerPadding,
+                        labelSpacing: fieldLabelSpacing,
+                        labelTopPadding: labelTopPadding,
+                        hintFontSize: scaleHeight(16),
+                        floatingLabelFontSize: scaleHeight(11),
+                        textFontSize: scaleHeight(15),
+                        hintText: l.authPasswordConfirm,
+                        labelText: l.authPasswordConfirm,
+                        isObscure: true,
+                        keyboardType: TextInputType.visiblePassword,
                         textInputAction: TextInputAction.done,
-                        onSubmitted: (_) => _submitEmail(),
+                        onSubmitted: (_) => _submitPassword(),
                       ),
                     ),
                     if (_showError && _errorMessage != null)
@@ -226,7 +284,7 @@ class _RegistrationPlaceholderScreenState
                       child: AuthSubmitButton(
                         label: l.authButtonContinue,
                         isEnabled: isButtonEnabled,
-                        onPressed: isButtonEnabled ? _submitEmail : null,
+                        onPressed: isButtonEnabled ? _submitPassword : null,
                         buttonHeight: buttonHeight,
                         borderRadius: buttonBorderRadius,
                         fontSize: scaleHeight(16),
@@ -265,3 +323,4 @@ class _RegistrationPlaceholderScreenState
     );
   }
 }
+

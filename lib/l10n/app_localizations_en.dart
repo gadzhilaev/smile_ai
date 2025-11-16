@@ -192,6 +192,48 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authRegisterPlaceholder => 'Registration screen will be here';
 
   @override
+  String get authRegisterTitle => 'Registration';
+
+  @override
+  String get authHasAccount => 'Have an account? ';
+
+  @override
+  String get authLogin => 'Log in';
+
+  @override
+  String get authButtonContinue => 'CONTINUE';
+
+  @override
+  String get authEmailAlreadyRegistered => 'This email is already registered';
+
+  @override
+  String get authCodeTitle => 'Code';
+
+  @override
+  String get authCodeMessage => 'A code has been sent to your email to\nconfirm registration';
+
+  @override
+  String get authCodeErrorWrong => 'Incorrect code';
+
+  @override
+  String get authPasswordCreateTitle => 'Create';
+
+  @override
+  String get authPasswordCreateSubtitle => 'password';
+
+  @override
+  String get authPasswordConfirm => 'Password';
+
+  @override
+  String get authPasswordErrorTooShort => 'Password must be at least 8 characters';
+
+  @override
+  String get authPasswordErrorMismatch => 'Passwords do not match';
+
+  @override
+  String get authFillDataTitle => 'Fill in data';
+
+  @override
   String get aiCopyToast => 'Text copied';
 
   @override
