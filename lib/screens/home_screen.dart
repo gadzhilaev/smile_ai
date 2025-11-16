@@ -38,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _editText = editText;
       _onTextSaved = onTextSaved;
       _aiScreenKey++; // Изменяем ключ для пересоздания экрана
+      _aiScreen = null; // Сбрасываем кеш для пересоздания с новыми параметрами
     });
   }
 
@@ -48,36 +49,60 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
 
+  // Ленивая загрузка экранов - создаем только при первом обращении
+  Widget? _aiScreen;
+  Widget? _templatesScreen;
+  Widget? _analyticsScreen;
+  Widget? _profileScreen;
+
+  Widget _buildScreen(int index) {
+    switch (index) {
+      case 0:
+        _aiScreen ??= AiScreen(
+          key: ValueKey(_aiScreenKey),
+          autoGenerateText: _autoGenerateText,
+          editText: _editText,
+          onTextSaved: _onTextSaved,
+        );
+        return _aiScreen!;
+      case 1:
+        _templatesScreen ??= TemplatesScreen(
+          key: ValueKey(_templatesScreenKey),
+          onApplyTemplate: (text) {
+            navigateToAiScreen(autoGenerateText: text);
+          },
+          onEditTemplate: (text, onSaved) {
+            navigateToAiScreen(
+              editText: text,
+              onTextSaved: (editedText) {
+                onSaved(editedText);
+                _refreshTemplates();
+              },
+            );
+          },
+        );
+        return _templatesScreen!;
+      case 2:
+        _analyticsScreen ??= const AnalyticsScreen();
+        return _analyticsScreen!;
+      case 3:
+        _profileScreen ??= const ProfileScreen();
+        return _profileScreen!;
+      default:
+        return const SizedBox();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
         children: [
-          AiScreen(
-            key: ValueKey(_aiScreenKey),
-            autoGenerateText: _autoGenerateText,
-            editText: _editText,
-            onTextSaved: _onTextSaved,
-          ),
-          TemplatesScreen(
-            key: ValueKey(_templatesScreenKey),
-            onApplyTemplate: (text) {
-              navigateToAiScreen(autoGenerateText: text);
-            },
-            onEditTemplate: (text, onSaved) {
-              navigateToAiScreen(
-                editText: text,
-                onTextSaved: (editedText) {
-                  onSaved(editedText);
-                  // Обновляем список шаблонов после сохранения
-                  _refreshTemplates();
-                },
-              );
-            },
-          ),
-          const AnalyticsScreen(),
-          const ProfileScreen(),
+          _buildScreen(0),
+          _buildScreen(1),
+          _buildScreen(2),
+          _buildScreen(3),
         ],
       ),
       bottomNavigationBar: MainBottomNavBar(
@@ -87,6 +112,10 @@ class _HomeScreenState extends State<HomeScreen> {
         accentColor: _accentColor,
         currentIndex: _currentIndex,
         onTap: (index) {
+          // Обновляем AI экран при переключении, если нужно
+          if (index == 0 && _aiScreen != null) {
+            _aiScreen = null; // Пересоздадим при следующем обращении
+          }
           setState(() {
             _currentIndex = index;
             // Сбрасываем параметры при ручном переключении
@@ -95,6 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
               _editText = null;
               _onTextSaved = null;
               _aiScreenKey++;
+              _aiScreen = null; // Сбрасываем кеш для пересоздания
             }
           });
         },

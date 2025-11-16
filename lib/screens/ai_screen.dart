@@ -513,6 +513,9 @@ class _AiScreenState extends State<AiScreen> {
                                 ),
                                 textInputAction: TextInputAction.send,
                                 onSubmitted: (_) => _sendMessage(),
+                                enableInteractiveSelection: true,
+                                enableSuggestions: true,
+                                autocorrect: true,
                               ),
                             ),
                             SvgPicture.asset(

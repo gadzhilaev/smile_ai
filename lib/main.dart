@@ -7,11 +7,22 @@ import 'auth/login.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Инициализируем уведомления и запрашиваем разрешения
-  await NotificationService.instance.initialize();
-  await NotificationService.instance.requestPermissions();
-  
+  // Запускаем приложение сразу, инициализацию уведомлений делаем в фоне
   runApp(const MainApp());
+  
+  // Инициализируем уведомления в фоне после запуска приложения
+  _initializeNotificationsInBackground();
+}
+
+// Инициализация уведомлений в фоне, чтобы не блокировать запуск приложения
+void _initializeNotificationsInBackground() async {
+  try {
+    await NotificationService.instance.initialize();
+    await NotificationService.instance.requestPermissions();
+  } catch (e) {
+    // Игнорируем ошибки инициализации, чтобы не блокировать приложение
+    debugPrint('Notification initialization error: $e');
+  }
 }
 
 class MainApp extends StatelessWidget {
