@@ -65,8 +65,8 @@ class MainBottomNavBar extends StatelessWidget {
                       labelColor: currentIndex == 0
                           ? effectiveAccentColor
                           : effectivePrimaryColor,
-                      designWidth: designWidth,
-                      designHeight: designHeight,
+                  designWidth: designWidth,
+                  designHeight: designHeight,
                       onTap: () => onTap(0),
                     );
                   },
@@ -89,8 +89,8 @@ class MainBottomNavBar extends StatelessWidget {
                       labelColor: currentIndex == 1
                           ? effectiveAccentColor
                           : effectivePrimaryColor,
-                      designWidth: designWidth,
-                      designHeight: designHeight,
+                  designWidth: designWidth,
+                  designHeight: designHeight,
                       onTap: () => onTap(1),
                     );
                   },
@@ -113,8 +113,8 @@ class MainBottomNavBar extends StatelessWidget {
                       labelColor: currentIndex == 2
                           ? effectiveAccentColor
                           : effectivePrimaryColor,
-                      designWidth: designWidth,
-                      designHeight: designHeight,
+                  designWidth: designWidth,
+                  designHeight: designHeight,
                       onTap: () => onTap(2),
                     );
                   },
@@ -137,8 +137,8 @@ class MainBottomNavBar extends StatelessWidget {
                       labelColor: currentIndex == 3
                           ? effectiveAccentColor
                           : effectivePrimaryColor,
-                      designWidth: designWidth,
-                      designHeight: designHeight,
+                  designWidth: designWidth,
+                  designHeight: designHeight,
                       onTap: () => onTap(3),
                     );
                   },
@@ -192,8 +192,8 @@ class _NavItem extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.all(scaleWidth(8)),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
+      mainAxisSize: MainAxisSize.min,
+      children: [
             if (isSvg)
               SvgPicture.asset(
                 iconPath,
@@ -208,18 +208,18 @@ class _NavItem extends StatelessWidget {
                     : null,
               )
             else
-              Image.asset(
-                iconPath,
-                width: scaleWidth(24),
-                height: scaleHeight(24),
-                fit: BoxFit.contain,
-              ),
-            SizedBox(height: scaleHeight(4)),
-            Text(
-              label,
+        Image.asset(
+          iconPath,
+          width: scaleWidth(24),
+          height: scaleHeight(24),
+          fit: BoxFit.contain,
+        ),
+        SizedBox(height: scaleHeight(4)),
+        Text(
+          label,
               style: AppTextStyle.navBarLabel(scaleHeight(10), labelColor),
-            ),
-          ],
+        ),
+      ],
         ),
       ),
     );

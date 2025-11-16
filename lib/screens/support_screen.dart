@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../settings/style.dart';
 import '../settings/colors.dart';
@@ -20,6 +23,8 @@ class _SupportScreenState extends State<SupportScreen> {
   final List<_SupportMessage> _messages = [];
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final ImagePicker _imagePicker = ImagePicker();
+  XFile? _attachedImage;
 
   @override
   void initState() {
@@ -58,18 +63,56 @@ class _SupportScreenState extends State<SupportScreen> {
     });
   }
 
+  Future<void> _pickImage() async {
+    try {
+      final XFile? file = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1024,
+        maxHeight: 1024,
+      );
+      if (file == null) return;
+      setState(() {
+        _attachedImage = file;
+      });
+    } catch (e) {
+      // Можно добавить debugPrint при необходимости
+    }
+  }
+
+  void _openImageFullScreen(String path) {
+    showDialog<void>(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.9),
+      builder: (context) {
+        return GestureDetector(
+          onTap: () => Navigator.of(context).pop(),
+          child: Center(
+            child: InteractiveViewer(
+              child: Image.file(
+                File(path),
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   void _sendMessage() {
     final text = _inputController.text.trim();
-    if (text.isEmpty) return;
+    if (text.isEmpty && _attachedImage == null) return;
 
     setState(() {
       _messages.add(
         _SupportMessage(
           fromSupport: false,
           text: text,
+          imagePath: _attachedImage?.path,
         ),
       );
       _inputController.clear();
+      _attachedImage = null;
     });
     _scrollToBottom();
   }
@@ -189,6 +232,25 @@ class _SupportScreenState extends State<SupportScreen> {
                     ),
                   ),
                 ),
+                if (_attachedImage != null)
+                  Padding(
+                    padding: EdgeInsets.only(
+                      left: scaleWidth(24),
+                      right: scaleWidth(24),
+                      bottom: scaleHeight(16),
+                    ),
+                    child: GestureDetector(
+                      onTap: () => _openImageFullScreen(_attachedImage!.path),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.file(
+                          File(_attachedImage!.path),
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  ),
                 // Поле ввода
                 Padding(
                   padding: EdgeInsets.only(
@@ -201,13 +263,16 @@ class _SupportScreenState extends State<SupportScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       // Левая иконка (скрепка) СНАРУЖИ поля
-                      SvgPicture.asset(
-                        'assets/icons/icon_clip.svg',
-                        width: scaleWidth(24),
-                        height: scaleWidth(24),
-                        colorFilter: ColorFilter.mode(
-                          isDark ? AppColors.white : AppColors.black,
-                          BlendMode.srcIn,
+                      GestureDetector(
+                        onTap: _pickImage,
+                        child: SvgPicture.asset(
+                          'assets/icons/icon_clip.svg',
+                          width: scaleWidth(24),
+                          height: scaleWidth(24),
+                          colorFilter: ColorFilter.mode(
+                            isDark ? AppColors.white : AppColors.black,
+                            BlendMode.srcIn,
+                          ),
                         ),
                       ),
                       Expanded(
@@ -273,11 +338,13 @@ class _SupportMessage {
     required this.fromSupport,
     required this.text,
     this.isGreeting = false,
+    this.imagePath,
   });
 
   final bool fromSupport;
   final String text;
   final bool isGreeting;
+  final String? imagePath;
 }
 
 class _SupportBubble extends StatelessWidget {
@@ -445,13 +512,15 @@ class _BubbleContent extends StatelessWidget {
       ),
       padding: EdgeInsets.symmetric(
         horizontal: scaleWidth(16),
-        vertical: scaleHeight(10),
+        vertical: scaleHeight(6),
       ),
       child: Column(
         crossAxisAlignment:
             alignRight ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
+          // Изображение теперь показывается в отдельном блоке сообщения,
+          // поэтому внутри бабла его не рендерим.
           Text(
             nameText,
             style: AppTextStyle.bodyText(
@@ -461,13 +530,19 @@ class _BubbleContent extends StatelessWidget {
                   : const Color(0xFF656565),
             ),
           ),
-          Text(
-            messageText,
-            style: AppTextStyle.screenTitle(
-                    scaleHeight(16),
-                    color: isDark ? AppColors.white : AppColors.black,
-                  ),
-          ),
+          if (messageText.isNotEmpty)
+            Text(
+              messageText,
+              style: isGreeting
+                  ? AppTextStyle.screenTitle(
+                      scaleHeight(16),
+                      color: isDark ? AppColors.white : AppColors.black,
+                    )
+                  : AppTextStyle.bodyText(
+                      scaleHeight(16),
+                      color: isDark ? AppColors.white : AppColors.black,
+                    ),
+            ),
         ],
       ),
     );

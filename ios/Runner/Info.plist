@@ -47,5 +47,9 @@
 		<true/>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>Разрешите доступ к фотографиям, чтобы отправлять изображения в поддержку Smile AI.</string>
+		<key>NSCameraUsageDescription</key>
+		<string>Разрешите доступ к камере, чтобы делать фотографии и отправлять их в поддержку Smile AI.</string>
 	</dict>
 </plist>
