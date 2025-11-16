@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../settings/style.dart';
 import '../settings/colors.dart';
 import '../l10n/app_localizations.dart';
+import '../services/auth_service.dart';
 
 import '../screens/home_screen.dart';
 import '../widgets/auth_input_field.dart';
@@ -63,7 +64,7 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
     });
   }
 
-  void _submitPassword() {
+  Future<void> _submitPassword() async {
     final password = _passwordController.text.trim();
 
     if (password != _validPassword) {
@@ -80,7 +81,30 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
       _errorMessage = null;
     });
 
+    // TODO: Здесь должен быть реальный API вызов для получения токена
+    // В будущем это должно быть:
+    // final response = await ApiService.instance.login(widget.email, password);
+    // final token = response['token'];
+    // await AuthService.instance.saveToken(token);
+    
+    // Убеждаемся, что AuthService инициализирован
+    await AuthService.instance.init();
+    
+    // Токен для тестирования проверки
+    const testToken = '4644f185-1542-4dea-87b2-a9830a6d5fdf';
+    debugPrint('LogPass: saving token: $testToken');
+    await AuthService.instance.saveToken(testToken);
+    
+    // Проверяем, что токен сохранился
+    final savedToken = AuthService.instance.getToken();
+    debugPrint('LogPass: token saved, verification: ${savedToken == testToken ? "OK" : "FAILED"}');
+    debugPrint('LogPass: saved token value: $savedToken');
+
+    if (!mounted) return;
+    
     FocusScope.of(context).unfocus();
+    if (!mounted) return;
+    
     Navigator.of(context).pushReplacement(
         MaterialPageRoute<void>(builder: (_) => const HomeScreen()),
     );

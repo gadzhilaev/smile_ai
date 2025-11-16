@@ -1,13 +1,19 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'l10n/app_localizations.dart';
 import 'services/notification_service.dart';
 import 'services/language_service.dart';
 import 'services/theme_service.dart';
+import 'services/api_service.dart';
+import 'services/auth_service.dart';
 import 'settings/colors.dart';
 import 'auth/login.dart';
+import 'screens/home_screen.dart';
 
 void main() async {
   final WidgetsBinding widgetsBinding =
@@ -16,13 +22,50 @@ void main() async {
   // Держим нативный splash, пока идёт инициализация
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
+  // Загружаем .env файл
+  try {
+    await dotenv.load(fileName: ".env");
+    debugPrint('Startup: .env file loaded successfully');
+    final envToken = dotenv.env['AUTH_TOKEN'];
+    if (envToken != null && envToken.isNotEmpty) {
+      debugPrint('Startup: AUTH_TOKEN found in .env: ${envToken.substring(0, 8)}...');
+      // Сохраняем токен из .env в AuthService
+      await AuthService.instance.init();
+      await AuthService.instance.saveToken(envToken);
+      debugPrint('Startup: token from .env saved to AuthService');
+    } else {
+      debugPrint('Startup: AUTH_TOKEN not found in .env');
+    }
+  } catch (e) {
+    debugPrint('Startup: error loading .env file: $e');
+  }
+
   // Загружаем сохранённый язык и тему до запуска приложения
   await LanguageService.instance.init();
   await ThemeService.instance.init();
+  await AuthService.instance.init();
+
+  // Проверяем health сервера
+  debugPrint('Startup: checking server health...');
+  final isHealthy = await ApiService.instance.checkHealth();
+  
+  if (!isHealthy) {
+    debugPrint('Startup: server health check failed, closing app...');
+    // Закрываем приложение если health check не прошел
+    FlutterNativeSplash.remove();
+    if (Platform.isAndroid) {
+      SystemNavigator.pop();
+    } else {
+      exit(0);
+    }
+    return;
+  }
+
+  debugPrint('Startup: server health check passed');
 
   runApp(const MainApp());
 
-  // Параллельно инициализируем уведомления и "загрузку данных"
+  // Параллельно инициализируем уведомления и проверку токена
   _initializeAppAsync();
 }
 
@@ -31,11 +74,6 @@ Future<void> _initializeAppAsync() async {
     debugPrint('Startup: initializing notifications...');
     await NotificationService.instance.initialize();
     await NotificationService.instance.requestPermissions();
-
-    debugPrint('Startup: loading initial API data...');
-    // Имитируем запрос к API и ожидание данных (3 секунды)
-    await Future.delayed(const Duration(seconds: 3));
-    debugPrint('Startup: API data loaded successfully');
   } catch (e) {
     debugPrint('Startup initialization error: $e');
   } finally {
@@ -52,6 +90,55 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
+  Widget? _initialScreen;
+  bool _isInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _determineInitialScreen();
+  }
+
+  Future<void> _determineInitialScreen() async {
+    final token = AuthService.instance.getToken();
+    debugPrint('Startup: checking token - token exists: ${token != null && token.isNotEmpty}');
+    debugPrint('Startup: token value: ${token ?? "null"}');
+    
+    if (token == null || token.isEmpty) {
+      debugPrint('Startup: no token found, showing login screen');
+      setState(() {
+        _initialScreen = const EmailScreen();
+        _isInitialized = true;
+      });
+      return;
+    }
+
+    debugPrint('Startup: checking token validity with API...');
+    final result = await ApiService.instance.checkToken(token);
+    debugPrint('Startup: API response: $result');
+    debugPrint('Startup: result[valid] type: ${result['valid'].runtimeType}');
+    debugPrint('Startup: result[valid] value: ${result['valid']}');
+    
+    // Проверяем валидность токена (может быть bool или строка)
+    final isValid = result['valid'] == true || result['valid'] == 'true';
+    debugPrint('Startup: token is valid: $isValid');
+    
+    if (isValid) {
+      debugPrint('Startup: token is valid, showing home screen');
+      setState(() {
+        _initialScreen = const HomeScreen();
+        _isInitialized = true;
+      });
+    } else {
+      debugPrint('Startup: token is invalid, clearing token and showing login screen');
+      await AuthService.instance.clearToken();
+      setState(() {
+        _initialScreen = const EmailScreen();
+        _isInitialized = true;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<ThemeMode>(
@@ -89,8 +176,13 @@ class _MainAppState extends State<MainApp> {
                 GlobalWidgetsLocalizations.delegate,
                 GlobalCupertinoLocalizations.delegate,
               ],
-              // Сразу открываем экран ввода e-mail, без Flutter-сплэша
-              home: const EmailScreen(),
+              home: _isInitialized
+                  ? (_initialScreen ?? const EmailScreen())
+                  : const Scaffold(
+                      body: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
             );
           },
         );
