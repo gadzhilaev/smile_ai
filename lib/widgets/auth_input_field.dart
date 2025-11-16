@@ -46,17 +46,22 @@ class AuthInputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     final bool isActiveState = isActive && !showError;
     final Color borderColor = showError
         ? AppColors.textError
         : isActiveState
             ? AppColors.primaryBlue
-            : AppColors.borderDefault;
+            : (isDark ? AppColors.white : AppColors.borderDefault);
     final Color backgroundColor = showError
-        ? AppColors.inputErrorBg
-        : isActiveState
-            ? AppColors.inputActiveBg
-            : AppColors.white;
+        ? Colors.transparent
+        : isDark
+            ? AppColors.black
+            : (isActiveState
+                ? AppColors.inputActiveBg
+                : AppColors.white);
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
@@ -86,11 +91,20 @@ class AuthInputField extends StatelessWidget {
                 controller: controller,
                 focusNode: focusNode,
                 obscureText: isObscure,
-                style: AppTextStyle.bodyText(textFontSize),
+                style: AppTextStyle.bodyText(
+                  textFontSize,
+                  color: isDark ? AppColors.white : AppColors.textPrimary,
+                ),
                 cursorColor: AppColors.primaryBlue,
                 decoration: InputDecoration(
                   hintText: isActive ? null : hintText,
-                  hintStyle: AppTextStyle.fieldHintAuth(hintFontSize),
+                  hintStyle: AppTextStyle.fieldHintAuth(
+                    hintFontSize,
+                  ).copyWith(
+                    color: isDark
+                        ? AppColors.textSecondary
+                        : AppColors.textGrey,
+                  ),
                   border: InputBorder.none,
                   isDense: true,
                   contentPadding: EdgeInsets.zero,

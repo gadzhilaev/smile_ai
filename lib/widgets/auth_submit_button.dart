@@ -22,12 +22,15 @@ class AuthSubmitButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     final Color backgroundColor = isEnabled
         ? AppColors.primaryBlue
-        : const Color(0xFFD9D9D9);
+        : (isDark ? AppColors.black : const Color(0xFFD9D9D9));
     final Color textColor = isEnabled
         ? AppColors.white
-        : AppColors.textSecondary;
+        : (isDark ? AppColors.white : AppColors.textSecondary);
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
@@ -35,6 +38,12 @@ class AuthSubmitButton extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(borderRadius),
+        border: !isEnabled && isDark
+            ? Border.all(
+                color: AppColors.white,
+                width: 1,
+              )
+            : null,
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(borderRadius),
