@@ -167,6 +167,12 @@
   "dataPrivacyNoShare": "We do not share data with third parties, except for technical services required to process requests.",
   "dataPrivacyDelete": "You can request data deletion at any time.",
 
+  "supportTitle": "Smile Support",
+  "supportOnlineStatus": "Online 24/7",
+  "supportGreetingPrefix": "Hello",
+  "supportDefaultName": "user",
+  "supportLabel": "Support",
+
   "faqQuestion1": "Does Smile AI use my messages for training?",
   "faqAnswer1": "No. Your messages are used only to respond within the current session. We do not store or use your chats to train AI models.",
 

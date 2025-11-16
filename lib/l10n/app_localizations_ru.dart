@@ -396,6 +396,21 @@ class AppLocalizationsRu extends AppLocalizations {
   String get dataPrivacyDelete => 'Вы можете запросить удаление данных в любой момент.';
 
   @override
+  String get supportTitle => 'Поддержка Smile';
+
+  @override
+  String get supportOnlineStatus => 'Онлайн 24 часа';
+
+  @override
+  String get supportGreetingPrefix => 'Здравствуйте';
+
+  @override
+  String get supportDefaultName => 'пользователь';
+
+  @override
+  String get supportLabel => 'Поддержка';
+
+  @override
   String get faqQuestion1 => 'Использует ли Smile AI мои сообщения для обучения?';
 
   @override

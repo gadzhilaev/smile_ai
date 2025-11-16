@@ -396,6 +396,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dataPrivacyDelete => 'You can request data deletion at any time.';
 
   @override
+  String get supportTitle => 'Smile Support';
+
+  @override
+  String get supportOnlineStatus => 'Online 24/7';
+
+  @override
+  String get supportGreetingPrefix => 'Hello';
+
+  @override
+  String get supportDefaultName => 'user';
+
+  @override
+  String get supportLabel => 'Support';
+
+  @override
   String get faqQuestion1 => 'Does Smile AI use my messages for training?';
 
   @override

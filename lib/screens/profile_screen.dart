@@ -13,6 +13,7 @@ import 'theme_screen.dart';
 import 'privacy_policy_screen.dart';
 import 'faq_screen.dart';
 import 'data_privacy_screen.dart';
+import 'support_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -317,13 +318,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           child: Column(
                             children: [
-                              _ProfileMenuItem(
-                                iconPath: isDark
-                                    ? 'assets/profile_icons/dark/profile_supp_dark.svg'
-                                    : 'assets/profile_icons/light/profile_supp.svg',
-                                title: l.profileMenuSupport,
-                                designWidth: _designWidth,
-                                designHeight: _designHeight,
+                              InkWell(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => const SupportScreen(),
+                                    ),
+                                  );
+                                },
+                                child: _ProfileMenuItem(
+                                  iconPath: isDark
+                                      ? 'assets/profile_icons/dark/profile_supp_dark.svg'
+                                      : 'assets/profile_icons/light/profile_supp.svg',
+                                  title: l.profileMenuSupport,
+                                  designWidth: _designWidth,
+                                  designHeight: _designHeight,
+                                ),
                               ),
                               SizedBox(height: scaleHeight(12)),
                               InkWell(

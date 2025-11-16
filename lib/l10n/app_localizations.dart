@@ -869,6 +869,36 @@ abstract class AppLocalizations {
   /// **'You can request data deletion at any time.'**
   String get dataPrivacyDelete;
 
+  /// No description provided for @supportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Smile Support'**
+  String get supportTitle;
+
+  /// No description provided for @supportOnlineStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Online 24/7'**
+  String get supportOnlineStatus;
+
+  /// No description provided for @supportGreetingPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello'**
+  String get supportGreetingPrefix;
+
+  /// No description provided for @supportDefaultName.
+  ///
+  /// In en, this message translates to:
+  /// **'user'**
+  String get supportDefaultName;
+
+  /// No description provided for @supportLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get supportLabel;
+
   /// No description provided for @faqQuestion1.
   ///
   /// In en, this message translates to:
