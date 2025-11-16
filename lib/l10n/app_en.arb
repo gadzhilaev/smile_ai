@@ -81,7 +81,7 @@
   "authButtonContinue": "CONTINUE",
   "authEmailAlreadyRegistered": "This email is already registered",
   "authCodeTitle": "Code",
-  "authCodeMessage": "A code has been sent to your email to\nconfirm registration",
+  "authCodeMessage": "A code has been sent to your email to\nconfirm registration 1111",
   "authCodeErrorWrong": "Incorrect code",
   "authPasswordCreateTitle": "Create",
   "authPasswordCreateSubtitle": "password",

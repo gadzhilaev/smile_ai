@@ -81,7 +81,7 @@
   "authButtonContinue": "ПРОДОЛЖИТЬ",
   "authEmailAlreadyRegistered": "Эта почта уже зарегистрирована",
   "authCodeTitle": "Код",
-  "authCodeMessage": "На вашу почту был отправлен код для\nподтверждения регистрации",
+  "authCodeMessage": "На вашу почту был отправлен код для\nподтверждения регистрации 1111",
   "authCodeErrorWrong": "Неверный код",
   "authPasswordCreateTitle": "Создайте",
   "authPasswordCreateSubtitle": "пароль",

@@ -210,7 +210,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authCodeTitle => 'Code';
 
   @override
-  String get authCodeMessage => 'A code has been sent to your email to\nconfirm registration';
+  String get authCodeMessage => 'A code has been sent to your email to\nconfirm registration 1111';
 
   @override
   String get authCodeErrorWrong => 'Incorrect code';

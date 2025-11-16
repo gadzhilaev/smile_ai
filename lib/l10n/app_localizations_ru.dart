@@ -210,7 +210,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get authCodeTitle => 'Код';
 
   @override
-  String get authCodeMessage => 'На вашу почту был отправлен код для\nподтверждения регистрации';
+  String get authCodeMessage => 'На вашу почту был отправлен код для\nподтверждения регистрации 1111';
 
   @override
   String get authCodeErrorWrong => 'Неверный код';
