@@ -76,7 +76,10 @@ class _ThemeScreenState extends State<ThemeScreen> {
                         child: Center(
                           child: Text(
                             l.themeTitle,
-                            style: AppTextStyle.screenTitle(scaleHeight(20)),
+                            style: AppTextStyle.screenTitle(
+                              scaleHeight(20),
+                              color: theme.colorScheme.onSurface,
+                            ),
                           ),
                         ),
                       ),
@@ -167,6 +170,8 @@ class _ThemeRadioRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(scaleHeight(8)),
@@ -178,7 +183,10 @@ class _ThemeRadioRow extends StatelessWidget {
             Expanded(
               child: Text(
                 title,
-                style: AppTextStyle.bodyText(scaleHeight(16)),
+                style: AppTextStyle.bodyText(
+                  scaleHeight(16),
+                  color: theme.colorScheme.onSurface,
+                ),
               ),
             ),
             SizedBox(width: scaleWidth(12)),

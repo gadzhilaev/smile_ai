@@ -99,7 +99,10 @@ class _LanguageScreenState extends State<LanguageScreen> {
                       // Заголовок "Предложенные" / "Suggested"
                       Text(
                         localization.languageSectionSuggested,
-                        style: AppTextStyle.screenTitle(scaleHeight(16)),
+                        style: AppTextStyle.screenTitle(
+                          scaleHeight(16),
+                          color: theme.colorScheme.onSurface,
+                        ),
                       ),
                       SizedBox(height: scaleHeight(14)),
                       _LanguageRadioRow(
@@ -159,6 +162,8 @@ class _LanguageRadioRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(scaleHeight(8)),
@@ -170,7 +175,10 @@ class _LanguageRadioRow extends StatelessWidget {
             Expanded(
               child: Text(
                 title,
-                style: AppTextStyle.bodyText(scaleHeight(16)),
+                style: AppTextStyle.bodyText(
+                  scaleHeight(16),
+                  color: theme.colorScheme.onSurface,
+                ),
               ),
             ),
             SizedBox(width: scaleWidth(12)),

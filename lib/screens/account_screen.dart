@@ -127,7 +127,12 @@ class _AccountScreenState extends State<AccountScreen> {
                         child: Center(
                           child: Text(
                             'Редактировать профиль',
-                            style: AppTextStyle.screenTitle(scaleHeight(20)),
+                            style: AppTextStyle.screenTitle(
+                              scaleHeight(20),
+                              color: isDark
+                                  ? AppColors.white
+                                  : theme.colorScheme.onSurface,
+                            ),
                           ),
                         ),
                       ),
@@ -304,6 +309,9 @@ class _AccountInputFieldState extends State<_AccountInputField> {
     double scaleWidth(double value) => value * widthFactor;
     double scaleHeight(double value) => value * heightFactor;
 
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     final bool hasText = widget.controller.text.isNotEmpty;
     final bool showLabel = _isFocused || hasText;
 
@@ -311,10 +319,10 @@ class _AccountInputFieldState extends State<_AccountInputField> {
       width: scaleWidth(376),
       height: scaleHeight(52),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.black : AppColors.white,
         borderRadius: BorderRadius.circular(scaleHeight(8)),
         border: Border.all(
-          color: const Color(0x8CA3A3A3),
+          color: isDark ? AppColors.white : AppColors.black,
           width: 1,
         ),
       ),
@@ -329,7 +337,11 @@ class _AccountInputFieldState extends State<_AccountInputField> {
           if (showLabel)
             Text(
               widget.hintText,
-              style: AppTextStyle.fieldLabel(scaleHeight(10)),
+              style: AppTextStyle.fieldLabel(
+                scaleHeight(10),
+              ).copyWith(
+                color: isDark ? AppColors.textSecondary : AppColors.textSecondary,
+              ),
             ),
           if (showLabel) SizedBox(height: scaleHeight(4)),
           Expanded(
@@ -338,11 +350,22 @@ class _AccountInputFieldState extends State<_AccountInputField> {
                 controller: widget.controller,
                 focusNode: widget.focusNode,
                 keyboardType: widget.keyboardType,
-                style: AppTextStyle.fieldText(scaleHeight(14)),
-                cursorColor: const Color(0xFF212121),
+                style: AppTextStyle.fieldText(
+                  scaleHeight(14),
+                ).copyWith(
+                  color: isDark ? AppColors.white : AppColors.textPrimary,
+                ),
+                cursorColor:
+                    isDark ? AppColors.white : AppColors.textPrimary,
                 decoration: InputDecoration(
                   hintText: showLabel ? null : widget.hintText,
-                  hintStyle: AppTextStyle.fieldHint(scaleHeight(10)),
+                  hintStyle: AppTextStyle.fieldHint(
+                    scaleHeight(10),
+                  ).copyWith(
+                    color: isDark
+                        ? AppColors.textSecondary
+                        : AppColors.textSecondary,
+                  ),
                   border: InputBorder.none,
                   isDense: true,
                   contentPadding: EdgeInsets.zero,
@@ -442,6 +465,9 @@ class _PhoneInputFieldState extends State<_PhoneInputField> {
     double scaleWidth(double value) => value * widthFactor;
     double scaleHeight(double value) => value * heightFactor;
 
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     final bool hasText = widget.controller.text.isNotEmpty;
     final bool showLabel = _isFocused || hasText;
 
@@ -449,10 +475,10 @@ class _PhoneInputFieldState extends State<_PhoneInputField> {
       width: scaleWidth(376),
       height: scaleHeight(52),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.black : AppColors.white,
         borderRadius: BorderRadius.circular(scaleHeight(8)),
         border: Border.all(
-          color: AppColors.borderLight,
+          color: isDark ? AppColors.white : AppColors.black,
           width: 1,
         ),
       ),
@@ -492,7 +518,13 @@ class _PhoneInputFieldState extends State<_PhoneInputField> {
                 if (showLabel)
                   Text(
                     widget.hintText,
-                    style: AppTextStyle.fieldLabel(scaleHeight(10)),
+                    style: AppTextStyle.fieldLabel(
+                      scaleHeight(10),
+                    ).copyWith(
+                      color: isDark
+                          ? AppColors.textSecondary
+                          : AppColors.textSecondary,
+                    ),
                   ),
                 if (showLabel) SizedBox(height: scaleHeight(4)),
                 Expanded(
@@ -501,11 +533,25 @@ class _PhoneInputFieldState extends State<_PhoneInputField> {
                       controller: widget.controller,
                       focusNode: widget.focusNode,
                       keyboardType: TextInputType.phone,
-                      style: AppTextStyle.fieldText(scaleHeight(14)),
-                      cursorColor: AppColors.textPrimary,
+                      style: AppTextStyle.fieldText(
+                        scaleHeight(14),
+                      ).copyWith(
+                        color: isDark
+                            ? AppColors.white
+                            : AppColors.textPrimary,
+                      ),
+                      cursorColor: isDark
+                          ? AppColors.white
+                          : AppColors.textPrimary,
                       decoration: InputDecoration(
                         hintText: showLabel ? null : widget.hintText,
-                        hintStyle: AppTextStyle.fieldHint(scaleHeight(10)),
+                        hintStyle: AppTextStyle.fieldHint(
+                          scaleHeight(10),
+                        ).copyWith(
+                          color: isDark
+                              ? AppColors.textSecondary
+                              : AppColors.textSecondary,
+                        ),
                         border: InputBorder.none,
                         isDense: true,
                         contentPadding: EdgeInsets.zero,
@@ -570,6 +616,9 @@ class _DropdownFieldState extends State<_DropdownField> {
     double scaleWidth(double value) => value * widthFactor;
     double scaleHeight(double value) => value * heightFactor;
 
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     final bool hasValue = widget.value != null;
     final bool showLabel = _isFocused || hasValue;
 
@@ -589,30 +638,46 @@ class _DropdownFieldState extends State<_DropdownField> {
             offset.dx + renderBox.size.width,
             offset.dy + renderBox.size.height,
           ),
+          constraints: BoxConstraints.tightFor(
+            width: renderBox.size.width,
+          ),
+          elevation: isDark ? 0 : 8,
           items: [
             PopupMenuItem(
               value: 'russia',
               child: Text(
                 'Россия',
-                style: AppTextStyle.dropdownMenuItem(scaleHeight(14)),
+                style: AppTextStyle.dropdownMenuItem(
+                  scaleHeight(14),
+                ).copyWith(
+                  color: isDark ? AppColors.white : AppColors.textPrimary,
+                ),
               ),
             ),
             PopupMenuItem(
               value: 'kazakhstan',
               child: Text(
                 'Казахстан',
-                style: AppTextStyle.dropdownMenuItem(scaleHeight(14)),
+                style: AppTextStyle.dropdownMenuItem(
+                  scaleHeight(14),
+                ).copyWith(
+                  color: isDark ? AppColors.white : AppColors.textPrimary,
+                ),
               ),
             ),
             PopupMenuItem(
               value: 'belarus',
               child: Text(
                 'Беларусь',
-                style: AppTextStyle.dropdownMenuItem(scaleHeight(14)),
+                style: AppTextStyle.dropdownMenuItem(
+                  scaleHeight(14),
+                ).copyWith(
+                  color: isDark ? AppColors.white : AppColors.textPrimary,
+                ),
               ),
             ),
           ],
-          color: Colors.white,
+          color: isDark ? AppColors.black : AppColors.white,
         );
         
         if (selectedValue != null) {
@@ -630,15 +695,15 @@ class _DropdownFieldState extends State<_DropdownField> {
         width: scaleWidth(180),
         height: scaleHeight(54),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? AppColors.black : AppColors.white,
           borderRadius: BorderRadius.circular(scaleHeight(8)),
           border: Border.all(
-            color: const Color(0x8CA3A3A3),
+            color: isDark ? AppColors.white : AppColors.black,
             width: 1,
           ),
         ),
         padding: EdgeInsets.symmetric(horizontal: scaleWidth(18)),
-        child: Column(
+            child: Column(
           mainAxisAlignment: showLabel
               ? MainAxisAlignment.start
               : MainAxisAlignment.center,
@@ -648,7 +713,11 @@ class _DropdownFieldState extends State<_DropdownField> {
             if (showLabel)
               Text(
                 widget.hintText,
-                style: AppTextStyle.fieldLabel(scaleHeight(10)),
+                style: AppTextStyle.fieldLabel(
+                  scaleHeight(10),
+                ).copyWith(
+                  color: isDark ? AppColors.white : AppColors.textSecondary,
+                ),
               ),
             if (showLabel) SizedBox(height: scaleHeight(4)),
             Expanded(
@@ -665,13 +734,25 @@ class _DropdownFieldState extends State<_DropdownField> {
                                 : widget.value == 'kazakhstan'
                                     ? 'Казахстан'
                                     : 'Беларусь',
-                            style: AppTextStyle.fieldText(scaleHeight(14)),
+                            style: AppTextStyle.fieldText(
+                              scaleHeight(14),
+                            ).copyWith(
+                              color: isDark
+                                  ? AppColors.white
+                                  : AppColors.textPrimary,
+                            ),
                           )
                         : (showLabel
                             ? null
                             : Text(
                                 widget.hintText,
-                                style: AppTextStyle.fieldHint(scaleHeight(10)),
+                                style: AppTextStyle.fieldHint(
+                                  scaleHeight(10),
+                                ).copyWith(
+                                  color: isDark
+                                      ? AppColors.white
+                                      : AppColors.textSecondary,
+                                ),
                               )),
                   ),
                   // Стрелка по центру справа
@@ -683,7 +764,8 @@ class _DropdownFieldState extends State<_DropdownField> {
                       child: Icon(
                         Icons.arrow_drop_down,
                         size: scaleHeight(24),
-                        color: Colors.black,
+                        color:
+                            isDark ? AppColors.white : AppColors.textPrimary,
                       ),
                     ),
                   ),
@@ -728,6 +810,9 @@ class _GenderDropdownFieldState extends State<_GenderDropdownField> {
     double scaleWidth(double value) => value * widthFactor;
     double scaleHeight(double value) => value * heightFactor;
 
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     final bool hasValue = widget.value != null;
     final bool showLabel = _isFocused || hasValue;
 
@@ -747,23 +832,35 @@ class _GenderDropdownFieldState extends State<_GenderDropdownField> {
             offset.dx + renderBox.size.width,
             offset.dy + renderBox.size.height,
           ),
+          constraints: BoxConstraints.tightFor(
+            width: renderBox.size.width,
+          ),
+          elevation: isDark ? 0 : 8,
           items: [
             PopupMenuItem(
               value: 'male',
               child: Text(
                 'Мужской',
-                style: AppTextStyle.dropdownMenuItem(scaleHeight(14)),
+                style: AppTextStyle.dropdownMenuItem(
+                  scaleHeight(14),
+                ).copyWith(
+                  color: isDark ? AppColors.white : AppColors.textPrimary,
+                ),
               ),
             ),
             PopupMenuItem(
               value: 'female',
               child: Text(
                 'Женский',
-                style: AppTextStyle.dropdownMenuItem(scaleHeight(14)),
+                style: AppTextStyle.dropdownMenuItem(
+                  scaleHeight(14),
+                ).copyWith(
+                  color: isDark ? AppColors.white : AppColors.textPrimary,
+                ),
               ),
             ),
           ],
-          color: Colors.white,
+          color: isDark ? AppColors.black : AppColors.white,
         );
         
         if (selectedValue != null) {
@@ -781,10 +878,10 @@ class _GenderDropdownFieldState extends State<_GenderDropdownField> {
         width: scaleWidth(180),
         height: scaleHeight(54),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? AppColors.black : AppColors.white,
           borderRadius: BorderRadius.circular(scaleHeight(8)),
           border: Border.all(
-            color: const Color(0x8CA3A3A3),
+            color: isDark ? AppColors.white : AppColors.black,
             width: 1,
           ),
         ),
@@ -799,7 +896,11 @@ class _GenderDropdownFieldState extends State<_GenderDropdownField> {
             if (showLabel)
               Text(
                 widget.hintText,
-                style: AppTextStyle.fieldLabel(scaleHeight(10)),
+                style: AppTextStyle.fieldLabel(
+                  scaleHeight(10),
+                ).copyWith(
+                  color: isDark ? AppColors.white : AppColors.textSecondary,
+                ),
               ),
             if (showLabel) SizedBox(height: scaleHeight(4)),
             Expanded(
@@ -812,13 +913,25 @@ class _GenderDropdownFieldState extends State<_GenderDropdownField> {
                     child: widget.value != null
                         ? Text(
                             widget.value == 'male' ? 'Мужской' : 'Женский',
-                            style: AppTextStyle.fieldText(scaleHeight(14)),
+                            style: AppTextStyle.fieldText(
+                              scaleHeight(14),
+                            ).copyWith(
+                              color: isDark
+                                  ? AppColors.white
+                                  : AppColors.textPrimary,
+                            ),
                           )
                         : (showLabel
                             ? null
                             : Text(
                                 widget.hintText,
-                                style: AppTextStyle.fieldHint(scaleHeight(10)),
+                                style: AppTextStyle.fieldHint(
+                                  scaleHeight(10),
+                                ).copyWith(
+                                  color: isDark
+                                      ? AppColors.white
+                                      : AppColors.textSecondary,
+                                ),
                               )),
                   ),
                   // Стрелка по центру справа
@@ -830,7 +943,8 @@ class _GenderDropdownFieldState extends State<_GenderDropdownField> {
                       child: Icon(
                         Icons.arrow_drop_down,
                         size: scaleHeight(24),
-                        color: Colors.black,
+                        color:
+                            isDark ? AppColors.white : AppColors.textPrimary,
                       ),
                     ),
                   ),

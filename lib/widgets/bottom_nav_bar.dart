@@ -179,6 +179,12 @@ class _NavItem extends StatelessWidget {
     double scaleHeight(double value) => value * heightFactor;
 
     final bool isSvg = iconPath.toLowerCase().endsWith('.svg');
+    final theme = Theme.of(context);
+    final bool isDark = theme.brightness == Brightness.dark;
+
+    // Специальный случай: неактивная иконка AI в тёмной теме
+    final bool isAiDarkUnselected =
+        isSvg && iconPath.endsWith('nav_bar/unselect/dark/ai.svg');
 
     return InkWell(
       onTap: onTap,
@@ -194,6 +200,12 @@ class _NavItem extends StatelessWidget {
                 width: scaleWidth(24),
                 height: scaleHeight(24),
                 fit: BoxFit.contain,
+                colorFilter: isAiDarkUnselected && isDark
+                    ? const ColorFilter.mode(
+                        Colors.white,
+                        BlendMode.srcIn,
+                      )
+                    : null,
               )
             else
               Image.asset(

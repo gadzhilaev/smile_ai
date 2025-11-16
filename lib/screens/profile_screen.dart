@@ -408,6 +408,8 @@ class _ProfileMenuItem extends StatelessWidget {
     double scaleWidth(double value) => value * widthFactor;
     double scaleHeight(double value) => value * heightFactor;
 
+    final theme = Theme.of(context);
+
     return Row(
       children: [
         SvgPicture.asset(
@@ -420,7 +422,10 @@ class _ProfileMenuItem extends StatelessWidget {
         Expanded(
           child: Text(
             title,
-            style: AppTextStyle.interRegular(scaleHeight(16)),
+            style: AppTextStyle.interRegular(
+              scaleHeight(16),
+              color: theme.colorScheme.onSurface,
+            ),
           ),
         ),
       ],

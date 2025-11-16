@@ -116,7 +116,12 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                   Center(
                     child: Text(
                       l.templatesTitle,
-                      style: AppTextStyle.screenTitleMedium(scaleHeight(20)),
+                      style: AppTextStyle.screenTitleMedium(
+                        scaleHeight(20),
+                        color: isDark
+                            ? AppColors.white
+                            : theme.colorScheme.onSurface,
+                      ),
                     ),
                   ),
                   SizedBox(height: scaleHeight(34)),
@@ -133,10 +138,13 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                               child: SizedBox(
                                 height: MediaQuery.of(context).size.height * 0.6,
                                 child: Center(
-                                    child: Text(
-                                      l.templatesEmpty,
-                                      style: AppTextStyle.bodyTextMedium(16),
+                                  child: Text(
+                                    l.templatesEmpty,
+                                    style: AppTextStyle.bodyTextMedium(
+                                      16,
+                                      color: theme.colorScheme.onSurface,
                                     ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -226,7 +234,6 @@ class _TemplateCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      height: scaleHeight(251),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkBackgroundCard : AppColors.white,
         borderRadius: BorderRadius.circular(scaleHeight(12)),
@@ -253,17 +260,9 @@ class _TemplateCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Container(
-                width: scaleWidth(42),
-                height: scaleHeight(42),
-                decoration: BoxDecoration(
-                  color: AppColors.borderLight,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              SizedBox(width: scaleWidth(10)),
               Container(
                 padding: EdgeInsets.symmetric(
                   horizontal: scaleWidth(14),
@@ -286,19 +285,20 @@ class _TemplateCard extends StatelessWidget {
             ],
           ),
           SizedBox(height: scaleHeight(7.5)),
-          Text(
-            template.title,
-            style: AppTextStyle.templateTitle(scaleHeight(16))
-                .copyWith(height: 18 / 16),
-          ),
-          SizedBox(height: scaleHeight(12.5)),
-          Expanded(
+          Align(
+            alignment: Alignment.center,
             child: Text(
-              template.description,
-              style: AppTextStyle.templateDescription(scaleHeight(12)),
+              template.title,
+              textAlign: TextAlign.left,
+              style: AppTextStyle.templateTitle(
+                scaleHeight(16),
+              ).copyWith(
+                height: 18 / 16,
+                color: isDark ? AppColors.white : AppColors.textPrimary,
+              ),
             ),
           ),
-          SizedBox(height: scaleHeight(12.5)),
+          SizedBox(height: scaleHeight(24)),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -314,21 +314,35 @@ class _TemplateCard extends StatelessWidget {
                   width: scaleWidth(187),
                   height: scaleHeight(41),
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                      colors: [
-                        Color(0xFFCBE5F8),
-                        Color(0xFFD6D7F8),
-                      ],
-                      stops: [0.0, 0.7816],
-                    ),
+                    gradient: isDark
+                        ? const LinearGradient(
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                            colors: [
+                              Color(0xFF1F2937),
+                              Color(0xFF374151),
+                            ],
+                          )
+                        : const LinearGradient(
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                            colors: [
+                              Color(0xFFCBE5F8),
+                              Color(0xFFD6D7F8),
+                            ],
+                            stops: [0.0, 0.7816],
+                          ),
                     borderRadius: BorderRadius.circular(scaleHeight(16)),
                   ),
                   alignment: Alignment.center,
                   child: Text(
                     l.templateApply,
-                    style: AppTextStyle.templateButton(scaleHeight(14)),
+                    style: AppTextStyle.templateButton(
+                      scaleHeight(14),
+                    ).copyWith(
+                      color:
+                          isDark ? AppColors.white : AppColors.textPrimary,
+                    ),
                   ),
                 ),
               ),
@@ -345,13 +359,17 @@ class _TemplateCard extends StatelessWidget {
                   width: scaleWidth(152),
                   height: scaleHeight(41),
                   decoration: BoxDecoration(
-                    color: const Color(0x801E293B),
+                    color: isDark
+                        ? const Color(0xFF1E293B)
+                        : const Color(0x801E293B),
                     borderRadius: BorderRadius.circular(scaleHeight(16)),
                   ),
                   alignment: Alignment.center,
                   child: Text(
                     l.templateEdit,
-                    style: AppTextStyle.templateButtonWhite(scaleHeight(14)),
+                    style: AppTextStyle.templateButtonWhite(
+                      scaleHeight(14),
+                    ),
                   ),
                 ),
               ),

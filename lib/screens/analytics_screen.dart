@@ -162,7 +162,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                 child: Text(
                                   l.analyticsTrendDeltaDescription,
                                   style: AppTextStyle.bodyTextLight(
-                                      scaleHeight(10)),
+                                    scaleHeight(10),
+                                    color: isDark
+                                        ? AppColors.white
+                                        : theme.colorScheme.onSurface
+                                            .withValues(alpha: 0.7),
+                                  ),
                                 ),
                               ),
                               SizedBox(width: scaleWidth(8)),
@@ -170,7 +175,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                 l.analytics7Days,
                                 style: AppTextStyle.bodyTextMedium(
                                   scaleHeight(12),
-                                  color: AppColors.textDarkGrey,
+                                  color: isDark
+                                      ? AppColors.white
+                                      : AppColors.textDarkGrey,
                                 ),
                               ),
                             ],
@@ -183,16 +190,26 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                               minHeight: scaleHeight(239),
                             ),
                             decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  Color(0xFFCBE5F8),
-                                  Color(0xFFD6D7F8),
-                                ],
-                                stops: [0.0, 0.7816],
-                              ),
-                              borderRadius: BorderRadius.circular(scaleHeight(15)),
+                              gradient: isDark
+                                  ? const LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        Color(0xFF1F2937), // чуть светлее фона
+                                        Color(0xFF111827),
+                                      ],
+                                    )
+                                  : const LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        Color(0xFFCFE8FF),
+                                        Color(0xFFDDE0FF),
+                                      ],
+                                      stops: [0.0, 0.7816],
+                                    ),
+                              borderRadius:
+                                  BorderRadius.circular(scaleHeight(15)),
                             ),
                             padding: EdgeInsets.symmetric(
                               horizontal: scaleWidth(19),
@@ -208,7 +225,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                       l.analyticsWhy,
                                       style: AppTextStyle.trendTitle(
                                         scaleHeight(18),
-                                        Colors.black,
+                                        theme.colorScheme.onSurface,
                                       ),
                                     ),
                                   ],
@@ -217,8 +234,13 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                 Text(
                                   _analytics!.trendDescription,
                                   style: AppTextStyle.trendDescription(
-                                          scaleHeight(15))
-                                      .copyWith(height: 1.2),
+                                    scaleHeight(15),
+                                  ).copyWith(
+                                    height: 1.2,
+                                    color: isDark
+                                        ? AppColors.white
+                                        : theme.colorScheme.onSurface,
+                                  ),
                                 ),
                               ],
                             ),
@@ -305,7 +327,10 @@ class _TrendContainer extends StatelessWidget {
         children: [
           Text(
             title,
-            style: AppTextStyle.screenTitle(scaleHeight(16)),
+            style: AppTextStyle.screenTitle(
+              scaleHeight(16),
+              color: theme.colorScheme.onSurface,
+            ),
           ),
           SizedBox(height: scaleHeight(30)),
           Expanded(

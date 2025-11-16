@@ -139,7 +139,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         child: Center(
                           child: Text(
                             l.notificationsTitle,
-                            style: AppTextStyle.screenTitle(scaleHeight(20)),
+                            style: AppTextStyle.screenTitle(
+                              scaleHeight(20),
+                              color: theme.colorScheme.onSurface,
+                            ),
                           ),
                         ),
                       ),
@@ -261,12 +264,17 @@ class _NotificationSwitchRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           title,
-          style: AppTextStyle.bodyText(scaleHeight(16)),
+          style: AppTextStyle.bodyText(
+            scaleHeight(16),
+            color: theme.colorScheme.onSurface,
+          ),
         ),
         _CustomSwitch(
           value: value,
