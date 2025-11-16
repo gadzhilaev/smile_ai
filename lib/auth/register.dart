@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../settings/style.dart';
 import '../settings/colors.dart';
 import '../l10n/app_localizations.dart';
+import '../services/api_service.dart';
 
 import '../widgets/auth_input_field.dart';
 import '../widgets/auth_submit_button.dart';
@@ -74,10 +75,9 @@ class _RegistrationPlaceholderScreenState
     return emailRegex.hasMatch(value.trim());
   }
 
-  void _submitEmail() {
+  Future<void> _submitEmail() async {
     final email = _controller.text.trim();
     final isEmailValid = _isValidEmail(email);
-    final isAlreadyRegistered = email.toLowerCase() == 'test@test.ru';
 
     setState(() {
       final l = AppLocalizations.of(context)!;
@@ -93,23 +93,46 @@ class _RegistrationPlaceholderScreenState
         _errorMessage = l.authEmailErrorInvalid;
         return;
       }
-
-      if (isAlreadyRegistered) {
-        _showError = true;
-        _errorMessage = l.authEmailAlreadyRegistered;
-        return;
-      }
-
-      _showError = false;
-      _errorMessage = null;
-
-      FocusScope.of(context).unfocus();
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (_) => RegistrationCodeScreen(email: email),
-        ),
-      );
     });
+
+    if (_showError) return;
+
+    // Проверяем существование пользователя через API
+    try {
+      final result = await ApiService.instance.checkUser(email);
+      final exists = result['exists'] == true;
+
+      if (!mounted) return;
+
+      if (exists) {
+        // Пользователь уже зарегистрирован
+        setState(() {
+          final l = AppLocalizations.of(context)!;
+          _showError = true;
+          _errorMessage = l.authEmailAlreadyRegistered;
+        });
+      } else {
+        // Пользователь не существует - можно регистрировать
+        setState(() {
+          _showError = false;
+          _errorMessage = null;
+        });
+
+        FocusScope.of(context).unfocus();
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => RegistrationCodeScreen(email: email),
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        final l = AppLocalizations.of(context)!;
+        _showError = true;
+        _errorMessage = l.authEmailErrorInvalid;
+      });
+    }
   }
 
   void _openLoginScreen() {

@@ -22,28 +22,32 @@ void main() async {
   // Держим нативный splash, пока идёт инициализация
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
-  // Загружаем .env файл
+  // Загружаем .env файл и синхронизируем токен
+  await AuthService.instance.init();
   try {
     await dotenv.load(fileName: ".env");
     debugPrint('Startup: .env file loaded successfully');
     final envToken = dotenv.env['AUTH_TOKEN'];
-    if (envToken != null && envToken.isNotEmpty) {
+    
+    if (envToken != null && envToken.isNotEmpty && envToken.trim().isNotEmpty) {
+      // Токен есть в .env - используем его
       debugPrint('Startup: AUTH_TOKEN found in .env: ${envToken.substring(0, 8)}...');
-      // Сохраняем токен из .env в AuthService
-      await AuthService.instance.init();
-      await AuthService.instance.saveToken(envToken);
+      await AuthService.instance.saveToken(envToken.trim());
       debugPrint('Startup: token from .env saved to AuthService');
     } else {
-      debugPrint('Startup: AUTH_TOKEN not found in .env');
+      // Токена нет в .env или он пустой - очищаем токен в AuthService
+      debugPrint('Startup: AUTH_TOKEN not found in .env or is empty, clearing AuthService token');
+      await AuthService.instance.clearToken();
     }
   } catch (e) {
     debugPrint('Startup: error loading .env file: $e');
+    // При ошибке загрузки .env тоже очищаем токен для безопасности
+    await AuthService.instance.clearToken();
   }
 
   // Загружаем сохранённый язык и тему до запуска приложения
   await LanguageService.instance.init();
   await ThemeService.instance.init();
-  await AuthService.instance.init();
 
   // Проверяем health сервера
   debugPrint('Startup: checking server health...');

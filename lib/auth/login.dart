@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../settings/style.dart';
 import '../settings/colors.dart';
 import '../l10n/app_localizations.dart';
+import '../services/api_service.dart';
 
 import 'register.dart';
 import 'log_pass.dart';
@@ -73,10 +74,9 @@ class _EmailScreenState extends State<EmailScreen> {
     return emailRegex.hasMatch(value.trim());
   }
 
-  void _submitEmail() {
+  Future<void> _submitEmail() async {
     final email = _controller.text.trim();
     final isEmailValid = _isValidEmail(email);
-    final isRegistered = email.toLowerCase() == 'test@test.ru';
 
     setState(() {
       final l = AppLocalizations.of(context)!;
@@ -92,23 +92,46 @@ class _EmailScreenState extends State<EmailScreen> {
         _errorMessage = l.authEmailErrorInvalid;
         return;
       }
+    });
 
-      if (!isRegistered) {
+    if (_showError) return;
+
+    // Проверяем существование пользователя через API
+    try {
+      final result = await ApiService.instance.checkUser(email);
+      final exists = result['exists'] == true;
+
+      if (!mounted) return;
+
+      if (exists) {
+        // Пользователь существует - переходим к вводу пароля
+        setState(() {
+          _showError = false;
+          _errorMessage = null;
+        });
+
+        FocusScope.of(context).unfocus();
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => RegistrationSuccessScreen(email: email),
+          ),
+        );
+      } else {
+        // Пользователь не существует
+        setState(() {
+          final l = AppLocalizations.of(context)!;
+          _showError = true;
+          _errorMessage = l.authEmailErrorNotRegistered;
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        final l = AppLocalizations.of(context)!;
         _showError = true;
         _errorMessage = l.authEmailErrorNotRegistered;
-        return;
-      }
-
-      _showError = false;
-      _errorMessage = null;
-
-      FocusScope.of(context).unfocus();
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (_) => RegistrationSuccessScreen(email: email),
-        ),
-      );
-    });
+      });
+    }
   }
 
   void _openRegistrationPlaceholder() {

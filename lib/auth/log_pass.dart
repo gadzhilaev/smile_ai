@@ -3,6 +3,8 @@ import '../settings/style.dart';
 import '../settings/colors.dart';
 import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
+import '../services/api_service.dart';
+import '../utils/env_utils.dart';
 
 import '../screens/home_screen.dart';
 import '../widgets/auth_input_field.dart';
@@ -29,7 +31,6 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
   static const double _fieldButtonSpacing = 25;
   static const double _buttonBorderRadius = 9;
   static const double _errorTextOffset = 21;
-  static const String _validPassword = '12345678';
 
   final TextEditingController _passwordController = TextEditingController();
   final FocusNode _passwordFocusNode = FocusNode();
@@ -67,7 +68,7 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
   Future<void> _submitPassword() async {
     final password = _passwordController.text.trim();
 
-    if (password != _validPassword) {
+    if (password.isEmpty) {
       setState(() {
         final l = AppLocalizations.of(context)!;
         _showError = true;
@@ -76,38 +77,71 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
       return;
     }
 
-    setState(() {
-      _showError = false;
-      _errorMessage = null;
-    });
+    // Выполняем вход через API
+    try {
+      final result = await ApiService.instance.login(widget.email, password);
+      
+      if (!mounted) return;
 
-    // TODO: Здесь должен быть реальный API вызов для получения токена
-    // В будущем это должно быть:
-    // final response = await ApiService.instance.login(widget.email, password);
-    // final token = response['token'];
-    // await AuthService.instance.saveToken(token);
-    
-    // Убеждаемся, что AuthService инициализирован
-    await AuthService.instance.init();
-    
-    // Токен для тестирования проверки
-    const testToken = '4644f185-1542-4dea-87b2-a9830a6d5fdf';
-    debugPrint('LogPass: saving token: $testToken');
-    await AuthService.instance.saveToken(testToken);
-    
-    // Проверяем, что токен сохранился
-    final savedToken = AuthService.instance.getToken();
-    debugPrint('LogPass: token saved, verification: ${savedToken == testToken ? "OK" : "FAILED"}');
-    debugPrint('LogPass: saved token value: $savedToken');
+      if (result.containsKey('error')) {
+        // Ошибка входа
+        setState(() {
+          final l = AppLocalizations.of(context)!;
+          _showError = true;
+          _errorMessage = l.authPasswordErrorWrong;
+        });
+        return;
+      }
 
-    if (!mounted) return;
-    
-    FocusScope.of(context).unfocus();
-    if (!mounted) return;
-    
-    Navigator.of(context).pushReplacement(
+      // Успешный вход
+      final token = result['token'] as String?;
+      if (token == null || token.isEmpty) {
+        setState(() {
+          final l = AppLocalizations.of(context)!;
+          _showError = true;
+          _errorMessage = l.authPasswordErrorWrong;
+        });
+        return;
+      }
+
+      // Сохраняем токен в AuthService
+      await AuthService.instance.init();
+      await AuthService.instance.saveToken(token);
+      debugPrint('LogPass: token saved to AuthService: ${token.substring(0, 8)}...');
+
+      // Сохраняем токен в .env файл
+      // На мобильных устройствах это может не работать из-за sandbox,
+      // но токен уже сохранен в AuthService, что достаточно для работы приложения
+      try {
+        await EnvUtils.updateTokenInEnv(token);
+        debugPrint('LogPass: token saved to .env file successfully');
+      } catch (e) {
+        debugPrint('LogPass: WARNING - could not save token to .env file: $e');
+        debugPrint('LogPass: token is still saved in AuthService (SharedPreferences)');
+        // Продолжаем - токен уже сохранен в AuthService, что достаточно
+      }
+
+      setState(() {
+        _showError = false;
+        _errorMessage = null;
+      });
+
+      if (!mounted) return;
+      
+      FocusScope.of(context).unfocus();
+      if (!mounted) return;
+      
+      Navigator.of(context).pushReplacement(
         MaterialPageRoute<void>(builder: (_) => const HomeScreen()),
-    );
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        final l = AppLocalizations.of(context)!;
+        _showError = true;
+        _errorMessage = l.authPasswordErrorWrong;
+      });
+    }
   }
 
   @override
