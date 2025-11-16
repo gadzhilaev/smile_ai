@@ -439,4 +439,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get faqAnswer5 => 'The connection is encrypted (HTTPS/SSL), data is stored on protected servers, and multi-level security and continuous monitoring are used.';
+
+  @override
+  String get chatMenuNewChat => 'New chat';
+
+  @override
+  String get chatMenuChats => 'Chats';
+
+  @override
+  String get chatMenuShare => 'Share';
+
+  @override
+  String get chatMenuRename => 'Rename';
+
+  @override
+  String get chatMenuDelete => 'Delete';
 }

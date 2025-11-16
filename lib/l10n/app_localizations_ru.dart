@@ -439,4 +439,19 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get faqAnswer5 => 'Соединение зашифровано (HTTPS/SSL), данные хранятся на защищённых серверах, используется многоуровневая защита и постоянный мониторинг.';
+
+  @override
+  String get chatMenuNewChat => 'Новый чат';
+
+  @override
+  String get chatMenuChats => 'Чаты';
+
+  @override
+  String get chatMenuShare => 'Поделиться';
+
+  @override
+  String get chatMenuRename => 'Переименовать';
+
+  @override
+  String get chatMenuDelete => 'Удалить';
 }

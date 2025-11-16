@@ -7,7 +7,7 @@ class AppTextStyle {
     required double fontSize,
     required FontWeight fontWeight,
     required Color color,
-    double? height,
+    // double? height,
     String? fontFamily,
   }) {
     return TextStyle(
@@ -15,7 +15,7 @@ class AppTextStyle {
       fontSize: fontSize,
       fontWeight: fontWeight,
       color: color,
-      height: height ?? 1,
+      // height: height ?? 1,
     );
   }
 
@@ -42,7 +42,7 @@ class AppTextStyle {
       fontSize: fontSize,
       fontWeight: FontWeight.w400,
       color: color ?? Colors.black,
-      height: height,
+      // height: height,
     );
   }
 
@@ -184,7 +184,7 @@ class AppTextStyle {
       fontSize: fontSize,
       fontWeight: FontWeight.w500,
       color: AppColors.textMuted,
-      height: 18 / 12,
+      // height: 18 / 12,
     );
   }
 
@@ -210,7 +210,7 @@ class AppTextStyle {
       fontSize: fontSize,
       fontWeight: FontWeight.w400,
       color: color ?? AppColors.textPrimary,
-      height: height,
+      // height: height,
     );
   }
 

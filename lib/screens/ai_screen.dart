@@ -44,6 +44,8 @@ class _AiScreenState extends State<AiScreen> {
   bool _isEditMode = false;
   bool _showCopyToast = false;
   Timer? _copyToastTimer;
+  int? _selectedChatIndexForContextMenu;
+  OverlayEntry? _chatMenuOverlay;
 
   @override
   void initState() {
@@ -99,10 +101,63 @@ class _AiScreenState extends State<AiScreen> {
     });
   }
 
+  void _showChatMenuOverlay() {
+    if (_chatMenuOverlay != null) {
+      _chatMenuOverlay!.markNeedsBuild();
+      return;
+    }
+    
+    final overlay = Overlay.of(context);
+    _chatMenuOverlay = OverlayEntry(
+      builder: (context) => StatefulBuilder(
+        builder: (context, setOverlayState) {
+          return _ChatMenuDrawer(
+            designWidth: _designWidth,
+            designHeight: _designHeight,
+            onClose: () {
+              _hideChatMenuOverlay();
+            },
+            onNewChat: () {
+              setState(() {
+                _messages.clear();
+                _hasConversation = false;
+                _inputController.clear();
+              });
+              _hideChatMenuOverlay();
+            },
+            selectedChatIndex: _selectedChatIndexForContextMenu,
+            onChatSelected: (index) {
+              setState(() {
+                _selectedChatIndexForContextMenu = index;
+              });
+              setOverlayState(() {});
+            },
+            onContextMenuClosed: () {
+              setState(() {
+                _selectedChatIndexForContextMenu = null;
+              });
+              setOverlayState(() {});
+            },
+          );
+        },
+      ),
+    );
+    overlay.insert(_chatMenuOverlay!);
+  }
+
+  void _hideChatMenuOverlay() {
+    _chatMenuOverlay?.remove();
+    _chatMenuOverlay = null;
+    setState(() {
+      _selectedChatIndexForContextMenu = null;
+    });
+  }
+
   @override
   void dispose() {
     _typingTimer?.cancel();
     _copyToastTimer?.cancel();
+    _chatMenuOverlay?.remove();
     _inputController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -430,13 +485,18 @@ class _AiScreenState extends State<AiScreen> {
                         ),
                         Align(
                           alignment: Alignment.centerRight,
-                          child: SvgPicture.asset(
-                            isDark
-                                ? 'assets/icons/dark/icon_mes_dark.svg'
-                                : 'assets/icons/light/icon_mes.svg',
-                            width: scaleWidth(24),
-                            height: scaleHeight(24),
-                            fit: BoxFit.contain,
+                          child: GestureDetector(
+                            onTap: () {
+                              _showChatMenuOverlay();
+                            },
+                            child: SvgPicture.asset(
+                              isDark
+                                  ? 'assets/icons/dark/icon_mes_dark.svg'
+                                  : 'assets/icons/light/icon_mes.svg',
+                              width: scaleWidth(24),
+                              height: scaleHeight(24),
+                              fit: BoxFit.contain,
+                            ),
                           ),
                         ),
                       ],
@@ -779,4 +839,407 @@ class _ChatMessage {
 
   final String text;
   final bool isUser;
+}
+
+class _ChatMenuDrawer extends StatelessWidget {
+  const _ChatMenuDrawer({
+    required this.designWidth,
+    required this.designHeight,
+    required this.onClose,
+    required this.onNewChat,
+    this.selectedChatIndex,
+    this.onChatSelected,
+    this.onContextMenuClosed,
+  });
+
+  final double designWidth;
+  final double designHeight;
+  final VoidCallback onClose;
+  final VoidCallback onNewChat;
+  final int? selectedChatIndex;
+  final ValueChanged<int>? onChatSelected;
+  final VoidCallback? onContextMenuClosed;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final size = MediaQuery.of(context).size;
+    final double widthFactor = size.width / designWidth;
+    final double heightFactor = size.height / designHeight;
+
+    double scaleWidth(double value) => value * widthFactor;
+    double scaleHeight(double value) => value * heightFactor;
+
+    // Моковые данные чатов
+    final List<String> chatTitles = [
+      'Маркетинговая стратегия',
+      'Разработка продукта',
+      'Анализ конкурентов',
+    ];
+
+    return GestureDetector(
+      onTap: onClose,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        color: Colors.black.withValues(alpha: 0.5),
+        child: Align(
+          alignment: Alignment.centerRight,
+          child: GestureDetector(
+            onTap: () {
+              // Закрываем контекстное меню при клике на основное меню
+              if (selectedChatIndex != null && onContextMenuClosed != null) {
+                onContextMenuClosed!();
+              }
+            },
+            child: Container(
+              width: scaleWidth(291),
+              height: MediaQuery.of(context).size.height, // Полная высота экрана для перекрытия нав бара
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.darkBackgroundCard : AppColors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(scaleHeight(30)),
+                  bottomLeft: Radius.circular(scaleHeight(30)),
+                ),
+              ),
+              padding: EdgeInsets.only(
+                left: scaleWidth(18),
+                right: scaleWidth(18),
+                top: scaleHeight(75),
+                bottom: scaleHeight(26),
+              ),
+              child: Stack(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Крестик слева вверху
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          GestureDetector(
+                            onTap: onClose,
+                            child: Icon(
+                              Icons.close,
+                              size: scaleWidth(24),
+                              color: isDark
+                                  ? AppColors.white
+                                  : const Color(0xFF201D2F),
+                            ),
+                          ),
+                          // icon_mes.svg справа вверху
+                          SvgPicture.asset(
+                            isDark
+                                ? 'assets/icons/dark/icon_mes_dark.svg'
+                                : 'assets/icons/light/icon_mes.svg',
+                            width: scaleWidth(24),
+                            height: scaleHeight(24),
+                            fit: BoxFit.contain,
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: scaleHeight(23)),
+                      // Новый чат - текст справа, иконка слева от текста
+                      GestureDetector(
+                        onTap: onNewChat,
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                l.chatMenuNewChat,
+                                style: AppTextStyle.screenTitle(
+                                  scaleHeight(16),
+                                  color: isDark
+                                      ? AppColors.white
+                                      : AppColors.black,
+                                ).copyWith(
+                                  decoration: TextDecoration.none,
+                                ),
+                              ),
+                              SizedBox(width: scaleWidth(12)),
+                              SvgPicture.asset(
+                                isDark
+                                    ? 'assets/icons/dark/icon_new_chat.svg'
+                                    : 'assets/icons/light/icon_new_chat.svg',
+                                width: scaleWidth(24),
+                                height: scaleHeight(24),
+                                fit: BoxFit.contain,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: scaleHeight(28)),
+                      // Заголовок "Чаты"
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          l.chatMenuChats,
+                          style: AppTextStyle.screenTitle(
+                            scaleHeight(20),
+                            color: isDark
+                                ? AppColors.white
+                                : AppColors.black,
+                          ).copyWith(
+                            decoration: TextDecoration.none,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: scaleHeight(20)),
+                      // Список чатов
+                      Expanded(
+                        child: ListView.builder(
+                          padding: EdgeInsets.zero,
+                          itemCount: chatTitles.length,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: EdgeInsets.only(
+                                top: index == 0 ? 0 : scaleHeight(20),
+                                // bottom: index == chatTitles.length - 1 ? 0 : scaleHeight(20),
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      chatTitles[index],
+                                      style: AppTextStyle.screenTitle(
+                                        scaleHeight(15),
+                                        color: isDark
+                                            ? AppColors.white
+                                            : const Color(0xFF5B5B5B),
+                                      ).copyWith(
+                                        decoration: TextDecoration.none,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
+                                    ),
+                                  ),
+                                  SizedBox(width: scaleWidth(12)),
+                                  GestureDetector(
+                                    onTap: () {
+                                      if (onChatSelected != null) {
+                                        onChatSelected!(index);
+                                      }
+                                    },
+                                    child: SvgPicture.asset(
+                                      isDark
+                                          ? 'assets/icons/dark/icon_dots.svg'
+                                          : 'assets/icons/light/icon_dots.svg',
+                                      width: scaleWidth(24),
+                                      height: scaleHeight(24),
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  // Контекстное меню - позиционируется под dots.svg
+                  if (selectedChatIndex != null)
+                    Builder(
+                      builder: (context) {
+                        // Вычисляем позицию: отступ сверху меню + заголовок + отступы + позиция чата
+                        // dots.svg находится на right: 18px (padding контейнера)
+                        // Правый угол меню должен быть прямо под правым краем dots.svg без отступов
+                        // Высота каждого элемента чата: padding top (0 для первого, 20 для остальных) + высота Row с иконкой
+                        final chatItemTopPadding = selectedChatIndex == 0 ? 0 : scaleHeight(20);
+                        // Вычисляем позицию начала строки с чатом
+                        // Убираем отступ после "Чаты", так как он уже есть в коде
+                        final chatRowTop = scaleHeight(75) + // padding top
+                            scaleHeight(24) + // крестик/icon_mes
+                            scaleHeight(23) + // отступ после крестика
+                            scaleHeight(24) + // "Новый чат" строка
+                            scaleHeight(28) + // отступ после "Новый чат"
+                            scaleHeight(20) + // "Чаты" заголовок
+                            chatItemTopPadding + // отступ сверху для элемента чата (0 для первого, 20 для остальных)
+                            (selectedChatIndex! * scaleHeight(44)); // позиция чата (отступ 20 + высота строки ~24)
+                        final topOffset = chatRowTop - scaleHeight(30);
+                        return Positioned(
+                          right: scaleWidth(18), // правый край меню совпадает с правым краем dots.svg
+                          top: topOffset, // меню начинается сразу под нижней границей иконки
+                          child: GestureDetector(
+                            onTap: () {}, // Предотвращаем закрытие при клике на меню
+                            child: _ChatContextMenu(
+                              designWidth: designWidth,
+                              designHeight: designHeight,
+                              onClose: () {
+                                if (onContextMenuClosed != null) {
+                                  onContextMenuClosed!();
+                                }
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ChatContextMenu extends StatelessWidget {
+  const _ChatContextMenu({
+    required this.designWidth,
+    required this.designHeight,
+    required this.onClose,
+  });
+
+  final double designWidth;
+  final double designHeight;
+  final VoidCallback onClose;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final size = MediaQuery.of(context).size;
+    final double widthFactor = size.width / designWidth;
+    final double heightFactor = size.height / designHeight;
+
+    double scaleWidth(double value) => value * widthFactor;
+    double scaleHeight(double value) => value * heightFactor;
+
+    return Container(
+      width: scaleWidth(160),
+      constraints: BoxConstraints(
+        minHeight: scaleHeight(100),
+      ),
+      decoration: BoxDecoration(
+        color: isDark
+            ? AppColors.darkBackgroundCard
+            : const Color(0xFFF7F7F7),
+        borderRadius: BorderRadius.circular(scaleHeight(15)),
+        border: Border.all(
+          color: isDark ? AppColors.white : AppColors.black,
+          width: 1,
+        ),
+      ),
+      padding: EdgeInsets.all(scaleWidth(8)),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Поделиться
+          _ContextMenuItem(
+            iconPath: isDark
+                ? 'assets/icons/dark/icon_share.svg'
+                : 'assets/icons/light/icon_share.svg',
+            text: l.chatMenuShare,
+            textColor: isDark
+                ? AppColors.white
+                : const Color(0xFF5B5B5B),
+            designWidth: designWidth,
+            designHeight: designHeight,
+            onTap: () {
+              // TODO: Реализовать поделиться
+              onClose();
+            },
+          ),
+          // Переименовать
+          _ContextMenuItem(
+            iconPath: isDark
+                ? 'assets/icons/dark/icon_rename.svg'
+                : 'assets/icons/light/icon_rename.svg',
+            text: l.chatMenuRename,
+            textColor: isDark
+                ? AppColors.white
+                : const Color(0xFF5B5B5B),
+            designWidth: designWidth,
+            designHeight: designHeight,
+            onTap: () {
+              // TODO: Реализовать переименование
+              onClose();
+            },
+          ),
+          // Удалить
+          _ContextMenuItem(
+            iconPath: 'assets/icons/icon_delete.svg',
+            text: l.chatMenuDelete,
+            textColor: const Color(0xFF76090B),
+            designWidth: designWidth,
+            designHeight: designHeight,
+            onTap: () {
+              // TODO: Реализовать удаление
+              onClose();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ContextMenuItem extends StatelessWidget {
+  const _ContextMenuItem({
+    required this.iconPath,
+    required this.text,
+    required this.textColor,
+    required this.designWidth,
+    required this.designHeight,
+    required this.onTap,
+  });
+
+  final String iconPath;
+  final String text;
+  final Color textColor;
+  final double designWidth;
+  final double designHeight;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final double widthFactor = size.width / designWidth;
+    final double heightFactor = size.height / designHeight;
+
+    double scaleWidth(double value) => value * widthFactor;
+    double scaleHeight(double value) => value * heightFactor;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: scaleHeight(4)),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SvgPicture.asset(
+              iconPath,
+              width: scaleWidth(20),
+              height: scaleHeight(20),
+              fit: BoxFit.contain,
+            ),
+            SizedBox(width: scaleWidth(6)),
+            Text(
+              text,
+              style: AppTextStyle.screenTitle(
+                scaleHeight(13),
+                color: textColor,
+              ).copyWith(
+                decoration: TextDecoration.none,
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

@@ -186,7 +186,13 @@
   "faqAnswer4": "No. The only exception is technical services (servers, cloud storage) that work only as infrastructure and do not have access to your content.",
 
   "faqQuestion5": "How secure is the app?",
-  "faqAnswer5": "The connection is encrypted (HTTPS/SSL), data is stored on protected servers, and multi-level security and continuous monitoring are used."
+  "faqAnswer5": "The connection is encrypted (HTTPS/SSL), data is stored on protected servers, and multi-level security and continuous monitoring are used.",
+
+  "chatMenuNewChat": "New chat",
+  "chatMenuChats": "Chats",
+  "chatMenuShare": "Share",
+  "chatMenuRename": "Rename",
+  "chatMenuDelete": "Delete"
 }
 
 

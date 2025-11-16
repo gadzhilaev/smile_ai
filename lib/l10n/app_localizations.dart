@@ -958,6 +958,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The connection is encrypted (HTTPS/SSL), data is stored on protected servers, and multi-level security and continuous monitoring are used.'**
   String get faqAnswer5;
+
+  /// No description provided for @chatMenuNewChat.
+  ///
+  /// In en, this message translates to:
+  /// **'New chat'**
+  String get chatMenuNewChat;
+
+  /// No description provided for @chatMenuChats.
+  ///
+  /// In en, this message translates to:
+  /// **'Chats'**
+  String get chatMenuChats;
+
+  /// No description provided for @chatMenuShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get chatMenuShare;
+
+  /// No description provided for @chatMenuRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get chatMenuRename;
+
+  /// No description provided for @chatMenuDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get chatMenuDelete;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
