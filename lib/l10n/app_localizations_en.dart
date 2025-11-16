@@ -102,7 +102,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languageSectionSuggested => 'Suggested';
 
   @override
-  String get languageRussian => 'Russian';
+  String get languageRussian => 'Русский';
 
   @override
   String get languageEnglish => 'English';
