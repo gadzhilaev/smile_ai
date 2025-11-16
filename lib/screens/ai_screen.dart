@@ -146,7 +146,9 @@ class _AiScreenState extends State<AiScreen> {
             );
             _isTyping = false;
             // Отправляем уведомление о завершении генерации
-            NotificationService.instance.showAiMessageNotification(_assistantReply);
+            NotificationService.instance.showAiMessageNotification(
+              _assistantReply,
+            );
           } else {
             _currentTypingIndex += 1;
             _messages[_messages.length - 1] = _ChatMessage(
@@ -184,7 +186,9 @@ class _AiScreenState extends State<AiScreen> {
           );
           _isTyping = false;
           // Отправляем уведомление о завершении генерации
-          NotificationService.instance.showAiMessageNotification(_assistantReply);
+          NotificationService.instance.showAiMessageNotification(
+            _assistantReply,
+          );
         } else {
           _currentTypingIndex += 1;
           _messages[_messages.length - 1] = _ChatMessage(
@@ -260,8 +264,8 @@ class _AiScreenState extends State<AiScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Center(
-              child: SvgPicture.asset(
-                'assets/images/bot.svg',
+              child: Image.asset(
+                'assets/images/bot.png',
                 width: scaleWidth(105),
                 height: scaleHeight(157),
                 fit: BoxFit.contain,
@@ -393,14 +397,11 @@ class _AiScreenState extends State<AiScreen> {
                     ),
                     Align(
                       alignment: Alignment.centerRight,
-                      child: Padding(
-                        padding: EdgeInsets.only(right: scaleWidth(29)),
-                        child: SvgPicture.asset(
-                          'assets/icons/icon_mes.svg',
-                          width: scaleWidth(24),
-                          height: scaleHeight(24),
-                          fit: BoxFit.contain,
-                        ),
+                      child: SvgPicture.asset(
+                        'assets/icons/icon_mes.svg',
+                        width: scaleWidth(24),
+                        height: scaleHeight(24),
+                        fit: BoxFit.contain,
                       ),
                     ),
                   ],
@@ -539,8 +540,8 @@ class _AiScreenState extends State<AiScreen> {
                           borderRadius: BorderRadius.circular(scaleHeight(50)),
                         ),
                         child: Center(
-                          child: SvgPicture.asset(
-                            'assets/icons/icon_teleg.svg',
+                          child: Image.asset(
+                            'assets/icons/icon_teleg.png',
                             width: scaleWidth(24),
                             height: scaleHeight(24),
                             fit: BoxFit.contain,

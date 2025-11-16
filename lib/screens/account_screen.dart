@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import '../settings/style.dart';
 import '../services/profile_service.dart';
@@ -468,8 +467,8 @@ class _PhoneInputFieldState extends State<_PhoneInputField> {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(3),
-              child: SvgPicture.asset(
-                'assets/images/russia.svg',
+              child: Image.asset(
+                'assets/images/russia.png',
                 width: scaleWidth(42),
                 height: scaleHeight(24),
                 fit: BoxFit.cover,
