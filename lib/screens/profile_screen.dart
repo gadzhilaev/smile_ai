@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:image_picker/image_picker.dart';
 import '../settings/style.dart';
 import '../settings/colors.dart';
 
@@ -26,6 +29,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   static const double _designWidth = 428;
   static const double _designHeight = 926;
   final ScrollController _scrollController = ScrollController();
+  final ImagePicker _imagePicker = ImagePicker();
+  File? _selectedAvatar;
 
   Future<void> _refreshProfile() async {
     // Сбрасываем позицию прокрутки для полной перестройки страницы
@@ -34,6 +39,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() {}); // Обновляем UI с новыми данными из сервиса
     }
     await Future.delayed(const Duration(milliseconds: 500));
+  }
+
+  Future<void> _pickAvatar() async {
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+      );
+      if (image != null) {
+        setState(() {
+          _selectedAvatar = File(image.path);
+        });
+      }
+    } catch (e) {
+      // Обработка ошибок (например, если пользователь отменил выбор)
+      debugPrint('Error picking image: $e');
+    }
   }
 
   @override
@@ -396,22 +417,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         height: scaleHeight(130),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          image: const DecorationImage(
-                            image: AssetImage('assets/images/avatar.png'),
-                            fit: BoxFit.cover,
-                          ),
+                          image: _selectedAvatar != null
+                              ? DecorationImage(
+                                  image: FileImage(_selectedAvatar!),
+                                  fit: BoxFit.cover,
+                                )
+                              : const DecorationImage(
+                                  image: AssetImage('assets/images/avatar.png'),
+                                  fit: BoxFit.cover,
+                                ),
                         ),
                       ),
-                      // Круг для редактирования
-                      Container(
-                        width: scaleWidth(40),
-                        height: scaleHeight(40),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF898989),
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.white,
-                            width: 4,
+                      // Круг для редактирования с иконкой карандаша
+                      GestureDetector(
+                        onTap: _pickAvatar,
+                        child: Container(
+                          width: scaleWidth(40),
+                          height: scaleHeight(40),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF898989),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white,
+                              width: 4,
+                            ),
+                          ),
+                          child: Center(
+                            child: Icon(
+                              Icons.edit,
+                              size: scaleWidth(18),
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
