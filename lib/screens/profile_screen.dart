@@ -9,6 +9,7 @@ import '../l10n/app_localizations.dart';
 import 'account_screen.dart';
 import 'notifications_screen.dart';
 import 'language_screen.dart';
+import 'theme_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -40,6 +41,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     final size = MediaQuery.of(context).size;
     final double widthFactor = size.width / _designWidth;
     final double heightFactor = size.height / _designHeight;
@@ -55,7 +59,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final double actualTopSectionHeight = topSectionHeight + topPadding;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundMain,
+      backgroundColor:
+          isDark ? AppColors.darkBackgroundMain : AppColors.backgroundMain,
       body: CustomRefreshIndicator(
         onRefresh: _refreshProfile,
         designWidth: _designWidth,
@@ -72,11 +77,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Container(
                     height: actualTopSectionHeight,
                     width: double.infinity,
-                    color: AppColors.backgroundSection,
+                    color: isDark
+                        ? AppColors.darkBackgroundCard
+                        : AppColors.backgroundSection,
                   ),
                   // Нижняя секция с фоном #F7F7F7
                   Container(
-                    color: AppColors.backgroundMain,
+                    color:
+                        isDark ? AppColors.darkBackgroundMain : AppColors.backgroundMain,
                     child: Column(
                       children: [
                         SizedBox(height: scaleHeight(11) + scaleHeight(130) / 2),
@@ -84,7 +92,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Center(
                           child: Text(
                             ProfileService.instance.fullName,
-                            style: AppTextStyle.interMedium(scaleHeight(28)),
+                            style: AppTextStyle.interMedium(
+                              scaleHeight(28),
+                              color: isDark
+                                  ? AppTextStyle
+                                      .bodyText(scaleHeight(28), color: AppColors.darkPrimaryText)
+                                      .color
+                                  : null,
+                            ),
                           ),
                         ),
                         SizedBox(height: scaleHeight(11)),
@@ -92,11 +107,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Center(
                           child: Text(
                             '${ProfileService.instance.email} | ${ProfileService.instance.phone}',
-                            style: AppTextStyle.bodyText(scaleHeight(15)),
+                            style: AppTextStyle.bodyText(
+                              scaleHeight(15),
+                              color: isDark
+                                  ? AppColors.darkSecondaryText
+                                  : AppColors.textPrimary,
+                            ),
                           ),
                         ),
                         SizedBox(height: scaleHeight(24)),
-                      // Контейнер 1: Учетная запись, Уведомления, Язык
+                        // Контейнер 1: Учетная запись, Уведомления, Язык
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: scaleWidth(32)),
                         child: Container(
@@ -106,7 +126,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             vertical: scaleHeight(18),
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: isDark
+                                ? AppColors.darkBackgroundCard
+                                : Colors.white,
                             borderRadius: BorderRadius.circular(scaleHeight(10)),
                             boxShadow: const [
                               BoxShadow(
@@ -194,7 +216,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             vertical: scaleHeight(18),
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: isDark
+                                ? AppColors.darkBackgroundCard
+                                : Colors.white,
                             borderRadius: BorderRadius.circular(scaleHeight(10)),
                             boxShadow: const [
                               BoxShadow(
@@ -220,11 +244,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 designHeight: _designHeight,
                               ),
                               SizedBox(height: scaleHeight(12)),
-                              _ProfileMenuItem(
-                                iconPath: 'assets/profile_icons/profile_theme.svg',
-                                title: l.profileMenuTheme,
-                                designWidth: _designWidth,
-                                designHeight: _designHeight,
+                              InkWell(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => const ThemeScreen(),
+                                    ),
+                                  );
+                                },
+                                child: _ProfileMenuItem(
+                                  iconPath: 'assets/profile_icons/profile_theme.svg',
+                                  title: l.profileMenuTheme,
+                                  designWidth: _designWidth,
+                                  designHeight: _designHeight,
+                                ),
                               ),
                             ],
                           ),
@@ -241,7 +274,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             vertical: scaleHeight(18),
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: isDark
+                                ? AppColors.darkBackgroundCard
+                                : Colors.white,
                             borderRadius: BorderRadius.circular(scaleHeight(10)),
                             boxShadow: const [
                               BoxShadow(

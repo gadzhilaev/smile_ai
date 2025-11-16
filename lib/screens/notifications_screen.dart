@@ -96,9 +96,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     double scaleHeight(double value) => value * heightFactor;
 
     final l = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor:
+          isDark ? AppColors.darkBackgroundMain : AppColors.backgroundMain,
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => FocusScope.of(context).unfocus(),
@@ -128,7 +131,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           child: Icon(
                             Icons.arrow_back,
                             size: scaleWidth(28),
-                            color: Colors.black,
+                            color: theme.colorScheme.onSurface,
                           ),
                         ),
                       ),
@@ -154,7 +157,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       // Заголовок "Общие"
                       Text(
                         l.notificationsSectionGeneral,
-                        style: AppTextStyle.screenTitle(scaleHeight(16)),
+                        style: AppTextStyle.screenTitle(
+                          scaleHeight(16),
+                          color: theme.colorScheme.onSurface,
+                        ),
                       ),
                       SizedBox(height: scaleHeight(14)),
                       // Все уведомления
@@ -201,7 +207,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       // Заголовок "Системные уведомления"
                       Text(
                         l.notificationsSectionSystem,
-                        style: AppTextStyle.screenTitle(scaleHeight(16)),
+                        style: AppTextStyle.screenTitle(
+                          scaleHeight(16),
+                          color: theme.colorScheme.onSurface,
+                        ),
                       ),
                       SizedBox(height: scaleHeight(16)),
                       // Обновления

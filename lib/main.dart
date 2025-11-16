@@ -5,6 +5,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
 import 'services/notification_service.dart';
 import 'services/language_service.dart';
+import 'services/theme_service.dart';
+import 'settings/colors.dart';
 import 'auth/login.dart';
 
 void main() async {
@@ -14,8 +16,9 @@ void main() async {
   // Держим нативный splash, пока идёт инициализация
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
-  // Загружаем сохранённый язык до запуска приложения
+  // Загружаем сохранённый язык и тему до запуска приложения
   await LanguageService.instance.init();
+  await ThemeService.instance.init();
 
   runApp(const MainApp());
 
@@ -51,25 +54,45 @@ class MainApp extends StatefulWidget {
 class _MainAppState extends State<MainApp> {
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<Locale>(
-      valueListenable: LanguageService.instance.localeNotifier,
-      builder: (context, locale, _) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            scaffoldBackgroundColor: Colors.white,
-            useMaterial3: true,
-          ),
-          locale: locale,
-          supportedLocales: AppLocalizations.supportedLocales,
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          // Сразу открываем экран ввода e-mail, без Flutter-сплэша
-          home: const EmailScreen(),
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: ThemeService.instance.themeModeNotifier,
+      builder: (context, themeMode, _) {
+        return ValueListenableBuilder<Locale>(
+          valueListenable: LanguageService.instance.localeNotifier,
+          builder: (context, locale, __) {
+            return MaterialApp(
+              debugShowCheckedModeBanner: false,
+              themeMode: themeMode,
+              theme: ThemeData(
+                brightness: Brightness.light,
+                scaffoldBackgroundColor: AppColors.backgroundMain,
+                useMaterial3: true,
+                colorScheme: ColorScheme.fromSeed(
+                  seedColor: const Color(0xFF1573FE),
+                  brightness: Brightness.light,
+                ),
+              ),
+              darkTheme: ThemeData(
+                brightness: Brightness.dark,
+                scaffoldBackgroundColor: AppColors.darkBackgroundMain,
+                useMaterial3: true,
+                colorScheme: ColorScheme.fromSeed(
+                  seedColor: const Color(0xFF1573FE),
+                  brightness: Brightness.dark,
+                ),
+              ),
+              locale: locale,
+              supportedLocales: AppLocalizations.supportedLocales,
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              // Сразу открываем экран ввода e-mail, без Flutter-сплэша
+              home: const EmailScreen(),
+            );
+          },
         );
       },
     );

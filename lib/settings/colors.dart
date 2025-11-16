@@ -48,9 +48,16 @@ class AppColors {
   // Прочее
   static const Color overlayShadow = Color(0x1F18274B);
 
-  // Радио-кнопки для выбора языка
+  // Радио-кнопки для выбора языка/темы
   static const Color radioInactiveBg = Color(0xFFE3EEFF);
   static const Color radioInactiveBorder = Color(0xFFC7DDFF);
+
+  // Темная тема (палитра)
+  static const Color darkBackgroundMain = Color(0xFF090A0F);
+  static const Color darkBackgroundCard = Color(0xFF111827);
+  static const Color darkPrimaryText = Color(0xFFF9FAFB);
+  static const Color darkSecondaryText = Color(0xFF9CA3AF);
+  static const Color darkDivider = Color(0xFF374151);
 }
 
 

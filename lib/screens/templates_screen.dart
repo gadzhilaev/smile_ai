@@ -88,6 +88,9 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     final size = MediaQuery.of(context).size;
     final double widthFactor = size.width / _designWidth;
     final double heightFactor = size.height / _designHeight;
@@ -98,7 +101,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
     final l = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundMain,
+      backgroundColor:
+          isDark ? AppColors.darkBackgroundMain : AppColors.backgroundMain,
       body: SafeArea(
         top: true,
         bottom: false,
@@ -210,6 +214,9 @@ class _TemplateCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     final size = MediaQuery.of(context).size;
     final double widthFactor = size.width / designWidth;
     final double heightFactor = size.height / designHeight;
@@ -221,7 +228,7 @@ class _TemplateCard extends StatelessWidget {
       width: double.infinity,
       height: scaleHeight(251),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: isDark ? AppColors.darkBackgroundCard : AppColors.white,
         borderRadius: BorderRadius.circular(scaleHeight(12)),
         boxShadow: const [
           BoxShadow(

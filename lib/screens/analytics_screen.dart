@@ -61,17 +61,21 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     final size = MediaQuery.of(context).size;
     final double widthFactor = size.width / _designWidth;
     final double heightFactor = size.height / _designHeight;
 
     double scaleWidth(double value) => value * widthFactor;
-    double scaleHeight(double value) => value * heightFactor;
+    double scaleHeight(double value) => heightFactor * value;
 
     final l = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundMain,
+      backgroundColor:
+          isDark ? AppColors.darkBackgroundMain : AppColors.backgroundMain,
       body: SafeArea(
         top: true,
         bottom: false,
@@ -116,7 +120,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                             l.analyticsTitle,
                             style: AppTextStyle.screenTitle(
                               scaleHeight(20),
-                              color: AppColors.primaryText,
+                              color: theme.colorScheme.onSurface,
                             ),
                           ),
                           SizedBox(height: scaleHeight(16)),
@@ -135,7 +139,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                 child: Text(
                                   _analytics!.trendName,
                                   style: AppTextStyle.trendTitle(
-                                      scaleHeight(18), Colors.black),
+                                    scaleHeight(18),
+                                    theme.colorScheme.onSurface,
+                                  ),
                                 ),
                               ),
                             ],
@@ -278,6 +284,9 @@ class _TrendContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     final size = MediaQuery.of(context).size;
     final double widthFactor = size.width / designWidth;
     final double heightFactor = size.height / designHeight;
@@ -289,7 +298,7 @@ class _TrendContainer extends StatelessWidget {
       width: scaleWidth(171),
       height: scaleHeight(236),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.darkBackgroundCard : AppColors.white,
         borderRadius: BorderRadius.circular(scaleHeight(15)),
       ),
       padding: EdgeInsets.only(

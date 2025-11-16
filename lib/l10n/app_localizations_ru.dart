@@ -142,4 +142,16 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get templateEdit => 'Редактировать';
+
+  @override
+  String get themeTitle => 'Тема';
+
+  @override
+  String get themeSystem => 'Как в системе';
+
+  @override
+  String get themeLight => 'Светлая тема';
+
+  @override
+  String get themeDark => 'Тёмная тема';
 }

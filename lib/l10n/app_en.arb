@@ -53,7 +53,12 @@
   "analyticsCategoryFalling": "Falling",
 
   "templateApply": "Apply template",
-  "templateEdit": "Edit"
+  "templateEdit": "Edit",
+
+  "themeTitle": "Theme",
+  "themeSystem": "Use system",
+  "themeLight": "Light theme",
+  "themeDark": "Dark theme"
 }
 
 

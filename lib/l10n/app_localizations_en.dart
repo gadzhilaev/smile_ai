@@ -142,4 +142,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get templateEdit => 'Edit';
+
+  @override
+  String get themeTitle => 'Theme';
+
+  @override
+  String get themeSystem => 'Use system';
+
+  @override
+  String get themeLight => 'Light theme';
+
+  @override
+  String get themeDark => 'Dark theme';
 }

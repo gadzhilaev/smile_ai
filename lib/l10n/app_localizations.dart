@@ -284,7 +284,7 @@ abstract class AppLocalizations {
   /// No description provided for @languageRussian.
   ///
   /// In en, this message translates to:
-  /// **'Russian'**
+  /// **'Русский'**
   String get languageRussian;
 
   /// No description provided for @languageEnglish.
@@ -364,6 +364,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Edit'**
   String get templateEdit;
+
+  /// No description provided for @themeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get themeTitle;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Use system'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light theme'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark theme'**
+  String get themeDark;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -28,7 +28,6 @@ class _AiScreenState extends State<AiScreen> {
   static const double _designWidth = 428;
   static const double _designHeight = 926;
 
-  static const Color _backgroundColor = AppColors.backgroundMain;
   static const Color _primaryTextColor = AppColors.primaryText;
   static const Color _accentColor = AppColors.accentRed;
   static const String _assistantReply =
@@ -226,6 +225,9 @@ class _AiScreenState extends State<AiScreen> {
     double scaleWidth(double value) => value * widthFactor;
     double scaleHeight(double value) => value * heightFactor;
 
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     Widget conversationArea;
     if (_hasConversation) {
       conversationArea = Padding(
@@ -273,7 +275,8 @@ class _AiScreenState extends State<AiScreen> {
                 width: double.infinity,
                 height: scaleHeight(48),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color:
+                      isDark ? AppColors.darkBackgroundCard : Colors.white,
                   borderRadius: BorderRadius.circular(scaleHeight(16)),
                 ),
                 padding: EdgeInsets.symmetric(horizontal: scaleWidth(16)),
@@ -305,7 +308,8 @@ class _AiScreenState extends State<AiScreen> {
               child: Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color:
+                      isDark ? AppColors.darkBackgroundCard : Colors.white,
                   borderRadius: BorderRadius.circular(scaleHeight(12)),
                 ),
                 padding: EdgeInsets.fromLTRB(
@@ -371,7 +375,7 @@ class _AiScreenState extends State<AiScreen> {
     }
 
     return Scaffold(
-      backgroundColor: _backgroundColor,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => FocusScope.of(context).unfocus(),
@@ -393,7 +397,7 @@ class _AiScreenState extends State<AiScreen> {
                         'Smile AI',
                         style: AppTextStyle.screenTitleMedium(
                           scaleHeight(20),
-                          color: _primaryTextColor,
+                          color: theme.colorScheme.onSurface,
                         ),
                       ),
                     ),
@@ -450,7 +454,7 @@ class _AiScreenState extends State<AiScreen> {
                               'Остановить генерацию...',
                               style: AppTextStyle.bodyTextMedium(
                                 scaleHeight(14),
-                                color: Colors.black,
+                                color: theme.colorScheme.onSurface,
                               ).copyWith(height: 20 / 14),
                               textAlign: TextAlign.center,
                             ),
@@ -579,6 +583,9 @@ class _SuggestionChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     final size = MediaQuery.of(context).size;
     final double widthFactor = size.width / designWidth;
     final double heightFactor = size.height / designHeight;
@@ -592,7 +599,7 @@ class _SuggestionChip extends StatelessWidget {
         vertical: scaleHeight(10),
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.darkBackgroundCard : AppColors.white,
         borderRadius: BorderRadius.circular(scaleHeight(20)),
         border: Border.all(color: accentColor, width: 1),
       ),
@@ -629,7 +636,12 @@ class _MessageBubble extends StatelessWidget {
     double scaleWidth(double value) => value * widthFactor;
     double scaleHeight(double value) => value * heightFactor;
 
-    final Color bubbleColor = message.isUser ? accentColor : Colors.white;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final Color bubbleColor = message.isUser
+        ? accentColor
+        : (isDark ? AppColors.darkBackgroundCard : Colors.white);
     final BorderRadius borderRadius = message.isUser
         ? BorderRadius.only(
             topLeft: Radius.circular(scaleHeight(19)),
@@ -644,7 +656,9 @@ class _MessageBubble extends StatelessWidget {
 
     final TextStyle textStyle = AppTextStyle.chatMessage(
       scaleHeight(16),
-      color: message.isUser ? Colors.white : const Color(0xFF212121),
+      color: message.isUser
+          ? AppColors.white
+          : (isDark ? AppColors.darkPrimaryText : AppColors.textPrimary),
       height: message.isUser ? 1 : 21 / 16,
     );
 

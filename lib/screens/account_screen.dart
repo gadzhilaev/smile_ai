@@ -84,8 +84,12 @@ class _AccountScreenState extends State<AccountScreen> {
     double scaleWidth(double value) => value * widthFactor;
     double scaleHeight(double value) => value * heightFactor;
 
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor:
+          isDark ? AppColors.darkBackgroundMain : AppColors.backgroundMain,
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => FocusScope.of(context).unfocus(),
@@ -113,10 +117,10 @@ class _AccountScreenState extends State<AccountScreen> {
                         child: Padding(
                           padding: EdgeInsets.all(scaleWidth(4)),
                           child: Icon(
-                              Icons.arrow_back,
-                              size: scaleWidth(28),
-                              color: Colors.black,
-                            ),
+                            Icons.arrow_back,
+                            size: scaleWidth(28),
+                            color: theme.colorScheme.onSurface,
+                          ),
                         ),
                       ),
                       Expanded(

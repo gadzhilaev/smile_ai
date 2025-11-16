@@ -53,7 +53,12 @@
   "analyticsCategoryFalling": "Падающие",
 
   "templateApply": "Применить шаблон",
-  "templateEdit": "Редактировать"
+  "templateEdit": "Редактировать",
+
+  "themeTitle": "Тема",
+  "themeSystem": "Как в системе",
+  "themeLight": "Светлая тема",
+  "themeDark": "Тёмная тема"
 }
 
 
