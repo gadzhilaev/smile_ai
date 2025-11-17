@@ -1,9 +1,16 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 
 /// Утилита для работы с .env файлом
 class EnvUtils {
+  static Directory? _cachedSupportDir;
+
+  static bool get _isMobileRuntime =>
+      !kIsWeb && (Platform.isAndroid || Platform.isIOS);
+
   /// Создать .env файл с пустыми значениями, если его нет
   static Future<void> createEnvFileIfNotExists() async {
     try {
@@ -56,32 +63,43 @@ USER_GENDER=
     }
   }
 
-  /// Получить путь к .env файлу в корне проекта
+  /// Получить путь к .env файлу
   static Future<String> _getEnvFilePath() async {
-    // На мобильных устройствах нужно найти корень проекта
-    // Пробуем несколько способов
-    
-    // Способ 1: Используем Platform.script для определения пути к приложению
+    if (_isMobileRuntime) {
+      final supportDir = await _getSupportDirectory();
+      final envPath = path.join(supportDir.path, '.env');
+      debugPrint('EnvUtils: using application support path: $envPath');
+      return envPath;
+    }
+    return _findProjectEnvFilePath();
+  }
+
+  static Future<Directory> _getSupportDirectory() async {
+    if (_cachedSupportDir != null) {
+      return _cachedSupportDir!;
+    }
+    final dir = await getApplicationSupportDirectory();
+    _cachedSupportDir = dir;
+    return dir;
+  }
+
+  static Future<String> _findProjectEnvFilePath() async {
     try {
       final scriptPath = Platform.script.toFilePath();
       debugPrint('EnvUtils: Platform.script path: $scriptPath');
-      
-      // Получаем директорию, где находится скрипт
+
       var searchDir = path.dirname(scriptPath);
       debugPrint('EnvUtils: starting search from script dir: $searchDir');
-      
-      // Поднимаемся вверх, ища pubspec.yaml (максимум 15 уровней)
+
       for (int i = 0; i < 15; i++) {
         final pubspecPath = path.join(searchDir, 'pubspec.yaml');
         final pubspecFile = File(pubspecPath);
-        
+
         if (await pubspecFile.exists()) {
-          // Нашли корень проекта
           final envPath = path.join(searchDir, '.env');
           debugPrint('EnvUtils: found project root at: $searchDir');
           debugPrint('EnvUtils: .env file path: $envPath');
-          
-          // Проверяем, можем ли мы записать
+
           try {
             final testFile = File(path.join(searchDir, '.env_write_test'));
             await testFile.writeAsString('test');
@@ -94,8 +112,7 @@ USER_GENDER=
             debugPrint('EnvUtils: write test failed at $searchDir: $e');
           }
         }
-        
-        // Поднимаемся на уровень вверх
+
         final parent = path.dirname(searchDir);
         if (parent == searchDir) {
           break;
@@ -105,35 +122,32 @@ USER_GENDER=
     } catch (e) {
       debugPrint('EnvUtils: error using Platform.script: $e');
     }
-    
-    // Способ 2: Ищем от текущей директории
+
     var searchDir = Directory.current.path;
     debugPrint('EnvUtils: trying current directory: $searchDir');
-    
+
     for (int i = 0; i < 15; i++) {
       final pubspecPath = path.join(searchDir, 'pubspec.yaml');
       final pubspecFile = File(pubspecPath);
-      
+
       if (await pubspecFile.exists()) {
         final envPath = path.join(searchDir, '.env');
         debugPrint('EnvUtils: found project root at: $searchDir');
         return envPath;
       }
-      
+
       final parent = path.dirname(searchDir);
       if (parent == searchDir) {
         break;
       }
       searchDir = parent;
     }
-    
-    // Способ 3: Используем известный путь к проекту (для разработки)
-    // Пробуем путь, где обычно находится проект при запуске через flutter run
+
     final knownPaths = [
       '/Users/admin/Documents/MobileProjects/smile_ai',
       path.join(Directory.current.path, '..', '..', '..'),
     ];
-    
+
     for (final knownPath in knownPaths) {
       try {
         final normalizedPath = path.normalize(knownPath);
@@ -147,11 +161,67 @@ USER_GENDER=
         // Продолжаем поиск
       }
     }
-    
-    // Fallback: используем текущую директорию
+
     final envPath = path.join(Directory.current.path, '.env');
     debugPrint('EnvUtils: WARNING - using fallback path: $envPath');
     return envPath;
+  }
+
+  /// Подмешиваем значения из доступного .env файла в уже загруженный dotenv
+  static Future<void> mergeRuntimeEnvIntoDotenv() async {
+    if (!dotenv.isInitialized) {
+      debugPrint('EnvUtils: dotenv not initialized, merge skipped');
+      return;
+    }
+    final overrides = await _readEnvFileAsMap();
+    if (overrides.isEmpty) {
+      return;
+    }
+    dotenv.env.addAll(overrides);
+    debugPrint(
+        'EnvUtils: merged runtime .env overrides: ${overrides.keys.join(", ")}');
+  }
+
+  static Future<Map<String, String>> _readEnvFileAsMap() async {
+    try {
+      final envPath = await _getEnvFilePath();
+      final envFile = File(envPath);
+      if (!await envFile.exists()) {
+        return {};
+      }
+      final content = await envFile.readAsString();
+      return _parseEnvContent(content);
+    } catch (e) {
+      debugPrint('EnvUtils: failed to read runtime .env: $e');
+      return {};
+    }
+  }
+
+  static Map<String, String> _parseEnvContent(String content) {
+    final Map<String, String> result = {};
+    final lines = content.split('\n');
+    for (final rawLine in lines) {
+      if (rawLine.trim().isEmpty || rawLine.trimLeft().startsWith('#')) {
+        continue;
+      }
+      final index = rawLine.indexOf('=');
+      if (index <= 0) continue;
+      final key = rawLine.substring(0, index).trim();
+      final value = rawLine.substring(index + 1).trim();
+      if (key.isNotEmpty) {
+        result[key] = value;
+      }
+    }
+    return result;
+  }
+
+  static void _updateInMemoryEnv(String key, String value) {
+    if (!dotenv.isInitialized) {
+      debugPrint(
+          'EnvUtils: dotenv not initialized, skipping in-memory update for $key');
+      return;
+    }
+    dotenv.env[key] = value;
   }
 
   /// Обновить значение токена в .env файле
@@ -215,6 +285,7 @@ USER_GENDER=
         // Проверяем, что токен действительно в файле
         if (writtenContent.contains('AUTH_TOKEN=$token')) {
           debugPrint('EnvUtils: SUCCESS - token verified in file');
+          _updateInMemoryEnv('AUTH_TOKEN', token);
         } else {
           debugPrint('EnvUtils: WARNING - token not found in written file!');
           debugPrint('EnvUtils: written content: $writtenContent');
@@ -316,6 +387,9 @@ USER_GENDER=
         
         if (allDataFound) {
           debugPrint('EnvUtils: SUCCESS - all user data verified in file');
+          for (final entry in userData.entries) {
+            _updateInMemoryEnv(entry.key, entry.value);
+          }
         }
       } else {
         debugPrint('EnvUtils: ERROR - file does not exist after write!');
@@ -389,6 +463,7 @@ USER_GENDER=
         // Проверяем, что user_id действительно в файле
         if (writtenContent.contains('USER_ID=$userId')) {
           debugPrint('EnvUtils: SUCCESS - USER_ID verified in file');
+          _updateInMemoryEnv('USER_ID', userId);
         } else {
           debugPrint('EnvUtils: WARNING - USER_ID not found in written file!');
           debugPrint('EnvUtils: written content: $writtenContent');

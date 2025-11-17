@@ -51,6 +51,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       // Получаем user_id из .env
       await dotenv.load(fileName: ".env");
+      await EnvUtils.mergeRuntimeEnvIntoDotenv();
       final rawUserId = dotenv.env['USER_ID'];
       final userId = rawUserId?.trim();
       

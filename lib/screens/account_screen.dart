@@ -67,6 +67,7 @@ class _AccountScreenState extends State<AccountScreen> {
     try {
       // Получаем токен из .env
       await dotenv.load(fileName: ".env");
+      await EnvUtils.mergeRuntimeEnvIntoDotenv();
       final token = dotenv.env['AUTH_TOKEN'] ?? '';
       
       if (token.isEmpty) {

@@ -10,6 +10,7 @@ import '../settings/colors.dart';
 import '../l10n/app_localizations.dart';
 import '../services/notification_service.dart';
 import '../services/api_service.dart';
+import '../utils/env_utils.dart';
 
 class AiScreen extends StatefulWidget {
   const AiScreen({
@@ -87,6 +88,7 @@ class _AiScreenState extends State<AiScreen> {
     String? userId;
     try {
       await dotenv.load(fileName: ".env");
+      await EnvUtils.mergeRuntimeEnvIntoDotenv();
       userId = dotenv.env['USER_ID'];
       debugPrint('AiScreen: USER_ID from .env: ${userId != null && userId.isNotEmpty ? "${userId.substring(0, 8)}..." : "not found"}');
     } catch (e) {
@@ -212,6 +214,7 @@ class _AiScreenState extends State<AiScreen> {
     try {
       // Получаем user_id из .env
       await dotenv.load(fileName: ".env");
+      await EnvUtils.mergeRuntimeEnvIntoDotenv();
       final userId = dotenv.env['USER_ID']?.trim();
       
       if (userId == null || userId.isEmpty) {
@@ -439,6 +442,7 @@ class _AiScreenState extends State<AiScreen> {
     if (index >= 0 && index < _chatHistory.length) {
       try {
         await dotenv.load(fileName: ".env");
+        await EnvUtils.mergeRuntimeEnvIntoDotenv();
         final userId = dotenv.env['USER_ID']?.trim();
 
         if (userId == null || userId.isEmpty) {
@@ -517,6 +521,7 @@ class _AiScreenState extends State<AiScreen> {
 
       try {
         await dotenv.load(fileName: ".env");
+        await EnvUtils.mergeRuntimeEnvIntoDotenv();
         final userId = dotenv.env['USER_ID']?.trim();
 
         if (userId == null || userId.isEmpty) {

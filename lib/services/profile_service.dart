@@ -1,4 +1,5 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../utils/env_utils.dart';
 
 class ProfileService {
   static ProfileService? _instance;
@@ -25,6 +26,7 @@ class ProfileService {
     
     try {
       await dotenv.load(fileName: ".env");
+      await EnvUtils.mergeRuntimeEnvIntoDotenv();
       
       final fullName = dotenv.env['USER_FULL_NAME'];
       final username = dotenv.env['USER_NICKNAME'];

@@ -42,19 +42,27 @@ class _RegistrationCodeScreenState extends State<RegistrationCodeScreen> {
   void initState() {
     super.initState();
     for (var i = 0; i < 4; i++) {
-      _controllers[i].addListener(() {
-        _onCodeChanged(i, _controllers[i].text);
-      });
+      _controllers[i].addListener(_onFieldStateChange);
       _focusNodes[i].addListener(() => _onFieldStateChange());
     }
     _loginRecognizer = TapGestureRecognizer()
       ..onTap = _openLoginScreen;
+
+    // Устанавливаем фокус на первое поле после построения экрана
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (_focusNodes.isNotEmpty && _focusNodes.first.canRequestFocus) {
+        _focusNodes.first.requestFocus();
+      }
+    });
   }
 
   @override
   void dispose() {
     for (var i = 0; i < 4; i++) {
-      _controllers[i].dispose();
+      _controllers[i]
+        ..removeListener(_onFieldStateChange)
+        ..dispose();
       _focusNodes[i].dispose();
     }
     _loginRecognizer.dispose();
@@ -288,7 +296,6 @@ class _RegistrationCodeScreenState extends State<RegistrationCodeScreen> {
                                   }
                                   _onCodeChanged(index, value);
                                 },
-                                autofocus: index == 0,
                               ),
                             ),
                           ),

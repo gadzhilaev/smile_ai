@@ -32,6 +32,7 @@ void main() async {
   await AuthService.instance.init();
   try {
     await dotenv.load(fileName: ".env");
+    await EnvUtils.mergeRuntimeEnvIntoDotenv();
     debugPrint('Startup: .env file loaded successfully');
     final envToken = dotenv.env['AUTH_TOKEN'];
     
