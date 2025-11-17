@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Smile AI](assets/images/logo.png)
+![Smile AI](assets/images/logo2.png)
 
 **Мобильное приложение с AI-ассистентом для бизнеса**
 
