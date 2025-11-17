@@ -168,34 +168,34 @@ class _AiScreenState extends State<AiScreen> {
       }
 
       // Отображаем ответ с анимацией печати
-      _typingTimer?.cancel();
-      _typingTimer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
+    _typingTimer?.cancel();
+    _typingTimer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
         if (!mounted) {
           timer.cancel();
           return;
         }
-        setState(() {
+      setState(() {
           if (_currentTypingIndex >= responseText.length) {
-            timer.cancel();
+          timer.cancel();
             _messages[_messages.length - 1] = ChatMessage(
               text: responseText,
-              isUser: false,
-            );
-            _isTyping = false;
+            isUser: false,
+          );
+          _isTyping = false;
             // Сохраняем чат после завершения генерации
             _saveCurrentChat();
             // Отправляем уведомление о завершении генерации
             NotificationService.instance.showAiMessageNotification(responseText);
-          } else {
-            _currentTypingIndex += 1;
+        } else {
+          _currentTypingIndex += 1;
             _messages[_messages.length - 1] = ChatMessage(
               text: responseText.substring(0, _currentTypingIndex.toInt()),
-              isUser: false,
-            );
-          }
-        });
-        _scrollToBottom();
+            isUser: false,
+          );
+        }
       });
+      _scrollToBottom();
+    });
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -830,32 +830,32 @@ class _AiScreenState extends State<AiScreen> {
       body: Stack(
         children: [
           GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => FocusScope.of(context).unfocus(),
-            child: SafeArea(
-              top: true,
-              bottom: false,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: scaleHeight(13)),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: scaleWidth(24)),
-                    child: Stack(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SafeArea(
+          top: true,
+          bottom: false,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: scaleHeight(13)),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: scaleWidth(24)),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Align(
                       alignment: Alignment.center,
-                      children: [
-                        Align(
-                          alignment: Alignment.center,
-                          child: Text(
-                            'Smile AI',
+                      child: Text(
+                        'Smile AI',
                             style: AppTextStyle.screenTitleMedium(
                               scaleHeight(20),
                               color: theme.colorScheme.onSurface,
-                            ),
-                          ),
                         ),
-                        Align(
-                          alignment: Alignment.centerRight,
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
                           child: GestureDetector(
                             onTap: () {
                               _showChatMenuOverlay();
@@ -864,120 +864,120 @@ class _AiScreenState extends State<AiScreen> {
                               isDark
                                   ? 'assets/icons/dark/icon_mes_dark.svg'
                                   : 'assets/icons/light/icon_mes.svg',
-                              width: scaleWidth(24),
-                              height: scaleHeight(24),
-                              fit: BoxFit.contain,
-                            ),
-                          ),
+                          width: scaleWidth(24),
+                          height: scaleHeight(24),
+                          fit: BoxFit.contain,
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                  SizedBox(height: scaleHeight(24)),
-                  Container(
-                    width: double.infinity,
-                    height: 1,
+                  ],
+                ),
+              ),
+              SizedBox(height: scaleHeight(24)),
+              Container(
+                width: double.infinity,
+                height: 1,
                     color: AppColors.textDarkGrey,
-                  ),
-                  SizedBox(height: scaleHeight(24)),
-                  Expanded(child: conversationArea),
-                  SizedBox(height: scaleHeight(24)),
-                  if (_hasConversation && _isTyping) ...[
-                    Center(
-                      child: GestureDetector(
-                        onTap: _stopGeneration,
-                        child: Container(
+              ),
+              SizedBox(height: scaleHeight(24)),
+              Expanded(child: conversationArea),
+              SizedBox(height: scaleHeight(24)),
+              if (_hasConversation && _isTyping) ...[
+                Center(
+                  child: GestureDetector(
+                    onTap: _stopGeneration,
+                    child: Container(
                           width: scaleWidth(255),
-                          height: scaleHeight(44),
-                          decoration: BoxDecoration(
+                      height: scaleHeight(44),
+                      decoration: BoxDecoration(
                             border:
                                 Border.all(color: AppColors.borderDefault),
                             borderRadius:
                                 BorderRadius.circular(scaleHeight(12)),
-                          ),
+                      ),
                           padding: EdgeInsets.symmetric(
                               horizontal: scaleWidth(16)),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: scaleWidth(18),
-                                height: scaleWidth(18),
-                                decoration: BoxDecoration(
-                                  color: _accentColor,
-                                  borderRadius: BorderRadius.circular(
-                                    scaleWidth(2),
-                                  ),
-                                ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: scaleWidth(18),
+                            height: scaleWidth(18),
+                            decoration: BoxDecoration(
+                              color: _accentColor,
+                              borderRadius: BorderRadius.circular(
+                                scaleWidth(2),
                               ),
-                              SizedBox(width: scaleWidth(11)),
-                              Flexible(
-                                child: Text(
+                            ),
+                          ),
+                          SizedBox(width: scaleWidth(11)),
+                          Flexible(
+                            child: Text(
                                   l.aiStopGeneration,
                                   style: AppTextStyle.bodyTextMedium(
                                     scaleHeight(14),
                                     color: theme.colorScheme.onSurface,
                                   ).copyWith(height: 20 / 14),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ],
+                              textAlign: TextAlign.center,
+                            ),
                           ),
-                        ),
+                        ],
                       ),
                     ),
-                    SizedBox(height: scaleHeight(24)),
-                  ],
-                  Padding(
-                    padding: EdgeInsets.only(
-                      left: scaleWidth(25),
-                      right: scaleWidth(25),
-                      bottom: scaleHeight(20),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            height: scaleHeight(54),
-                            decoration: BoxDecoration(
+                  ),
+                ),
+                SizedBox(height: scaleHeight(24)),
+              ],
+              Padding(
+                padding: EdgeInsets.only(
+                  left: scaleWidth(25),
+                  right: scaleWidth(25),
+                  bottom: scaleHeight(20),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: scaleHeight(54),
+                        decoration: BoxDecoration(
                               color: isDark
                                   ? AppColors.darkBackgroundCard
                                   : AppColors.white,
                               borderRadius:
                                   BorderRadius.circular(scaleHeight(12)),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Color(0x1F18274B),
-                                  offset: Offset(0, 14),
-                                  blurRadius: 64,
-                                  spreadRadius: -4,
-                                ),
-                                BoxShadow(
-                                  color: Color(0x1F18274B),
-                                  offset: Offset(0, 8),
-                                  blurRadius: 22,
-                                  spreadRadius: -6,
-                                ),
-                              ],
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x1F18274B),
+                              offset: Offset(0, 14),
+                              blurRadius: 64,
+                              spreadRadius: -4,
                             ),
-                            padding: EdgeInsets.only(
-                              left: scaleWidth(16),
-                              right: scaleWidth(15),
+                            BoxShadow(
+                              color: Color(0x1F18274B),
+                              offset: Offset(0, 8),
+                              blurRadius: 22,
+                              spreadRadius: -6,
                             ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: TextField(
-                                    controller: _inputController,
+                          ],
+                        ),
+                        padding: EdgeInsets.only(
+                          left: scaleWidth(16),
+                          right: scaleWidth(15),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _inputController,
                                 style: AppTextStyle.bodyTextMedium(
                                   scaleHeight(16),
                                   color: isDark
                                       ? AppColors.white
                                       : _primaryTextColor,
                                 ),
-                                    cursorColor: _accentColor,
-                                    decoration: InputDecoration(
+                                cursorColor: _accentColor,
+                                decoration: InputDecoration(
                                       hintText: l.aiInputPlaceholder,
                                   hintStyle: AppTextStyle.bodyTextMedium(
                                     scaleHeight(16),
@@ -985,56 +985,56 @@ class _AiScreenState extends State<AiScreen> {
                                         ? AppColors.darkSecondaryText
                                         : AppColors.textDarkGrey,
                                   ),
-                                      border: InputBorder.none,
-                                      isDense: true,
-                                    ),
-                                    textInputAction: TextInputAction.send,
-                                    onSubmitted: (_) => _sendMessage(),
+                                  border: InputBorder.none,
+                                  isDense: true,
+                                ),
+                                textInputAction: TextInputAction.send,
+                                onSubmitted: (_) => _sendMessage(),
                                     enableInteractiveSelection: true,
                                     enableSuggestions: true,
                                     autocorrect: true,
-                                  ),
-                                ),
+                              ),
+                            ),
                                 SvgPicture.asset(
                                   'assets/icons/icon_mic.svg',
-                                  width: scaleWidth(24),
-                                  height: scaleHeight(24),
-                                  fit: BoxFit.contain,
-                                ),
-                              ],
+                              width: scaleWidth(24),
+                              height: scaleHeight(24),
+                              fit: BoxFit.contain,
                             ),
-                          ),
+                          ],
                         ),
-                        SizedBox(width: scaleWidth(20)),
-                        GestureDetector(
-                          onTap: _sendMessage,
-                          child: Container(
-                            width: scaleWidth(54),
-                            height: scaleHeight(54),
-                            decoration: BoxDecoration(
-                              color: _accentColor,
+                      ),
+                    ),
+                    SizedBox(width: scaleWidth(20)),
+                    GestureDetector(
+                      onTap: _sendMessage,
+                      child: Container(
+                        width: scaleWidth(54),
+                        height: scaleHeight(54),
+                        decoration: BoxDecoration(
+                          color: _accentColor,
                               borderRadius:
                                   BorderRadius.circular(scaleHeight(50)),
-                            ),
-                            child: Center(
-                              child: Image.asset(
+                        ),
+                        child: Center(
+                          child: Image.asset(
                                 isDark
                                     ? 'assets/icons/dark/icon_teleg_dark.png'
                                     : 'assets/icons/light/icon_teleg.png',
-                                width: scaleWidth(24),
-                                height: scaleHeight(24),
-                                fit: BoxFit.contain,
-                              ),
-                            ),
+                            width: scaleWidth(24),
+                            height: scaleHeight(24),
+                            fit: BoxFit.contain,
                           ),
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
+            ],
           ),
+        ),
+      ),
           if (_showCopyToast)
             Center(
               child: Container(
@@ -1096,17 +1096,17 @@ class _SuggestionChip extends StatelessWidget {
       borderRadius: BorderRadius.circular(scaleHeight(20)),
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: scaleWidth(10),
-          vertical: scaleHeight(10),
-        ),
-        decoration: BoxDecoration(
+      padding: EdgeInsets.symmetric(
+        horizontal: scaleWidth(10),
+        vertical: scaleHeight(10),
+      ),
+      decoration: BoxDecoration(
           color: isDark ? AppColors.darkBackgroundCard : AppColors.white,
-          borderRadius: BorderRadius.circular(scaleHeight(20)),
-          border: Border.all(color: accentColor, width: 1),
-        ),
-        child: Text(
-          text,
+        borderRadius: BorderRadius.circular(scaleHeight(20)),
+        border: Border.all(color: accentColor, width: 1),
+      ),
+      child: Text(
+        text,
           style: AppTextStyle.bodyTextMedium(
             scaleHeight(14),
             color: isDark ? AppColors.white : primaryTextColor,
