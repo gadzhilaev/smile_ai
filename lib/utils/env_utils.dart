@@ -4,6 +4,58 @@ import 'package:path/path.dart' as path;
 
 /// Утилита для работы с .env файлом
 class EnvUtils {
+  /// Создать .env файл с пустыми значениями, если его нет
+  static Future<void> createEnvFileIfNotExists() async {
+    try {
+      final envPath = await _getEnvFilePath();
+      final envFile = File(envPath);
+      
+      // Если файл уже существует, ничего не делаем
+      if (await envFile.exists()) {
+        debugPrint('EnvUtils: .env file already exists, skipping creation');
+        return;
+      }
+      
+      debugPrint('EnvUtils: .env file does not exist, creating with empty values');
+      
+      // Создаем содержимое файла с пустыми значениями
+      final defaultContent = '''AUTH_TOKEN=
+USER_ID=
+USER_EMAIL=
+USER_FULL_NAME=
+USER_NICKNAME=
+USER_PHONE=
+USER_COUNTRY=
+USER_GENDER=
+''';
+      
+      // Создаем родительские директории, если их нет
+      final parentDir = envFile.parent;
+      if (!await parentDir.exists()) {
+        await parentDir.create(recursive: true);
+        debugPrint('EnvUtils: created parent directory: ${parentDir.path}');
+      }
+      
+      // Записываем файл
+      await envFile.writeAsString(defaultContent, flush: true);
+      debugPrint('EnvUtils: .env file created successfully at: $envPath');
+      
+      // Проверяем, что файл действительно создался
+      if (await envFile.exists()) {
+        debugPrint('EnvUtils: SUCCESS - .env file verified');
+      } else {
+        debugPrint('EnvUtils: ERROR - .env file does not exist after creation!');
+        throw Exception('Failed to create .env file: file does not exist after write');
+      }
+    } catch (e, stackTrace) {
+      debugPrint('EnvUtils: error creating .env file: $e');
+      debugPrint('EnvUtils: error type: ${e.runtimeType}');
+      debugPrint('EnvUtils: stack trace: $stackTrace');
+      // Не пробрасываем ошибку дальше, так как это не критично
+      // Приложение может работать и без .env файла
+    }
+  }
+
   /// Получить путь к .env файлу в корне проекта
   static Future<String> _getEnvFilePath() async {
     // На мобильных устройствах нужно найти корень проекта

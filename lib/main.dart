@@ -12,6 +12,7 @@ import 'services/theme_service.dart';
 import 'services/api_service.dart';
 import 'services/auth_service.dart';
 import 'services/profile_service.dart';
+import 'utils/env_utils.dart';
 import 'settings/colors.dart';
 import 'auth/login.dart';
 import 'screens/home_screen.dart';
@@ -22,6 +23,10 @@ void main() async {
 
   // Держим нативный splash, пока идёт инициализация
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
+  // Создаем .env файл с пустыми значениями, если его нет
+  await EnvUtils.createEnvFileIfNotExists();
+  debugPrint('Startup: .env file check completed');
 
   // Загружаем .env файл и синхронизируем токен
   await AuthService.instance.init();
