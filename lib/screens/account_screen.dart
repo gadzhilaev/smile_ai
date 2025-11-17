@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import '../settings/style.dart';
 import '../settings/colors.dart';
 import '../services/profile_service.dart';
+import '../services/api_service.dart';
+import '../utils/env_utils.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
@@ -28,20 +31,140 @@ class _AccountScreenState extends State<AccountScreen> {
 
   String? _selectedCountry = 'russia';
   String? _selectedGender = 'male';
+  bool _isLoading = false;
 
-  void _saveProfileData() {
-    // Сохраняем данные в сервис
-    ProfileService.instance.updateProfile(
-      fullName: _fullNameController.text.trim(),
-      username: _usernameController.text.trim(),
-      email: _emailController.text.trim(),
-      phone: _phoneController.text.trim(),
-      country: _selectedCountry,
-      gender: _selectedGender,
-    );
+  String _getCountryName(String? countryCode) {
+    switch (countryCode) {
+      case 'russia':
+        return 'Россия';
+      case 'kazakhstan':
+        return 'Казахстан';
+      case 'belarus':
+        return 'Беларусь';
+      default:
+        return 'Россия';
+    }
+  }
 
-    // Возвращаемся назад и обновляем профиль
-    Navigator.of(context).pop(true);
+  String _getGenderName(String? genderCode) {
+    switch (genderCode) {
+      case 'male':
+        return 'Мужской';
+      case 'female':
+        return 'Женский';
+      default:
+        return 'Мужской';
+    }
+  }
+
+  Future<void> _saveProfileData() async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Получаем токен из .env
+      await dotenv.load(fileName: ".env");
+      final token = dotenv.env['AUTH_TOKEN'] ?? '';
+      
+      if (token.isEmpty) {
+        if (!mounted) return;
+        setState(() {
+          _isLoading = false;
+        });
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Ошибка: токен не найден'),
+            backgroundColor: AppColors.textError,
+          ),
+        );
+        return;
+      }
+
+      final fullName = _fullNameController.text.trim();
+      final nickname = _usernameController.text.trim();
+      final email = _emailController.text.trim();
+      final phone = _phoneController.text.trim();
+      final country = _getCountryName(_selectedCountry);
+      final gender = _getGenderName(_selectedGender);
+
+      // Отправляем PUT запрос на обновление профиля
+      final result = await ApiService.instance.updateProfile(
+        token: token,
+        email: email,
+        fullName: fullName,
+        nickname: nickname,
+        phone: phone,
+        country: country,
+        gender: gender,
+      );
+
+      if (!mounted) return;
+
+      if (result.containsKey('error')) {
+        // Ошибка обновления
+        setState(() {
+          _isLoading = false;
+        });
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['error'] ?? 'Ошибка обновления профиля'),
+            backgroundColor: AppColors.textError,
+          ),
+        );
+        return;
+      }
+
+      // Успешное обновление - сохраняем данные в .env
+      try {
+        await EnvUtils.updateUserDataInEnv(
+          email: result['email'] as String? ?? email,
+          fullName: result['full_name'] as String? ?? fullName,
+          nickname: result['nickname'] as String? ?? nickname,
+          phone: result['phone'] as String? ?? phone,
+          country: result['country'] as String? ?? country,
+          gender: result['gender'] as String? ?? gender,
+        );
+        debugPrint('AccountScreen: profile data saved to .env successfully');
+      } catch (e) {
+        debugPrint('AccountScreen: WARNING - could not save profile data to .env: $e');
+        // Продолжаем выполнение
+      }
+
+      // Обновляем ProfileService
+      ProfileService.instance.updateProfile(
+        fullName: result['full_name'] as String? ?? fullName,
+        username: result['nickname'] as String? ?? nickname,
+        email: result['email'] as String? ?? email,
+        phone: result['phone'] as String? ?? phone,
+        country: _selectedCountry, // Сохраняем код страны
+        gender: _selectedGender, // Сохраняем код пола
+      );
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (!mounted) return;
+
+      // Возвращаемся назад и обновляем профиль
+      Navigator.of(context).pop(true);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Ошибка: $e'),
+          backgroundColor: AppColors.textError,
+        ),
+      );
+    }
   }
 
   @override
@@ -51,7 +174,10 @@ class _AccountScreenState extends State<AccountScreen> {
     _loadProfileData();
   }
 
-  void _loadProfileData() {
+  Future<void> _loadProfileData() async {
+    // Инициализируем ProfileService для загрузки данных из .env
+    await ProfileService.instance.init();
+    
     final profileService = ProfileService.instance;
     _fullNameController.text = profileService.fullName;
     _usernameController.text = profileService.username;
@@ -219,22 +345,33 @@ class _AccountScreenState extends State<AccountScreen> {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: scaleWidth(26)),
                   child: InkWell(
-                    onTap: () {
+                    onTap: _isLoading ? null : () {
                       _saveProfileData();
                     },
                     child: Container(
                       width: scaleWidth(376),
                       height: scaleHeight(53),
                       decoration: BoxDecoration(
-                color: AppColors.primaryBlue,
+                        color: _isLoading 
+                            ? AppColors.primaryBlue.withValues(alpha: 0.6)
+                            : AppColors.primaryBlue,
                         borderRadius: BorderRadius.circular(scaleHeight(9)),
                       ),
                       alignment: Alignment.center,
-                      child: Text(
-                        'Сохранить',
-                        style: AppTextStyle.screenTitle(scaleHeight(16),
-                            color: Colors.white),
-                      ),
+                      child: _isLoading
+                          ? SizedBox(
+                              width: scaleWidth(24),
+                              height: scaleHeight(24),
+                              child: const CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : Text(
+                              'Сохранить',
+                              style: AppTextStyle.screenTitle(scaleHeight(16),
+                                  color: Colors.white),
+                            ),
                     ),
                   ),
                 ),

@@ -11,6 +11,7 @@ import 'services/language_service.dart';
 import 'services/theme_service.dart';
 import 'services/api_service.dart';
 import 'services/auth_service.dart';
+import 'services/profile_service.dart';
 import 'settings/colors.dart';
 import 'auth/login.dart';
 import 'screens/home_screen.dart';
@@ -48,6 +49,9 @@ void main() async {
   // Загружаем сохранённый язык и тему до запуска приложения
   await LanguageService.instance.init();
   await ThemeService.instance.init();
+  
+  // Инициализируем ProfileService для загрузки данных из .env
+  await ProfileService.instance.init();
 
   // Проверяем health сервера
   debugPrint('Startup: checking server health...');

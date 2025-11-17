@@ -332,5 +332,60 @@ class ApiService {
       };
     }
   }
+
+  /// Обновление профиля пользователя
+  /// Возвращает Map с данными пользователя при успехе (200)
+  /// Или 'error' (String) при ошибке
+  Future<Map<String, dynamic>> updateProfile({
+    required String token,
+    required String email,
+    required String fullName,
+    required String nickname,
+    required String phone,
+    required String country,
+    required String gender,
+  }) async {
+    try {
+      final url = Uri.parse('$_baseUrl/api/auth/profile?token=$token');
+      debugPrint('ApiService: updateProfile at URL: $url');
+      
+      final requestBody = {
+        'email': email,
+        'full_name': fullName,
+        'nickname': nickname,
+        'phone': phone,
+        'country': country,
+        'gender': gender,
+      };
+      
+      debugPrint('ApiService: updateProfile request body: $requestBody');
+      
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(requestBody),
+      );
+      
+      debugPrint('ApiService: updateProfile response status code: ${response.statusCode}');
+      debugPrint('ApiService: updateProfile response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body) as Map<String, dynamic>;
+        debugPrint('ApiService: updateProfile decoded response: $decoded');
+        return decoded;
+      } else {
+        final decoded = json.decode(response.body) as Map<String, dynamic>;
+        debugPrint('ApiService: updateProfile error response: $decoded');
+        return decoded;
+      }
+    } catch (e) {
+      debugPrint('ApiService: error during updateProfile: $e');
+      return {
+        'error': 'Network error',
+      };
+    }
+  }
 }
 
