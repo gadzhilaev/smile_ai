@@ -147,12 +147,12 @@ class _RegistrationPlaceholderScreenState
 
     return LayoutBuilder(
       builder: (context, _) {
-        final size = MediaQuery.of(context).size;
-        final widthFactor = size.width / _designWidth;
-        final heightFactor = size.height / _designHeight;
+    final size = MediaQuery.of(context).size;
+    final widthFactor = size.width / _designWidth;
+    final heightFactor = size.height / _designHeight;
 
-        double scaleWidth(double value) => value * widthFactor;
-        double scaleHeight(double value) => value * heightFactor;
+    double scaleWidth(double value) => value * widthFactor;
+    double scaleHeight(double value) => value * heightFactor;
 
         final bool isActive =
             _focusNode.hasFocus || _controller.text.isNotEmpty;
@@ -169,7 +169,7 @@ class _RegistrationPlaceholderScreenState
             ? scaleHeight(14)
             : scaleHeight(_fieldButtonSpacing);
 
-        return Scaffold(
+    return Scaffold(
           resizeToAvoidBottomInset: false,
           backgroundColor:
               isDark ? AppColors.darkBackgroundMain : AppColors.white,
@@ -184,9 +184,9 @@ class _RegistrationPlaceholderScreenState
                   top: scaleHeight(_topOffset),
                   bottom: scaleHeight(62),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
                     Padding(
                       padding: EdgeInsets.symmetric(
                         horizontal: scaleWidth(_leftOffset),
@@ -225,8 +225,8 @@ class _RegistrationPlaceholderScreenState
                       ),
                     ),
                     if (_showError && _errorMessage != null)
-                      Padding(
-                        padding: EdgeInsets.only(
+            Padding(
+              padding: EdgeInsets.only(
                           left: scaleWidth(
                             _fieldHorizontalPadding + _errorTextOffset,
                           ),
@@ -238,9 +238,9 @@ class _RegistrationPlaceholderScreenState
                           style: AppTextStyle.bodyText(
                             scaleHeight(10),
                             color: AppColors.textError,
-                          ),
-                        ),
-                      ),
+                  ),
+                ),
+              ),
                     SizedBox(height: buttonSpacing),
                     Padding(
                       padding: EdgeInsets.symmetric(
@@ -258,7 +258,7 @@ class _RegistrationPlaceholderScreenState
                     const Spacer(),
                     Center(
                       child: RichText(
-                        textAlign: TextAlign.center,
+                  textAlign: TextAlign.center,
                         text: TextSpan(
                           text: l.authHasAccount,
                           style: AppTextStyle.bodyText(
@@ -277,12 +277,12 @@ class _RegistrationPlaceholderScreenState
                           ],
                         ),
                       ),
-                    ),
+                  ),
                   ],
                 ),
               ),
             ),
-          ),
+        ),
         );
       },
     );
