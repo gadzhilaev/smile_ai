@@ -302,5 +302,35 @@ class ApiService {
       return [];
     }
   }
+
+  /// Получить историю чата по conversation_id
+  /// Возвращает Map с ключами 'conversation_id', 'count', 'messages' (List)
+  Future<Map<String, dynamic>> getChatHistory(String conversationId) async {
+    try {
+      final url = Uri.parse('$_baseUrl/api/chat/history/$conversationId');
+      debugPrint('ApiService: getChatHistory at URL: $url');
+      
+      final response = await http.get(url);
+      
+      debugPrint('ApiService: getChatHistory response status code: ${response.statusCode}');
+      debugPrint('ApiService: getChatHistory response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body) as Map<String, dynamic>;
+        debugPrint('ApiService: getChatHistory decoded response: $decoded');
+        return decoded;
+      } else {
+        debugPrint('ApiService: getChatHistory error response');
+        return {
+          'error': 'Failed to load chat history',
+        };
+      }
+    } catch (e) {
+      debugPrint('ApiService: error during getChatHistory: $e');
+      return {
+        'error': 'Network error',
+      };
+    }
+  }
 }
 

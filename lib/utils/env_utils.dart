@@ -276,5 +276,81 @@ class EnvUtils {
       rethrow;
     }
   }
+
+  /// Обновить user_id в .env файле
+  static Future<void> updateUserIdInEnv(String userId) async {
+    try {
+      final envPath = await _getEnvFilePath();
+      final envFile = File(envPath);
+      
+      String content = '';
+      
+      if (await envFile.exists()) {
+        content = await envFile.readAsString();
+        debugPrint('EnvUtils: .env file exists, current content length: ${content.length}');
+      } else {
+        debugPrint('EnvUtils: .env file does not exist, will create new one');
+      }
+      
+      // Ищем строку с USER_ID
+      final lines = content.split('\n');
+      bool userIdFound = false;
+      
+      for (int i = 0; i < lines.length; i++) {
+        if (lines[i].startsWith('USER_ID=')) {
+          lines[i] = 'USER_ID=$userId';
+          userIdFound = true;
+          debugPrint('EnvUtils: found existing USER_ID line, updating it');
+          break;
+        }
+      }
+      
+      // Если user_id не найден, добавляем новую строку
+      if (!userIdFound) {
+        debugPrint('EnvUtils: USER_ID line not found, adding new one');
+        if (content.isNotEmpty && !content.endsWith('\n')) {
+          lines.add('');
+        }
+        lines.add('USER_ID=$userId');
+      }
+      
+      // Записываем обратно в файл
+      final newContent = lines.join('\n');
+      debugPrint('EnvUtils: writing USER_ID to file: $envPath');
+      
+      // Создаем родительские директории, если их нет
+      final parentDir = envFile.parent;
+      if (!await parentDir.exists()) {
+        await parentDir.create(recursive: true);
+        debugPrint('EnvUtils: created parent directory: ${parentDir.path}');
+      }
+      
+      // Записываем файл
+      await envFile.writeAsString(newContent, flush: true);
+      debugPrint('EnvUtils: USER_ID write completed');
+      
+      // Проверяем, что файл действительно записался
+      if (await envFile.exists()) {
+        final writtenContent = await envFile.readAsString();
+        debugPrint('EnvUtils: file exists after write, content length: ${writtenContent.length}');
+        
+        // Проверяем, что user_id действительно в файле
+        if (writtenContent.contains('USER_ID=$userId')) {
+          debugPrint('EnvUtils: SUCCESS - USER_ID verified in file');
+        } else {
+          debugPrint('EnvUtils: WARNING - USER_ID not found in written file!');
+          debugPrint('EnvUtils: written content: $writtenContent');
+        }
+      } else {
+        debugPrint('EnvUtils: ERROR - file does not exist after write!');
+        throw Exception('Failed to write .env file: file does not exist after write');
+      }
+    } catch (e, stackTrace) {
+      debugPrint('EnvUtils: error updating USER_ID in .env: $e');
+      debugPrint('EnvUtils: error type: ${e.runtimeType}');
+      debugPrint('EnvUtils: stack trace: $stackTrace');
+      rethrow;
+    }
+  }
 }
 

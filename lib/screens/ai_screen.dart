@@ -4,12 +4,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../settings/style.dart';
 import '../settings/colors.dart';
 import '../l10n/app_localizations.dart';
 import '../services/notification_service.dart';
 import '../services/api_service.dart';
-import '../services/auth_service.dart';
 
 class AiScreen extends StatefulWidget {
   const AiScreen({
@@ -83,19 +83,20 @@ class _AiScreenState extends State<AiScreen> {
   }
 
   Future<void> _sendMessageWithApi(String message, {String? category}) async {
-    // Получаем токен
-    await AuthService.instance.init();
-    final token = AuthService.instance.getToken();
+    // Получаем user_id из .env
+    String? userId;
+    try {
+      await dotenv.load(fileName: ".env");
+      userId = dotenv.env['USER_ID'];
+      debugPrint('AiScreen: USER_ID from .env: ${userId != null && userId.isNotEmpty ? "${userId.substring(0, 8)}..." : "not found"}');
+    } catch (e) {
+      debugPrint('AiScreen: error loading .env: $e');
+    }
     
-    if (token == null || token.isEmpty) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Ошибка: токен не найден. Пожалуйста, войдите в аккаунт.'),
-          backgroundColor: AppColors.textError,
-        ),
-      );
-      return;
+    // Если user_id не найден в .env, используем дефолтный
+    if (userId == null || userId.isEmpty) {
+      userId = 'f30dea45-7689-4293-aff5-7e68dd031fa6';
+      debugPrint('AiScreen: using default USER_ID: ${userId.substring(0, 8)}...');
     }
 
     // Получаем conversation_id из текущего чата
@@ -121,7 +122,7 @@ class _AiScreenState extends State<AiScreen> {
     try {
       // Отправляем запрос на API
       final result = await ApiService.instance.sendMessage(
-        userId: token,
+        userId: userId,
         message: message,
         category: category,
         conversationId: conversationId,
@@ -291,18 +292,87 @@ class _AiScreenState extends State<AiScreen> {
     super.dispose();
   }
   
-  void _openChat(int index) {
+  Future<void> _openChat(int index) async {
     if (index >= 0 && index < _chatHistory.length) {
       _saveCurrentChat(); // Сохраняем текущий чат перед открытием другого
       final chat = _chatHistory[index];
+      
       setState(() {
         _currentChatId = int.tryParse(chat.id);
         _messages.clear();
-        _messages.addAll(chat.messages);
         _hasConversation = true;
         _hideChatMenuOverlay();
       });
-      _scrollToBottom();
+
+      // Если есть conversation_id, загружаем историю с API
+      if (chat.conversationId != null && chat.conversationId!.isNotEmpty) {
+        try {
+          final historyResult = await ApiService.instance.getChatHistory(chat.conversationId!);
+          
+          if (!mounted) return;
+
+          if (historyResult.containsKey('error')) {
+            // Ошибка при загрузке истории - используем локальные сообщения
+            debugPrint('AiScreen: error loading chat history: ${historyResult['error']}');
+            if (chat.messages.isNotEmpty) {
+              setState(() {
+                _messages.addAll(chat.messages);
+              });
+            }
+            _scrollToBottom();
+            return;
+          }
+
+          // Преобразуем сообщения из API в ChatMessage
+          final messagesList = historyResult['messages'] as List<dynamic>? ?? [];
+          final List<ChatMessage> loadedMessages = [];
+          
+          for (final msg in messagesList) {
+            final content = msg['content'] as String? ?? '';
+            final role = msg['role'] as String? ?? '';
+            final isUser = role == 'user';
+            
+            loadedMessages.add(ChatMessage(
+              text: content,
+              isUser: isUser,
+            ));
+          }
+
+          // Обновляем сообщения и историю чата
+          setState(() {
+            _messages.clear();
+            _messages.addAll(loadedMessages);
+            
+            // Обновляем сообщения в истории чата
+            final chatIndex = _chatHistory.indexWhere((c) => c.id == chat.id);
+            if (chatIndex != -1) {
+              _chatHistory[chatIndex] = ChatHistory(
+                id: _chatHistory[chatIndex].id,
+                title: _chatHistory[chatIndex].title,
+                messages: loadedMessages,
+                conversationId: _chatHistory[chatIndex].conversationId,
+              );
+            }
+          });
+          
+          _scrollToBottom();
+        } catch (e) {
+          debugPrint('AiScreen: error loading chat history: $e');
+          // При ошибке используем локальные сообщения
+          if (chat.messages.isNotEmpty) {
+            setState(() {
+              _messages.addAll(chat.messages);
+            });
+          }
+          _scrollToBottom();
+        }
+      } else {
+        // Нет conversation_id - используем локальные сообщения
+        setState(() {
+          _messages.addAll(chat.messages);
+        });
+        _scrollToBottom();
+      }
     }
   }
   
@@ -369,6 +439,7 @@ class _AiScreenState extends State<AiScreen> {
             id: _chatHistory[index].id,
             title: newTitle,
             messages: _chatHistory[index].messages,
+            conversationId: _chatHistory[index].conversationId,
           );
           _editingChatIndex = null;
         });

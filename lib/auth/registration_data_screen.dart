@@ -133,6 +133,10 @@ class _RegistrationDataScreenState extends State<RegistrationDataScreen> {
         return;
       }
 
+      // Получаем user_id из ответа
+      final user = result['user'] as Map<String, dynamic>?;
+      final userId = user?['id'] as String?;
+
       // Сохраняем токен в AuthService
       await AuthService.instance.init();
       await AuthService.instance.saveToken(token);
@@ -143,6 +147,19 @@ class _RegistrationDataScreenState extends State<RegistrationDataScreen> {
       } catch (e) {
         debugPrint('RegistrationDataScreen: could not save token to .env: $e');
         // Продолжаем выполнение, так как токен уже сохранен в AuthService
+      }
+
+      // Сохраняем user_id в .env
+      if (userId != null && userId.isNotEmpty) {
+        try {
+          await EnvUtils.updateUserIdInEnv(userId);
+          debugPrint('RegistrationDataScreen: user_id saved to .env file successfully: ${userId.substring(0, 8)}...');
+        } catch (e) {
+          debugPrint('RegistrationDataScreen: WARNING - could not save user_id to .env file: $e');
+          // Продолжаем выполнение
+        }
+      } else {
+        debugPrint('RegistrationDataScreen: WARNING - user_id not found in API response');
       }
 
       // Сохраняем данные пользователя в .env (кроме пароля)

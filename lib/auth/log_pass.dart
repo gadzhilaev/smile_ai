@@ -104,6 +104,10 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
         return;
       }
 
+      // Получаем user_id из ответа
+      final user = result['user'] as Map<String, dynamic>?;
+      final userId = user?['id'] as String?;
+
       // Сохраняем токен в AuthService
       await AuthService.instance.init();
       await AuthService.instance.saveToken(token);
@@ -119,6 +123,19 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
         debugPrint('LogPass: WARNING - could not save token to .env file: $e');
         debugPrint('LogPass: token is still saved in AuthService (SharedPreferences)');
         // Продолжаем - токен уже сохранен в AuthService, что достаточно
+      }
+
+      // Сохраняем user_id в .env файл
+      if (userId != null && userId.isNotEmpty) {
+        try {
+          await EnvUtils.updateUserIdInEnv(userId);
+          debugPrint('LogPass: user_id saved to .env file successfully: ${userId.substring(0, 8)}...');
+        } catch (e) {
+          debugPrint('LogPass: WARNING - could not save user_id to .env file: $e');
+          // Продолжаем - это не критично
+        }
+      } else {
+        debugPrint('LogPass: WARNING - user_id not found in API response');
       }
 
       setState(() {
