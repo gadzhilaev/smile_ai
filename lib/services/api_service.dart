@@ -243,5 +243,64 @@ class ApiService {
       };
     }
   }
+
+  /// Получить топ тренд
+  /// Возвращает Map с ключами 'name', 'percent_change', 'description', 'why_popular', 'created_at'
+  Future<Map<String, dynamic>> getTopTrend() async {
+    try {
+      final url = Uri.parse('$_baseUrl/api/analytics/top-trend');
+      debugPrint('ApiService: getTopTrend at URL: $url');
+      
+      final response = await http.get(url);
+      
+      debugPrint('ApiService: getTopTrend response status code: ${response.statusCode}');
+      debugPrint('ApiService: getTopTrend response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body) as Map<String, dynamic>;
+        debugPrint('ApiService: getTopTrend decoded response: $decoded');
+        return decoded;
+      } else {
+        debugPrint('ApiService: getTopTrend error response');
+        return {
+          'error': 'Failed to load top trend',
+        };
+      }
+    } catch (e) {
+      debugPrint('ApiService: error during getTopTrend: $e');
+      return {
+        'error': 'Network error',
+      };
+    }
+  }
+
+  /// Получить популярность трендов
+  /// Возвращает List<Map> с ключами 'name', 'direction', 'percent_change', 'notes', 'created_at'
+  Future<List<Map<String, dynamic>>> getPopularity() async {
+    try {
+      final url = Uri.parse('$_baseUrl/api/analytics/popularity');
+      debugPrint('ApiService: getPopularity at URL: $url');
+      
+      final response = await http.get(url);
+      
+      debugPrint('ApiService: getPopularity response status code: ${response.statusCode}');
+      debugPrint('ApiService: getPopularity response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body) as List<dynamic>;
+        final List<Map<String, dynamic>> result = decoded
+            .map((item) => item as Map<String, dynamic>)
+            .toList();
+        debugPrint('ApiService: getPopularity decoded response: $result');
+        return result;
+      } else {
+        debugPrint('ApiService: getPopularity error response');
+        return [];
+      }
+    } catch (e) {
+      debugPrint('ApiService: error during getPopularity: $e');
+      return [];
+    }
+  }
 }
 

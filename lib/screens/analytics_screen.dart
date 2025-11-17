@@ -246,28 +246,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                             ),
                           ),
                           SizedBox(height: scaleHeight(38)),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _TrendContainer(
-                                title: l.analyticsCategoryGrowing,
-                                items: _analytics!.growingTrends,
-                                itemColor: const Color(0xFF178751),
-                                iconPath: 'assets/icons/icon_tr_up.svg',
-                                designWidth: _designWidth,
-                                designHeight: _designHeight,
-                              ),
-                              SizedBox(width: scaleWidth(14)),
-                              _TrendContainer(
-                                title: l.analyticsCategoryFalling,
-                                items: _analytics!.fallingTrends,
-                                itemColor: const Color(0xFF76090B),
-                                iconPath: 'assets/icons/icon_tr_down.svg',
-                                designWidth: _designWidth,
-                                designHeight: _designHeight,
-                              ),
-                            ],
+                          _TrendContainersRow(
+                            growingTrends: _analytics!.growingTrends,
+                            fallingTrends: _analytics!.fallingTrends,
+                            designWidth: _designWidth,
+                            designHeight: _designHeight,
                           ),
                           SizedBox(height: scaleHeight(20)),
                           ],
@@ -275,6 +258,56 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       ),
                     ),
                   ),
+      ),
+    );
+  }
+}
+
+class _TrendContainersRow extends StatelessWidget {
+  const _TrendContainersRow({
+    required this.growingTrends,
+    required this.fallingTrends,
+    required this.designWidth,
+    required this.designHeight,
+  });
+
+  final List<TrendItem> growingTrends;
+  final List<TrendItem> fallingTrends;
+  final double designWidth;
+  final double designHeight;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+
+    final size = MediaQuery.of(context).size;
+    final double widthFactor = size.width / designWidth;
+
+    double scaleWidth(double value) => value * widthFactor;
+
+    return IntrinsicHeight(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _TrendContainer(
+            title: l.analyticsCategoryGrowing,
+            items: growingTrends,
+            itemColor: const Color(0xFF178751),
+            iconPath: 'assets/icons/icon_tr_up.svg',
+            designWidth: designWidth,
+            designHeight: designHeight,
+          ),
+          SizedBox(width: scaleWidth(14)),
+          _TrendContainer(
+            title: l.analyticsCategoryFalling,
+            items: fallingTrends,
+            itemColor: const Color(0xFF76090B),
+            iconPath: 'assets/icons/icon_tr_down.svg',
+            designWidth: designWidth,
+            designHeight: designHeight,
+          ),
+        ],
       ),
     );
   }
@@ -291,7 +324,7 @@ class _TrendContainer extends StatelessWidget {
   });
 
   final String title;
-  final List<String> items;
+  final List<TrendItem> items;
   final Color itemColor;
   final String iconPath;
   final double designWidth;
@@ -311,7 +344,6 @@ class _TrendContainer extends StatelessWidget {
 
     return Container(
       width: scaleWidth(171),
-      height: scaleHeight(236),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkBackgroundCard : AppColors.white,
         borderRadius: BorderRadius.circular(scaleHeight(15)),
@@ -324,6 +356,7 @@ class _TrendContainer extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             title,
@@ -333,37 +366,37 @@ class _TrendContainer extends StatelessWidget {
             ),
           ),
           SizedBox(height: scaleHeight(30)),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                for (int i = 0; i < items.length; i++) ...[
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          items[i],
-                          style: AppTextStyle.bodyTextMedium(scaleHeight(14),
-                                  color: itemColor)
-                              .copyWith(height: 1.2),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (int i = 0; i < items.length; i++) ...[
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        items[i].name,
+                        style: AppTextStyle.bodyTextMedium(
+                          scaleHeight(14),
+                          color: itemColor,
+                        ).copyWith(height: 1.2),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(width: scaleWidth(9)),
-                      SvgPicture.asset(
-                        iconPath,
-                        width: scaleWidth(20),
-                        height: scaleHeight(20),
-                        fit: BoxFit.contain,
-                      ),
-                    ],
-                  ),
-                  if (i < items.length - 1) SizedBox(height: scaleHeight(28)),
-                ],
+                    ),
+                    SizedBox(width: scaleWidth(9)),
+                    SvgPicture.asset(
+                      iconPath,
+                      width: scaleWidth(20),
+                      height: scaleHeight(20),
+                      fit: BoxFit.contain,
+                    ),
+                  ],
+                ),
+                if (i < items.length - 1) SizedBox(height: scaleHeight(28)),
               ],
-            ),
+            ],
           ),
         ],
       ),

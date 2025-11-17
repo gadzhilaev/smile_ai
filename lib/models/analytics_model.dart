@@ -1,3 +1,15 @@
+class TrendItem {
+  const TrendItem({
+    required this.name,
+    required this.percentChange,
+    required this.notes,
+  });
+
+  final String name;
+  final double percentChange;
+  final String notes;
+}
+
 class AnalyticsModel {
   const AnalyticsModel({
     required this.trendName,
@@ -10,7 +22,7 @@ class AnalyticsModel {
   final String trendName;
   final String trendPercentage;
   final String trendDescription;
-  final List<String> growingTrends;
-  final List<String> fallingTrends;
+  final List<TrendItem> growingTrends;
+  final List<TrendItem> fallingTrends;
 }
 
