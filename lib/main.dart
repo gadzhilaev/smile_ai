@@ -67,56 +67,13 @@ void main() async {
 
   debugPrint('Startup: server health check passed');
 
-  runApp(const MainApp());
-
-  // Параллельно инициализируем уведомления и проверку токена
-  _initializeAppAsync();
-}
-
-Future<void> _initializeAppAsync() async {
-  try {
-    debugPrint('Startup: initializing notifications...');
-    await NotificationService.instance.initialize();
-    await NotificationService.instance.requestPermissions();
-  } catch (e) {
-    debugPrint('Startup initialization error: $e');
-  } finally {
-    // Убираем нативный splash только после инициализации/ожидания
-    FlutterNativeSplash.remove();
-  }
-}
-
-class MainApp extends StatefulWidget {
-  const MainApp({super.key});
-
-  @override
-  State<MainApp> createState() => _MainAppState();
-}
-
-class _MainAppState extends State<MainApp> {
-  Widget? _initialScreen;
-  bool _isInitialized = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _determineInitialScreen();
-  }
-
-  Future<void> _determineInitialScreen() async {
-    final token = AuthService.instance.getToken();
-    debugPrint('Startup: checking token - token exists: ${token != null && token.isNotEmpty}');
-    debugPrint('Startup: token value: ${token ?? "null"}');
-    
-    if (token == null || token.isEmpty) {
-      debugPrint('Startup: no token found, showing login screen');
-      setState(() {
-        _initialScreen = const EmailScreen();
-        _isInitialized = true;
-      });
-      return;
-    }
-
+  // Проверяем токен до запуска приложения
+  Widget? initialScreen;
+  final token = AuthService.instance.getToken();
+  debugPrint('Startup: checking token - token exists: ${token != null && token.isNotEmpty}');
+  debugPrint('Startup: token value: ${token ?? "null"}');
+  
+  if (token != null && token.isNotEmpty) {
     debugPrint('Startup: checking token validity with API...');
     final result = await ApiService.instance.checkToken(token);
     debugPrint('Startup: API response: $result');
@@ -128,20 +85,37 @@ class _MainAppState extends State<MainApp> {
     debugPrint('Startup: token is valid: $isValid');
     
     if (isValid) {
-      debugPrint('Startup: token is valid, showing home screen');
-      setState(() {
-        _initialScreen = const HomeScreen();
-        _isInitialized = true;
-      });
+      debugPrint('Startup: token is valid, will show home screen');
+      initialScreen = const HomeScreen();
     } else {
       debugPrint('Startup: token is invalid, clearing token and showing login screen');
       await AuthService.instance.clearToken();
-      setState(() {
-        _initialScreen = const EmailScreen();
-        _isInitialized = true;
-      });
+      initialScreen = const EmailScreen();
     }
+  } else {
+    debugPrint('Startup: no token found, showing login screen');
+    initialScreen = const EmailScreen();
   }
+
+  // Инициализируем уведомления
+  try {
+    debugPrint('Startup: initializing notifications...');
+    await NotificationService.instance.initialize();
+    await NotificationService.instance.requestPermissions();
+  } catch (e) {
+    debugPrint('Startup initialization error: $e');
+  }
+
+  // Убираем нативный splash только после всех проверок
+  FlutterNativeSplash.remove();
+
+  runApp(MainApp(initialScreen: initialScreen));
+}
+
+class MainApp extends StatelessWidget {
+  const MainApp({super.key, this.initialScreen});
+
+  final Widget? initialScreen;
 
   @override
   Widget build(BuildContext context) {
@@ -180,13 +154,7 @@ class _MainAppState extends State<MainApp> {
                 GlobalWidgetsLocalizations.delegate,
                 GlobalCupertinoLocalizations.delegate,
               ],
-              home: _isInitialized
-                  ? (_initialScreen ?? const EmailScreen())
-                  : const Scaffold(
-                      body: Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    ),
+              home: initialScreen ?? const EmailScreen(),
             );
           },
         );

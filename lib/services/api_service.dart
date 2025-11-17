@@ -185,5 +185,63 @@ class ApiService {
       };
     }
   }
+
+  /// Отправка сообщения в чат
+  /// Возвращает Map с ключами 'response' (String), 'message_id' (String), 'timestamp' (String), 'conversation_id' (String), 'files' (dynamic) при успехе
+  /// Или 'error' (String) при ошибке
+  Future<Map<String, dynamic>> sendMessage({
+    required String userId,
+    required String message,
+    String? category,
+    String? conversationId,
+  }) async {
+    try {
+      final url = Uri.parse('$_baseUrl/api/chat/message');
+      debugPrint('ApiService: sendMessage at URL: $url');
+      
+      final requestBody = <String, dynamic>{
+        'user_id': userId,
+        'message': message,
+      };
+      
+      if (category != null && category.isNotEmpty) {
+        requestBody['category'] = category;
+      }
+      
+      if (conversationId != null && conversationId.isNotEmpty) {
+        requestBody['conversation_id'] = conversationId;
+      } else {
+        requestBody['conversation_id'] = '';
+      }
+      
+      debugPrint('ApiService: sendMessage request body: $requestBody');
+      
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(requestBody),
+      );
+      
+      debugPrint('ApiService: sendMessage response status code: ${response.statusCode}');
+      debugPrint('ApiService: sendMessage response body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final decoded = json.decode(response.body) as Map<String, dynamic>;
+        debugPrint('ApiService: sendMessage decoded response: $decoded');
+        return decoded;
+      } else {
+        final decoded = json.decode(response.body) as Map<String, dynamic>;
+        debugPrint('ApiService: sendMessage error response: $decoded');
+        return decoded;
+      }
+    } catch (e) {
+      debugPrint('ApiService: error during sendMessage: $e');
+      return {
+        'error': 'Network error',
+      };
+    }
+  }
 }
 

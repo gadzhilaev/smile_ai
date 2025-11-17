@@ -3,10 +3,13 @@ import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import '../settings/style.dart';
 import '../settings/colors.dart';
 import '../l10n/app_localizations.dart';
 import '../services/notification_service.dart';
+import '../services/api_service.dart';
+import '../services/auth_service.dart';
 
 class AiScreen extends StatefulWidget {
   const AiScreen({
@@ -14,11 +17,13 @@ class AiScreen extends StatefulWidget {
     this.autoGenerateText,
     this.editText,
     this.onTextSaved,
+    this.category,
   });
 
   final String? autoGenerateText;
   final String? editText;
   final ValueChanged<String>? onTextSaved;
+  final String? category;
 
   @override
   State<AiScreen> createState() => _AiScreenState();
@@ -30,8 +35,6 @@ class _AiScreenState extends State<AiScreen> {
 
   static const Color _primaryTextColor = AppColors.primaryText;
   static const Color _accentColor = AppColors.accentRed;
-  static const String _assistantReply =
-      'Хорошо. цель — стабильный доход или масштаб? от этого зависит стратегия: быстрые продажи или долгосрочный бренд.';
 
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
@@ -48,35 +51,11 @@ class _AiScreenState extends State<AiScreen> {
   OverlayEntry? _chatMenuOverlay;
   
   // История чатов
-  final List<ChatHistory> _chatHistory = [
-    ChatHistory(
-      id: '1',
-      title:       'Маркетинговая стратегия',
-      messages: [
-        ChatMessage(text: 'Привет', isUser: true),
-        ChatMessage(text: 'Хорошо. цель — стабильный доход или масштаб? от этого зависит стратегия: быстрые продажи или долгосрочный бренд.', isUser: false),
-      ],
-    ),
-    ChatHistory(
-      id: '2',
-      title: 'Разработка продукта',
-      messages: [
-        ChatMessage(text: 'Как разработать продукт?', isUser: true),
-        ChatMessage(text: 'Разработка продукта требует тщательного планирования и анализа потребностей рынка.', isUser: false),
-      ],
-    ),
-    ChatHistory(
-      id: '3',
-      title: 'Анализ конкурентов',
-      messages: [
-        ChatMessage(text: 'Помоги с анализом конкурентов', isUser: true),
-        ChatMessage(text: 'Анализ конкурентов поможет определить ваши преимущества и слабые места.', isUser: false),
-      ],
-    ),
-  ];
+  final List<ChatHistory> _chatHistory = [];
   int? _currentChatId;
   int? _editingChatIndex;
   final Map<int, TextEditingController> _renameControllers = {};
+  String? _currentCategory;
 
   @override
   void initState() {
@@ -85,6 +64,11 @@ class _AiScreenState extends State<AiScreen> {
   }
 
   void _initializeScreen() {
+    // Сохраняем категорию если она передана
+    if (widget.category != null) {
+      _currentCategory = widget.category;
+    }
+    
     // Если передан текст для редактирования, загружаем его в поле ввода
     if (widget.editText != null) {
       _inputController.text = widget.editText!;
@@ -93,43 +77,127 @@ class _AiScreenState extends State<AiScreen> {
     // Если передан текст для автогенерации, запускаем генерацию
     else if (widget.autoGenerateText != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _startAutoGeneration(widget.autoGenerateText!);
+        _sendMessageWithApi(widget.autoGenerateText!, category: widget.category);
       });
     }
   }
 
-  void _startAutoGeneration(String text) {
+  Future<void> _sendMessageWithApi(String message, {String? category}) async {
+    // Получаем токен
+    await AuthService.instance.init();
+    final token = AuthService.instance.getToken();
+    
+    if (token == null || token.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Ошибка: токен не найден. Пожалуйста, войдите в аккаунт.'),
+          backgroundColor: AppColors.textError,
+        ),
+      );
+      return;
+    }
+
+    // Получаем conversation_id из текущего чата
+    String? conversationId;
+    if (_currentChatId != null) {
+      final chatIndex = _chatHistory.indexWhere((chat) => chat.id == _currentChatId.toString());
+      if (chatIndex != -1) {
+        conversationId = _chatHistory[chatIndex].conversationId;
+      }
+    }
+
+    // Добавляем сообщение пользователя
     setState(() {
       _hasConversation = true;
+      _messages.add(ChatMessage(text: message, isUser: true));
       _isTyping = true;
       _currentTypingIndex = 0;
-      _messages.add(ChatMessage(text: '', isUser: false));
+      _messages.add(const ChatMessage(text: '', isUser: false));
     });
 
     _scrollToBottom();
 
-    _typingTimer?.cancel();
-    _typingTimer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
-      setState(() {
-        if (_currentTypingIndex >= text.length) {
-          timer.cancel();
-          _messages[_messages.length - 1] = ChatMessage(
-            text: text,
-            isUser: false,
-          );
+    try {
+      // Отправляем запрос на API
+      final result = await ApiService.instance.sendMessage(
+        userId: token,
+        message: message,
+        category: category,
+        conversationId: conversationId,
+      );
+
+      if (!mounted) return;
+
+      if (result.containsKey('error')) {
+        // Ошибка при отправке
+        setState(() {
           _isTyping = false;
-          // Отправляем уведомление о завершении генерации
-          NotificationService.instance.showAiMessageNotification(text);
-        } else {
-          _currentTypingIndex += 1;
-          _messages[_messages.length - 1] = ChatMessage(
-            text: text.substring(0, _currentTypingIndex.toInt()),
+          _messages.removeLast(); // Удаляем пустое сообщение
+          _messages.add(ChatMessage(
+            text: 'Ошибка: ${result['error']}',
             isUser: false,
-          );
+          ));
+        });
+        _scrollToBottom();
+        return;
+      }
+
+      // Успешный ответ
+      final responseText = result['response'] as String? ?? '';
+      final newConversationId = result['conversation_id'] as String?;
+
+      // Сохраняем conversation_id в текущий чат
+      if (newConversationId != null && newConversationId.isNotEmpty) {
+        if (_currentChatId != null) {
+          final chatIndex = _chatHistory.indexWhere((chat) => chat.id == _currentChatId.toString());
+          if (chatIndex != -1) {
+            _chatHistory[chatIndex].conversationId = newConversationId;
+          }
         }
+      }
+
+      // Отображаем ответ с анимацией печати
+      _typingTimer?.cancel();
+      _typingTimer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
+        if (!mounted) {
+          timer.cancel();
+          return;
+        }
+        setState(() {
+          if (_currentTypingIndex >= responseText.length) {
+            timer.cancel();
+            _messages[_messages.length - 1] = ChatMessage(
+              text: responseText,
+              isUser: false,
+            );
+            _isTyping = false;
+            // Сохраняем чат после завершения генерации
+            _saveCurrentChat();
+            // Отправляем уведомление о завершении генерации
+            NotificationService.instance.showAiMessageNotification(responseText);
+          } else {
+            _currentTypingIndex += 1;
+            _messages[_messages.length - 1] = ChatMessage(
+              text: responseText.substring(0, _currentTypingIndex.toInt()),
+              isUser: false,
+            );
+          }
+        });
+        _scrollToBottom();
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isTyping = false;
+        _messages.removeLast(); // Удаляем пустое сообщение
+        _messages.add(ChatMessage(
+          text: 'Ошибка при отправке сообщения: $e',
+          isUser: false,
+        ));
       });
       _scrollToBottom();
-    });
+    }
   }
 
   void _showChatMenuOverlay() {
@@ -331,6 +399,7 @@ class _AiScreenState extends State<AiScreen> {
             id: _chatHistory[chatIndex].id,
             title: _chatHistory[chatIndex].title,
             messages: List.from(_messages),
+            conversationId: _chatHistory[chatIndex].conversationId,
           );
         });
       }
@@ -360,97 +429,31 @@ class _AiScreenState extends State<AiScreen> {
     if (_isEditMode && widget.onTextSaved != null) {
       widget.onTextSaved!(text);
       _isEditMode = false;
+      _currentCategory = null; // Сбрасываем категорию после редактирования
       // После сохранения продолжаем обычный чат
       FocusScope.of(context).unfocus();
-      setState(() {
-        _hasConversation = true;
-        _messages.add(ChatMessage(text: text, isUser: true));
-        _isTyping = true;
-        _currentTypingIndex = 0;
-        _messages.add(const ChatMessage(text: '', isUser: false));
-        _inputController.clear();
-      });
-
-      _scrollToBottom();
-
-      _typingTimer?.cancel();
-      _typingTimer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
-        setState(() {
-          if (_currentTypingIndex >= _assistantReply.length) {
-            timer.cancel();
-            _messages[_messages.length - 1] = ChatMessage(
-              text: _assistantReply,
-              isUser: false,
-            );
-            _isTyping = false;
-            // Сохраняем чат после завершения генерации
-            _saveCurrentChat();
-            // Отправляем уведомление о завершении генерации
-            NotificationService.instance.showAiMessageNotification(
-              _assistantReply,
-            );
-          } else {
-            _currentTypingIndex += 1;
-            _messages[_messages.length - 1] = ChatMessage(
-              text: _assistantReply.substring(0, _currentTypingIndex.toInt()),
-              isUser: false,
-            );
-          }
-        });
-        _scrollToBottom();
-      });
+      _sendMessageWithApi(text);
+      _inputController.clear();
       return;
     }
 
     // Обычная отправка сообщения
     FocusScope.of(context).unfocus();
-    setState(() {
-      _hasConversation = true;
-      _messages.add(ChatMessage(text: text, isUser: true));
-      // Если это новый чат, создаем его при первом сообщении
-      if (_currentChatId == null) {
-        final newChat = ChatHistory(
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
-          title: text.length > 30 ? '${text.substring(0, 30)}...' : text,
-          messages: List.from(_messages),
-        );
-        _chatHistory.insert(0, newChat);
-        _currentChatId = int.tryParse(newChat.id);
-      }
-      _isTyping = true;
-      _currentTypingIndex = 0;
-      _messages.add(const ChatMessage(text: '', isUser: false));
-      _inputController.clear();
-    });
-
-    _scrollToBottom();
-
-    _typingTimer?.cancel();
-    _typingTimer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
-      setState(() {
-        if (_currentTypingIndex >= _assistantReply.length) {
-          timer.cancel();
-          _messages[_messages.length - 1] = ChatMessage(
-            text: _assistantReply,
-            isUser: false,
-          );
-          _isTyping = false;
-          // Сохраняем чат после завершения генерации
-          _saveCurrentChat();
-          // Отправляем уведомление о завершении генерации
-          NotificationService.instance.showAiMessageNotification(
-            _assistantReply,
-          );
-        } else {
-          _currentTypingIndex += 1;
-          _messages[_messages.length - 1] = ChatMessage(
-            text: _assistantReply.substring(0, _currentTypingIndex.toInt()),
-            isUser: false,
-          );
-        }
-      });
-      _scrollToBottom();
-    });
+    
+    // Если это новый чат, создаем его при первом сообщении
+    if (_currentChatId == null) {
+      final newChat = ChatHistory(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        title: text.length > 30 ? '${text.substring(0, 30)}...' : text,
+        messages: [],
+      );
+      _chatHistory.insert(0, newChat);
+      _currentChatId = int.tryParse(newChat.id);
+    }
+    
+    _inputController.clear();
+    _sendMessageWithApi(text, category: _currentCategory);
+    _currentCategory = null; // Сбрасываем категорию после отправки
   }
 
   void _stopGeneration() {
@@ -990,7 +993,83 @@ class _MessageBubble extends StatelessWidget {
       ),
       padding: EdgeInsets.all(scaleHeight(15)),
       decoration: BoxDecoration(color: bubbleColor, borderRadius: borderRadius),
-      child: Text(message.text, style: textStyle),
+      child: message.isUser
+          ? Text(message.text, style: textStyle)
+          : MarkdownBody(
+              data: message.text,
+              styleSheet: MarkdownStyleSheet(
+                p: textStyle,
+                strong: textStyle.copyWith(
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Montserrat',
+                ),
+                em: textStyle.copyWith(
+                  fontStyle: FontStyle.italic,
+                  fontFamily: 'Montserrat',
+                ),
+                code: textStyle.copyWith(
+                  fontFamily: 'Montserrat',
+                  backgroundColor: isDark
+                      ? AppColors.darkBackgroundMain
+                      : AppColors.backgroundMain,
+                ),
+                codeblockDecoration: BoxDecoration(
+                  color: isDark
+                      ? AppColors.darkBackgroundMain
+                      : AppColors.backgroundMain,
+                  borderRadius: BorderRadius.circular(scaleHeight(8)),
+                ),
+                codeblockPadding: EdgeInsets.all(scaleHeight(12)),
+                tableHead: textStyle.copyWith(
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Montserrat',
+                ),
+                tableBody: textStyle,
+                tableBorder: TableBorder.all(
+                  color: isDark
+                      ? AppColors.darkSecondaryText
+                      : AppColors.textSecondary,
+                  width: 1,
+                ),
+                tableCellsPadding: EdgeInsets.all(scaleHeight(8)),
+                h1: textStyle.copyWith(
+                  fontSize: scaleHeight(24),
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Montserrat',
+                ),
+                h2: textStyle.copyWith(
+                  fontSize: scaleHeight(20),
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Montserrat',
+                ),
+                h3: textStyle.copyWith(
+                  fontSize: scaleHeight(18),
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Montserrat',
+                ),
+                listBullet: textStyle,
+                blockquote: textStyle.copyWith(
+                  fontStyle: FontStyle.italic,
+                  fontFamily: 'Montserrat',
+                ),
+                blockquoteDecoration: BoxDecoration(
+                  border: Border(
+                    left: BorderSide(
+                      color: isDark
+                          ? AppColors.darkSecondaryText
+                          : AppColors.textSecondary,
+                      width: 3,
+                    ),
+                  ),
+                ),
+                blockquotePadding: EdgeInsets.only(
+                  left: scaleWidth(12),
+                  top: scaleHeight(8),
+                  bottom: scaleHeight(8),
+                ),
+              ),
+              selectable: true,
+            ),
     );
 
     if (message.isUser) {
@@ -1034,11 +1113,13 @@ class ChatHistory {
     required this.id,
     required this.title,
     required this.messages,
+    this.conversationId,
   });
 
   final String id;
   final String title;
   final List<ChatMessage> messages;
+  String? conversationId;
 }
 
 class _ChatMenuDrawer extends StatelessWidget {

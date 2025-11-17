@@ -15,7 +15,7 @@ class TemplatesScreen extends StatefulWidget {
     this.onEditTemplate,
   });
 
-  final ValueChanged<String>? onApplyTemplate;
+  final void Function(String, String)? onApplyTemplate;
   final void Function(String, ValueChanged<String>)? onEditTemplate;
 
   @override
@@ -217,7 +217,7 @@ class _TemplateCard extends StatelessWidget {
   final TemplateModel template;
   final double designWidth;
   final double designHeight;
-  final ValueChanged<String>? onApplyTemplate;
+  final void Function(String, String)? onApplyTemplate;
   final void Function(String, ValueChanged<String>)? onEditTemplate;
 
   @override
@@ -326,7 +326,8 @@ class _TemplateCard extends StatelessWidget {
                 onTap: () {
                   if (onApplyTemplate != null) {
                     onApplyTemplate!(
-                        'Тогда начнём с позиционирования: кто твой клиент, чем ты отличаешься, какая у тебя история. на этом можно построить сайт, визуал и');
+                        'Тогда начнём с позиционирования: кто твой клиент, чем ты отличаешься, какая у тебя история. на этом можно построить сайт, визуал и',
+                        template.category);
                   }
                 },
                 borderRadius: BorderRadius.circular(scaleHeight(16)),

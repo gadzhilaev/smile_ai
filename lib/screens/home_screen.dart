@@ -25,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _autoGenerateText;
   String? _editText;
   ValueChanged<String>? _onTextSaved;
+  String? _category;
   int _aiScreenKey = 0;
   int _templatesScreenKey = 0;
 
@@ -32,12 +33,14 @@ class _HomeScreenState extends State<HomeScreen> {
     String? autoGenerateText,
     String? editText,
     ValueChanged<String>? onTextSaved,
+    String? category,
   }) {
     setState(() {
       _currentIndex = 0;
       _autoGenerateText = autoGenerateText;
       _editText = editText;
       _onTextSaved = onTextSaved;
+      _category = category;
       _aiScreenKey++; // Изменяем ключ для пересоздания экрана
       _aiScreen = null; // Сбрасываем кеш для пересоздания с новыми параметрами
     });
@@ -64,13 +67,14 @@ class _HomeScreenState extends State<HomeScreen> {
           autoGenerateText: _autoGenerateText,
           editText: _editText,
           onTextSaved: _onTextSaved,
+          category: _category,
         );
         return _aiScreen!;
       case 1:
         _templatesScreen ??= TemplatesScreen(
           key: ValueKey(_templatesScreenKey),
-          onApplyTemplate: (text) {
-            navigateToAiScreen(autoGenerateText: text);
+          onApplyTemplate: (text, category) {
+            navigateToAiScreen(autoGenerateText: text, category: category);
           },
           onEditTemplate: (text, onSaved) {
             navigateToAiScreen(
