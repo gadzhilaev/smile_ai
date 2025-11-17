@@ -153,7 +153,14 @@ class _AiScreenState extends State<AiScreen> {
         if (_currentChatId != null) {
           final chatIndex = _chatHistory.indexWhere((chat) => chat.id == _currentChatId.toString());
           if (chatIndex != -1) {
-            _chatHistory[chatIndex].conversationId = newConversationId;
+            setState(() {
+              _chatHistory[chatIndex] = ChatHistory(
+                id: _chatHistory[chatIndex].id,
+                title: _chatHistory[chatIndex].title,
+                messages: List.from(_messages),
+                conversationId: newConversationId, // Сохраняем conversation_id для дальнейших сообщений
+              );
+            });
           }
         }
       }
@@ -201,11 +208,73 @@ class _AiScreenState extends State<AiScreen> {
     }
   }
 
+  Future<void> _loadConversationsFromApi({VoidCallback? onOverlayUpdate}) async {
+    try {
+      // Получаем user_id из .env
+      await dotenv.load(fileName: ".env");
+      final userId = dotenv.env['USER_ID']?.trim();
+      
+      if (userId == null || userId.isEmpty) {
+        debugPrint('AiScreen: USER_ID not found in .env, skipping conversations load');
+        return;
+      }
+
+      // Отправляем GET запрос на получение списка чатов
+      final result = await ApiService.instance.getConversations(userId);
+      
+      if (!mounted) return;
+
+      if (result.containsKey('error')) {
+        debugPrint('AiScreen: error loading conversations: ${result['error']}');
+        return;
+      }
+
+      // Преобразуем ответ в список ChatHistory
+      final conversationsList = result['conversations'] as List<dynamic>? ?? [];
+      final List<ChatHistory> loadedChats = [];
+      
+      for (final conv in conversationsList) {
+        final id = conv['id'] as String? ?? '';
+        final title = conv['title'] as String? ?? '';
+        final conversationId = id; // conversation_id это id из ответа
+        
+        if (id.isNotEmpty && title.isNotEmpty) {
+          loadedChats.add(ChatHistory(
+            id: id,
+            title: title,
+            messages: [], // Сообщения загрузятся при открытии чата
+            conversationId: conversationId,
+          ));
+        }
+      }
+
+      // Обновляем историю чатов
+      if (!mounted) return;
+
+      setState(() {
+        _chatHistory
+          ..clear()
+          ..addAll(loadedChats);
+      });
+
+      // Обновляем overlay, если он открыт
+      onOverlayUpdate?.call();
+    } catch (e) {
+      debugPrint('AiScreen: error loading conversations from API: $e');
+    }
+  }
+
   void _showChatMenuOverlay() {
     if (_chatMenuOverlay != null) {
       _chatMenuOverlay!.remove();
       _chatMenuOverlay = null;
     }
+    
+    // Загружаем чаты с API при открытии меню
+    _loadConversationsFromApi(onOverlayUpdate: () {
+      // Обновляем overlay после загрузки данных
+      _chatMenuOverlay?.markNeedsBuild();
+    });
     
     final overlay = Overlay.of(context);
     _chatMenuOverlay = OverlayEntry(
@@ -304,7 +373,7 @@ class _AiScreenState extends State<AiScreen> {
         _hideChatMenuOverlay();
       });
 
-      // Если есть conversation_id, загружаем историю с API
+      // Загружаем историю с API используя conversation_id (который равен id чата)
       if (chat.conversationId != null && chat.conversationId!.isNotEmpty) {
         try {
           final historyResult = await ApiService.instance.getChatHistory(chat.conversationId!);
@@ -312,16 +381,15 @@ class _AiScreenState extends State<AiScreen> {
           if (!mounted) return;
 
           if (historyResult.containsKey('error')) {
-            // Ошибка при загрузке истории - используем локальные сообщения
+            // Ошибка при загрузке истории
             debugPrint('AiScreen: error loading chat history: ${historyResult['error']}');
-            if (chat.messages.isNotEmpty) {
-              setState(() {
-                _messages.addAll(chat.messages);
-              });
-            }
             _scrollToBottom();
             return;
           }
+
+          // Получаем conversation_id из ответа (может отличаться от id чата)
+          final responseConversationId = historyResult['conversation_id'] as String?;
+          final actualConversationId = responseConversationId ?? chat.conversationId!;
 
           // Преобразуем сообщения из API в ChatMessage
           final messagesList = historyResult['messages'] as List<dynamic>? ?? [];
@@ -343,14 +411,14 @@ class _AiScreenState extends State<AiScreen> {
             _messages.clear();
             _messages.addAll(loadedMessages);
             
-            // Обновляем сообщения в истории чата
+            // Обновляем историю чата с правильным conversation_id
             final chatIndex = _chatHistory.indexWhere((c) => c.id == chat.id);
             if (chatIndex != -1) {
               _chatHistory[chatIndex] = ChatHistory(
                 id: _chatHistory[chatIndex].id,
                 title: _chatHistory[chatIndex].title,
                 messages: loadedMessages,
-                conversationId: _chatHistory[chatIndex].conversationId,
+                conversationId: actualConversationId, // Используем conversation_id из ответа
               );
             }
           });
@@ -358,19 +426,10 @@ class _AiScreenState extends State<AiScreen> {
           _scrollToBottom();
         } catch (e) {
           debugPrint('AiScreen: error loading chat history: $e');
-          // При ошибке используем локальные сообщения
-          if (chat.messages.isNotEmpty) {
-            setState(() {
-              _messages.addAll(chat.messages);
-            });
-          }
           _scrollToBottom();
         }
       } else {
-        // Нет conversation_id - используем локальные сообщения
-        setState(() {
-          _messages.addAll(chat.messages);
-        });
+        // Нет conversation_id
         _scrollToBottom();
       }
     }

@@ -417,5 +417,36 @@ class ApiService {
       };
     }
   }
+
+  /// Получение списка чатов пользователя
+  /// Возвращает Map с ключами 'conversations' (List) и 'user_id' (String) при успехе
+  /// Или 'error' (String) при ошибке
+  Future<Map<String, dynamic>> getConversations(String userId) async {
+    try {
+      final url = Uri.parse('$_baseUrl/api/chat/conversations/$userId');
+      debugPrint('ApiService: getConversations at URL: $url');
+      
+      final response = await http.get(url);
+      
+      debugPrint('ApiService: getConversations response status code: ${response.statusCode}');
+      debugPrint('ApiService: getConversations response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body) as Map<String, dynamic>;
+        debugPrint('ApiService: getConversations decoded response: $decoded');
+        return decoded;
+      } else {
+        debugPrint('ApiService: getConversations error response');
+        return {
+          'error': 'Failed to load conversations',
+        };
+      }
+    } catch (e) {
+      debugPrint('ApiService: error during getConversations: $e');
+      return {
+        'error': 'Network error',
+      };
+    }
+  }
 }
 

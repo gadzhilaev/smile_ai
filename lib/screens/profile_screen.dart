@@ -51,7 +51,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       // Получаем user_id из .env
       await dotenv.load(fileName: ".env");
-      final userId = dotenv.env['USER_ID'];
+      final rawUserId = dotenv.env['USER_ID'];
+      final userId = rawUserId?.trim();
       
       if (userId == null || userId.isEmpty) {
         debugPrint('ProfileScreen: USER_ID not found in .env');
