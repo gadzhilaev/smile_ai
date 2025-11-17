@@ -387,5 +387,35 @@ class ApiService {
       };
     }
   }
+
+  /// Получение профиля пользователя по user_id
+  /// Возвращает Map с данными пользователя при успехе (200)
+  /// Или 'error' (String) при ошибке
+  Future<Map<String, dynamic>> getProfile(String userId) async {
+    try {
+      final url = Uri.parse('$_baseUrl/api/auth/profile/$userId');
+      debugPrint('ApiService: getProfile at URL: $url');
+      
+      final response = await http.get(url);
+      
+      debugPrint('ApiService: getProfile response status code: ${response.statusCode}');
+      debugPrint('ApiService: getProfile response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body) as Map<String, dynamic>;
+        debugPrint('ApiService: getProfile decoded response: $decoded');
+        return decoded;
+      } else {
+        final decoded = json.decode(response.body) as Map<String, dynamic>;
+        debugPrint('ApiService: getProfile error response: $decoded');
+        return decoded;
+      }
+    } catch (e) {
+      debugPrint('ApiService: error during getProfile: $e');
+      return {
+        'error': 'Network error',
+      };
+    }
+  }
 }
 

@@ -3,11 +3,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../settings/style.dart';
 import '../settings/colors.dart';
 
 import '../widgets/custom_refresh_indicator.dart';
 import '../services/profile_service.dart';
+import '../services/api_service.dart';
+import '../utils/env_utils.dart';
 import '../l10n/app_localizations.dart';
 import 'account_screen.dart';
 import 'notifications_screen.dart';
@@ -33,12 +36,95 @@ class _ProfileScreenState extends State<ProfileScreen> {
   File? _selectedAvatar;
 
   Future<void> _refreshProfile() async {
+    // Загружаем данные профиля с API
+    await _loadProfileFromApi();
+    
     // Сбрасываем позицию прокрутки для полной перестройки страницы
     if (mounted) {
       _scrollController.jumpTo(0);
       setState(() {}); // Обновляем UI с новыми данными из сервиса
     }
     await Future.delayed(const Duration(milliseconds: 500));
+  }
+
+  Future<void> _loadProfileFromApi() async {
+    try {
+      // Получаем user_id из .env
+      await dotenv.load(fileName: ".env");
+      final userId = dotenv.env['USER_ID'];
+      
+      if (userId == null || userId.isEmpty) {
+        debugPrint('ProfileScreen: USER_ID not found in .env');
+        return;
+      }
+
+      // Отправляем GET запрос на получение профиля
+      final result = await ApiService.instance.getProfile(userId);
+      
+      if (!mounted) return;
+
+      if (result.containsKey('error')) {
+        debugPrint('ProfileScreen: error loading profile: ${result['error']}');
+        return;
+      }
+
+      // Сохраняем данные в .env
+      try {
+        await EnvUtils.updateUserDataInEnv(
+          email: result['email'] as String? ?? '',
+          fullName: result['full_name'] as String? ?? '',
+          nickname: result['nickname'] as String? ?? '',
+          phone: result['phone'] as String? ?? '',
+          country: result['country'] as String? ?? '',
+          gender: result['gender'] as String? ?? '',
+        );
+        debugPrint('ProfileScreen: profile data saved to .env successfully');
+      } catch (e) {
+        debugPrint('ProfileScreen: WARNING - could not save profile data to .env: $e');
+      }
+
+      // Обновляем ProfileService
+      ProfileService.instance.updateProfile(
+        fullName: result['full_name'] as String? ?? '',
+        username: result['nickname'] as String? ?? '',
+        email: result['email'] as String? ?? '',
+        phone: result['phone'] as String? ?? '',
+        country: _getCountryCode(result['country'] as String? ?? ''),
+        gender: _getGenderCode(result['gender'] as String? ?? ''),
+      );
+
+      if (mounted) {
+        setState(() {}); // Обновляем UI
+      }
+    } catch (e) {
+      debugPrint('ProfileScreen: error loading profile from API: $e');
+    }
+  }
+
+  /// Преобразование локализованного названия страны в код
+  String _getCountryCode(String countryName) {
+    switch (countryName) {
+      case 'Россия':
+        return 'russia';
+      case 'Казахстан':
+        return 'kazakhstan';
+      case 'Беларусь':
+        return 'belarus';
+      default:
+        return 'russia';
+    }
+  }
+
+  /// Преобразование локализованного названия пола в код
+  String _getGenderCode(String genderName) {
+    switch (genderName) {
+      case 'Мужской':
+        return 'male';
+      case 'Женский':
+        return 'female';
+      default:
+        return 'male';
+    }
   }
 
   Future<void> _pickAvatar() async {
@@ -67,7 +153,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     // Инициализируем ProfileService для загрузки данных из .env
-    ProfileService.instance.init();
+    ProfileService.instance.init().then((_) {
+      // Загружаем данные профиля с API при открытии экрана
+      _loadProfileFromApi();
+    });
   }
 
   @override
