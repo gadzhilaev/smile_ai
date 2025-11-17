@@ -52,7 +52,7 @@ class _AiScreenState extends State<AiScreen> {
   
   // История чатов
   final List<ChatHistory> _chatHistory = [];
-  int? _currentChatId;
+  String? _currentChatId;
   int? _editingChatIndex;
   final Map<int, TextEditingController> _renameControllers = {};
   String? _currentCategory;
@@ -102,7 +102,7 @@ class _AiScreenState extends State<AiScreen> {
     // Получаем conversation_id из текущего чата
     String? conversationId;
     if (_currentChatId != null) {
-      final chatIndex = _chatHistory.indexWhere((chat) => chat.id == _currentChatId.toString());
+      final chatIndex = _chatHistory.indexWhere((chat) => chat.id == _currentChatId);
       if (chatIndex != -1) {
         conversationId = _chatHistory[chatIndex].conversationId;
       }
@@ -151,7 +151,7 @@ class _AiScreenState extends State<AiScreen> {
       // Сохраняем conversation_id в текущий чат
       if (newConversationId != null && newConversationId.isNotEmpty) {
         if (_currentChatId != null) {
-          final chatIndex = _chatHistory.indexWhere((chat) => chat.id == _currentChatId.toString());
+          final chatIndex = _chatHistory.indexWhere((chat) => chat.id == _currentChatId);
           if (chatIndex != -1) {
             setState(() {
               _chatHistory[chatIndex] = ChatHistory(
@@ -289,7 +289,7 @@ class _AiScreenState extends State<AiScreen> {
             onNewChat: () {
               setState(() {
                 _saveCurrentChat(); // Сохраняем текущий чат перед созданием нового
-                _currentChatId = null;
+        _currentChatId = null;
                 _messages.clear();
                 _hasConversation = false;
                 _inputController.clear();
@@ -367,7 +367,7 @@ class _AiScreenState extends State<AiScreen> {
       final chat = _chatHistory[index];
       
       setState(() {
-        _currentChatId = int.tryParse(chat.id);
+        _currentChatId = chat.id;
         _messages.clear();
         _hasConversation = true;
         _hideChatMenuOverlay();
@@ -435,41 +435,62 @@ class _AiScreenState extends State<AiScreen> {
     }
   }
   
-  void _deleteChat(int index) {
+  Future<void> _deleteChat(int index) async {
     if (index >= 0 && index < _chatHistory.length) {
-      setState(() {
-        if (_currentChatId != null && _chatHistory[index].id == _currentChatId.toString()) {
-          _currentChatId = null;
-          _messages.clear();
-          _hasConversation = false;
+      try {
+        await dotenv.load(fileName: ".env");
+        final userId = dotenv.env['USER_ID']?.trim();
+
+        if (userId == null || userId.isEmpty) {
+          debugPrint('AiScreen: USER_ID not found in .env, delete skipped');
+          return;
         }
-        // Удаляем контроллер для удаляемого чата
-        if (_renameControllers.containsKey(index)) {
-          _renameControllers[index]?.dispose();
-          _renameControllers.remove(index);
+
+        final chatId = _chatHistory[index].id;
+        final success = await ApiService.instance.deleteConversation(
+          userId: userId,
+          conversationId: chatId,
+        );
+
+        if (!success) {
+          debugPrint('AiScreen: delete conversation failed for $chatId');
+          return;
         }
-        // Обновляем индексы для контроллеров
-        final newControllers = <int, TextEditingController>{};
-        for (var entry in _renameControllers.entries) {
-          if (entry.key > index) {
-            newControllers[entry.key - 1] = entry.value;
-          } else if (entry.key < index) {
-            newControllers[entry.key] = entry.value;
+
+        if (!mounted) return;
+
+        setState(() {
+          if (_currentChatId != null && _chatHistory[index].id == _currentChatId) {
+            _currentChatId = null;
+            _messages.clear();
+            _hasConversation = false;
           }
-        }
-        _renameControllers.clear();
-        _renameControllers.addAll(newControllers);
-        // Сбрасываем editingChatIndex, если удаляемый чат редактировался
-        if (_editingChatIndex == index) {
-          _editingChatIndex = null;
-        } else if (_editingChatIndex != null && _editingChatIndex! > index) {
-          _editingChatIndex = _editingChatIndex! - 1;
-        }
-        _chatHistory.removeAt(index);
-      });
-      // Обновляем Overlay после удаления
-      if (_chatMenuOverlay != null) {
-        _chatMenuOverlay!.markNeedsBuild();
+          if (_renameControllers.containsKey(index)) {
+            _renameControllers[index]?.dispose();
+            _renameControllers.remove(index);
+          }
+          final newControllers = <int, TextEditingController>{};
+          for (var entry in _renameControllers.entries) {
+            if (entry.key > index) {
+              newControllers[entry.key - 1] = entry.value;
+            } else if (entry.key < index) {
+              newControllers[entry.key] = entry.value;
+            }
+          }
+          _renameControllers
+            ..clear()
+            ..addAll(newControllers);
+          if (_editingChatIndex == index) {
+            _editingChatIndex = null;
+          } else if (_editingChatIndex != null && _editingChatIndex! > index) {
+            _editingChatIndex = _editingChatIndex! - 1;
+          }
+          _chatHistory.removeAt(index);
+        });
+
+        _chatMenuOverlay?.markNeedsBuild();
+      } catch (e) {
+        debugPrint('AiScreen: error deleting chat: $e');
       }
     }
   }
@@ -489,10 +510,34 @@ class _AiScreenState extends State<AiScreen> {
     }
   }
   
-  void _saveRenamedChat(int index) {
+  Future<void> _saveRenamedChat(int index) async {
     if (index >= 0 && index < _chatHistory.length && _renameControllers.containsKey(index)) {
       final newTitle = _renameControllers[index]!.text.trim();
-      if (newTitle.isNotEmpty) {
+      if (newTitle.isEmpty) return;
+
+      try {
+        await dotenv.load(fileName: ".env");
+        final userId = dotenv.env['USER_ID']?.trim();
+
+        if (userId == null || userId.isEmpty) {
+          debugPrint('AiScreen: USER_ID not found in .env, rename skipped');
+          return;
+        }
+
+        final chatId = _chatHistory[index].id;
+        final result = await ApiService.instance.renameConversation(
+          userId: userId,
+          conversationId: chatId,
+          title: newTitle,
+        );
+
+        if (result.containsKey('error')) {
+          debugPrint('AiScreen: rename conversation failed: ${result['error']}');
+          return;
+        }
+
+        if (!mounted) return;
+
         setState(() {
           _chatHistory[index] = ChatHistory(
             id: _chatHistory[index].id,
@@ -502,10 +547,10 @@ class _AiScreenState extends State<AiScreen> {
           );
           _editingChatIndex = null;
         });
-        // Обновляем Overlay после сохранения
-        if (_chatMenuOverlay != null) {
-          _chatMenuOverlay!.markNeedsBuild();
-        }
+
+        _chatMenuOverlay?.markNeedsBuild();
+      } catch (e) {
+        debugPrint('AiScreen: error renaming chat: $e');
       }
     }
   }
@@ -522,7 +567,7 @@ class _AiScreenState extends State<AiScreen> {
   
   void _saveCurrentChat() {
     if (_messages.isNotEmpty && _currentChatId != null) {
-      final chatIndex = _chatHistory.indexWhere((chat) => chat.id == _currentChatId.toString());
+      final chatIndex = _chatHistory.indexWhere((chat) => chat.id == _currentChatId);
       if (chatIndex != -1) {
         setState(() {
           _chatHistory[chatIndex] = ChatHistory(
@@ -578,7 +623,7 @@ class _AiScreenState extends State<AiScreen> {
         messages: [],
       );
       _chatHistory.insert(0, newChat);
-      _currentChatId = int.tryParse(newChat.id);
+      _currentChatId = newChat.id;
     }
     
     _inputController.clear();

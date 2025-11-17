@@ -418,6 +418,79 @@ class ApiService {
     }
   }
 
+  /// Переименование чата
+  /// Возвращает Map со статусом при успехе
+  Future<Map<String, dynamic>> renameConversation({
+    required String userId,
+    required String conversationId,
+    required String title,
+  }) async {
+    try {
+      final url = Uri.parse('$_baseUrl/api/chat/conversations/$conversationId/title');
+      debugPrint('ApiService: renameConversation at URL: $url');
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          'user_id': userId,
+          'title': title,
+        }),
+      );
+
+      debugPrint('ApiService: renameConversation response status code: ${response.statusCode}');
+      debugPrint('ApiService: renameConversation response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body) as Map<String, dynamic>;
+        debugPrint('ApiService: renameConversation decoded response: $decoded');
+        return decoded;
+      } else {
+        return {
+          'error': 'Failed to rename conversation',
+        };
+      }
+    } catch (e) {
+      debugPrint('ApiService: error during renameConversation: $e');
+      return {
+        'error': 'Network error',
+      };
+    }
+  }
+
+  /// Удаление чата
+  /// Возвращает true при успехе
+  Future<bool> deleteConversation({
+    required String userId,
+    required String conversationId,
+  }) async {
+    try {
+      final url = Uri.parse('$_baseUrl/api/chat/conversations/$conversationId');
+      debugPrint('ApiService: deleteConversation at URL: $url');
+      final response = await http.delete(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          'user_id': userId,
+        }),
+      );
+
+      debugPrint('ApiService: deleteConversation response status code: ${response.statusCode}');
+      debugPrint('ApiService: deleteConversation response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      debugPrint('ApiService: error during deleteConversation: $e');
+      return false;
+    }
+  }
+
   /// Получение списка чатов пользователя
   /// Возвращает Map с ключами 'conversations' (List) и 'user_id' (String) при успехе
   /// Или 'error' (String) при ошибке

@@ -106,16 +106,16 @@ class _EmailScreenState extends State<EmailScreen> {
       if (exists) {
         // Пользователь существует - переходим к вводу пароля
         setState(() {
-          _showError = false;
-          _errorMessage = null;
+      _showError = false;
+      _errorMessage = null;
         });
 
-        FocusScope.of(context).unfocus();
-        Navigator.of(context).push(
-          MaterialPageRoute<void>(
-            builder: (_) => RegistrationSuccessScreen(email: email),
-          ),
-        );
+      FocusScope.of(context).unfocus();
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => RegistrationSuccessScreen(email: email),
+        ),
+      );
       } else {
         // Пользователь не существует
         setState(() {
@@ -130,7 +130,7 @@ class _EmailScreenState extends State<EmailScreen> {
         final l = AppLocalizations.of(context)!;
         _showError = true;
         _errorMessage = l.authEmailErrorNotRegistered;
-      });
+    });
     }
   }
 
