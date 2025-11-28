@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
@@ -131,9 +132,9 @@ class _AiScreenState extends State<AiScreen> {
     setState(() {
       _hasConversation = true;
       _messages.add(ChatMessage(text: message, isUser: true));
-      _isTyping = true;
+      _isTyping = false;
       _currentTypingIndex = 0;
-      _messages.add(const ChatMessage(text: '', isUser: false));
+      _messages.add(const ChatMessage(text: '', isUser: false, isThinking: true));
     });
 
     _scrollToBottom();
@@ -157,15 +158,20 @@ class _AiScreenState extends State<AiScreen> {
           _messages.add(ChatMessage(
             text: 'Ошибка: ${result['error']}',
             isUser: false,
+            isThinking: false,
           ));
         });
         _scrollToBottom();
         return;
       }
 
-      // Успешный ответ
+      // Успешный ответ - переходим от "думает" к генерации
       final responseText = result['response'] as String? ?? '';
       final newConversationId = result['conversation_id'] as String?;
+      
+      setState(() {
+        _isTyping = true; // Начинаем генерацию
+      });
 
       // Сохраняем conversation_id в текущий чат
       if (newConversationId != null && newConversationId.isNotEmpty) {
@@ -197,6 +203,7 @@ class _AiScreenState extends State<AiScreen> {
             _messages[_messages.length - 1] = ChatMessage(
               text: responseText,
             isUser: false,
+            isThinking: false,
           );
           _isTyping = false;
             // Сохраняем чат после завершения генерации
@@ -208,6 +215,7 @@ class _AiScreenState extends State<AiScreen> {
             _messages[_messages.length - 1] = ChatMessage(
               text: responseText.substring(0, _currentTypingIndex.toInt()),
             isUser: false,
+            isThinking: false,
           );
         }
       });
@@ -221,6 +229,7 @@ class _AiScreenState extends State<AiScreen> {
         _messages.add(ChatMessage(
           text: 'Ошибка при отправке сообщения: $e',
           isUser: false,
+          isThinking: false,
         ));
       });
       _scrollToBottom();
@@ -261,7 +270,7 @@ class _AiScreenState extends State<AiScreen> {
         if (id.isNotEmpty && title.isNotEmpty) {
           loadedChats.add(ChatHistory(
             id: id,
-            title: title,
+            title: _stripMarkdown(title),
             messages: [], // Сообщения загрузятся при открытии чата
             conversationId: conversationId,
           ));
@@ -424,6 +433,7 @@ class _AiScreenState extends State<AiScreen> {
             loadedMessages.add(ChatMessage(
               text: content,
               isUser: isUser,
+              isThinking: false,
             ));
           }
 
@@ -617,6 +627,38 @@ class _AiScreenState extends State<AiScreen> {
     });
   }
 
+  // Функция для удаления markdown-символов из текста
+  static String _stripMarkdown(String text) {
+    if (text.isEmpty) return text;
+    
+    // Удаляем markdown-символы форматирования
+    String result = text;
+    
+    // Удаляем ** для жирности (может быть несколько подряд)
+    result = result.replaceAll(RegExp(r'\*\*+'), '');
+    
+    // Удаляем * для курсива (но не если это часть **)
+    result = result.replaceAll(RegExp(r'(?<!\*)\*(?!\*)'), '');
+    
+    // Удаляем > для цитат
+    result = result.replaceAll(RegExp(r'^>\s*', multiLine: true), '');
+    
+    // Удаляем # для заголовков
+    result = result.replaceAll(RegExp(r'^#+\s*', multiLine: true), '');
+    
+    // Удаляем ` для кода (одиночные и тройные)
+    result = result.replaceAll(RegExp(r'```+'), '');
+    result = result.replaceAll(RegExp(r'`'), '');
+    
+    // Удаляем [] для ссылок
+    result = result.replaceAll(RegExp(r'\[([^\]]+)\]\([^\)]+\)'), r'$1');
+    
+    // Удаляем лишние пробелы
+    result = result.trim();
+    
+    return result;
+  }
+
   void _sendMessage() {
     final text = _inputController.text.trim();
     if (text.isEmpty || _isTyping) {
@@ -640,9 +682,10 @@ class _AiScreenState extends State<AiScreen> {
     
     // Если это новый чат, создаем его при первом сообщении
     if (_currentChatId == null) {
+      final cleanTitle = _stripMarkdown(text);
       final newChat = ChatHistory(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
-        title: text.length > 30 ? '${text.substring(0, 30)}...' : text,
+        title: cleanTitle.length > 30 ? '${cleanTitle.substring(0, 30)}...' : cleanTitle,
         messages: [],
       );
       _chatHistory.insert(0, newChat);
@@ -1324,7 +1367,13 @@ class _MessageBubble extends StatelessWidget {
       decoration: BoxDecoration(color: bubbleColor, borderRadius: borderRadius),
       child: message.isUser
           ? Text(message.text, style: textStyle)
-          : MarkdownBody(
+          : message.isThinking
+              ? _ThinkingIndicator(
+                  baseColor: isDark ? AppColors.darkPrimaryText : AppColors.textPrimary,
+                  isDark: isDark,
+                  size: scaleHeight(20),
+                )
+              : MarkdownBody(
               data: _removeLeadingHr(message.text),
               styleSheet: MarkdownStyleSheet(
                 p: textStyle,
@@ -1429,21 +1478,23 @@ class _MessageBubble extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           bubble,
-          SizedBox(width: scaleWidth(10)),
-          GestureDetector(
-            onTap: () {
-              Clipboard.setData(ClipboardData(text: message.text));
-              onCopy();
-            },
-            child: SvgPicture.asset(
-              isDark
-                  ? 'assets/icons/dark/icon_copy_dark.svg'
-                  : 'assets/icons/light/icon_copy.svg',
-              width: scaleWidth(20),
-              height: scaleHeight(30),
-              fit: BoxFit.contain,
+          if (!message.isThinking) ...[
+            SizedBox(width: scaleWidth(10)),
+            GestureDetector(
+              onTap: () {
+                Clipboard.setData(ClipboardData(text: message.text));
+                onCopy();
+              },
+              child: SvgPicture.asset(
+                isDark
+                    ? 'assets/icons/dark/icon_copy_dark.svg'
+                    : 'assets/icons/light/icon_copy.svg',
+                width: scaleWidth(20),
+                height: scaleHeight(30),
+                fit: BoxFit.contain,
+              ),
             ),
-          ),
+          ],
         ],
       );
     }
@@ -1451,10 +1502,15 @@ class _MessageBubble extends StatelessWidget {
 }
 
 class ChatMessage {
-  const ChatMessage({required this.text, required this.isUser});
+  const ChatMessage({
+    required this.text,
+    required this.isUser,
+    this.isThinking = false,
+  });
 
   final String text;
   final bool isUser;
+  final bool isThinking; // Флаг для состояния "думает"
 }
 
 class ChatHistory {
@@ -1691,7 +1747,7 @@ class _ChatMenuDrawer extends StatelessWidget {
                                               }
                                             },
                                             child: Text(
-                                              chatHistory[index].title,
+                                              _AiScreenState._stripMarkdown(chatHistory[index].title),
                                               style: AppTextStyle.screenTitle(
                                                 scaleHeight(15),
                                                 color: isDark
@@ -1938,6 +1994,79 @@ class _ContextMenuItem extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+// Виджет мерцающего круга (как в ChatGPT)
+class _ThinkingIndicator extends StatefulWidget {
+  const _ThinkingIndicator({
+    required this.baseColor,
+    required this.isDark,
+    required this.size,
+  });
+
+  final Color baseColor;
+  final bool isDark;
+  final double size;
+
+  @override
+  State<_ThinkingIndicator> createState() => _ThinkingIndicatorState();
+}
+
+class _ThinkingIndicatorState extends State<_ThinkingIndicator>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        // Используем синусоидальную функцию для плавного перехода туда-обратно
+        final progress = _controller.value;
+        Color currentColor;
+        
+        if (widget.isDark) {
+          // Темная тема: серый -> белый -> серый
+          final grayColor = widget.baseColor.withOpacity(0.4);
+          final whiteColor = AppColors.white;
+          // Синусоида для плавного перехода: 0 -> 1 -> 0
+          final t = (math.sin(progress * 2 * math.pi) + 1) / 2;
+          currentColor = Color.lerp(grayColor, whiteColor, t)!;
+        } else {
+          // Светлая тема: светлый -> темный -> светлый
+          final lightColor = widget.baseColor.withOpacity(0.3);
+          final darkColor = widget.baseColor;
+          // Синусоида для плавного перехода: 0 -> 1 -> 0
+          final t = (math.sin(progress * 2 * math.pi) + 1) / 2;
+          currentColor = Color.lerp(lightColor, darkColor, t)!;
+        }
+        
+        return Container(
+          width: widget.size,
+          height: widget.size,
+          decoration: BoxDecoration(
+            color: currentColor,
+            shape: BoxShape.circle,
+          ),
+        );
+      },
     );
   }
 }

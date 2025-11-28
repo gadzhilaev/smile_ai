@@ -325,9 +325,11 @@ class _TemplateCard extends StatelessWidget {
               InkWell(
                 onTap: () {
                   if (onApplyTemplate != null) {
-                    onApplyTemplate!(
-                        'Тогда начнём с позиционирования: кто твой клиент, чем ты отличаешься, какая у тебя история. на этом можно построить сайт, визуал и',
-                        template.category);
+                    // Используем локализованный title шаблона
+                    final templateText = template.isCustom
+                        ? template.title
+                        : localizedTemplateTitle(l, template.id);
+                    onApplyTemplate!(templateText, template.category);
                   }
                 },
                 borderRadius: BorderRadius.circular(scaleHeight(16)),
@@ -370,7 +372,11 @@ class _TemplateCard extends StatelessWidget {
               InkWell(
                 onTap: () {
                   if (onEditTemplate != null) {
-                    onEditTemplate!(template.title, (editedText) {
+                    // Используем локализованный title шаблона
+                    final templateText = template.isCustom
+                        ? template.title
+                        : localizedTemplateTitle(l, template.id);
+                    onEditTemplate!(templateText, (editedText) {
                       // Callback будет вызван из AiScreen после сохранения
                     });
                   }

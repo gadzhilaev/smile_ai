@@ -177,9 +177,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     double scaleHeight(double value) => value * heightFactor;
 
     final double topSectionHeight = scaleHeight(170);
-    final double bottomPadding = MediaQuery.of(context).padding.bottom;
-    final double navBarHeight = 72.0;
-
     final double topPadding = MediaQuery.of(context).padding.top;
     final double actualTopSectionHeight = topSectionHeight + topPadding;
 
@@ -573,8 +570,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                       ),
-                      // Отступ для нав бара (только если контент не помещается)
-                      SizedBox(height: navBarHeight + bottomPadding),
+                      SizedBox(height: scaleHeight(20)),
                     ],
                   ),
                 ),
