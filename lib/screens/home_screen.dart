@@ -37,12 +37,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }) {
     setState(() {
       _currentIndex = 0;
-      _autoGenerateText = autoGenerateText;
-      _editText = editText;
-      _onTextSaved = onTextSaved;
-      _category = category;
-      _aiScreenKey++; // Изменяем ключ для пересоздания экрана
-      _aiScreen = null; // Сбрасываем кеш для пересоздания с новыми параметрами
+      // Только если переданы новые параметры, обновляем их и пересоздаем экран
+      if (autoGenerateText != null || editText != null || category != null) {
+        _autoGenerateText = autoGenerateText;
+        _editText = editText;
+        _onTextSaved = onTextSaved;
+        _category = category;
+        _aiScreenKey++; // Изменяем ключ для пересоздания экрана
+        _aiScreen = null; // Сбрасываем кеш для пересоздания с новыми параметрами
+      }
+      // Иначе просто переключаемся на AI экран, сохраняя текущее состояние
     });
   }
 
@@ -117,19 +121,15 @@ class _HomeScreenState extends State<HomeScreen> {
         accentColor: _accentColor,
         currentIndex: _currentIndex,
         onTap: (index) {
-          // Обновляем AI экран при переключении, если нужно
-          if (index == 0 && _aiScreen != null) {
-            _aiScreen = null; // Пересоздадим при следующем обращении
-          }
           setState(() {
             _currentIndex = index;
-            // Сбрасываем параметры при ручном переключении
+            // Сбрасываем параметры только при ручном переключении на другую страницу
+            // НО сохраняем состояние AI экрана
             if (index != 0) {
               _autoGenerateText = null;
               _editText = null;
               _onTextSaved = null;
-              _aiScreenKey++;
-              _aiScreen = null; // Сбрасываем кеш для пересоздания
+              // НЕ сбрасываем _aiScreen и _aiScreenKey, чтобы сохранить состояние
             }
           });
         },

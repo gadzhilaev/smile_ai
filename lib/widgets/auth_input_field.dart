@@ -86,7 +86,8 @@ class AuthInputField extends StatelessWidget {
             ),
           if (isActive) SizedBox(height: labelSpacing),
           Expanded(
-            child: Center(
+            child: Align(
+              alignment: Alignment.centerLeft,
               child: TextField(
                 controller: controller,
                 focusNode: focusNode,

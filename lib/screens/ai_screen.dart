@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:markdown/markdown.dart' as md;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../settings/style.dart';
 import '../settings/colors.dart';
@@ -1017,10 +1018,7 @@ class _AiScreenState extends State<AiScreen> {
                                   BorderRadius.circular(scaleHeight(50)),
                         ),
                         child: Center(
-                          child: Image.asset(
-                                isDark
-                                    ? 'assets/icons/dark/icon_teleg_dark.png'
-                                    : 'assets/icons/light/icon_teleg.png',
+                          child: Image.asset('assets/icons/light/icon_teleg.png',
                             width: scaleWidth(24),
                             height: scaleHeight(24),
                             fit: BoxFit.contain,
@@ -1117,6 +1115,36 @@ class _SuggestionChip extends StatelessWidget {
   }
 }
 
+// Кастомный builder для горизонтальной линии
+class _HorizontalRuleBuilder extends MarkdownElementBuilder {
+  final Color lineColor;
+  final double lineHeight;
+  final double verticalPadding;
+  final bool isFirstInMessage;
+
+  _HorizontalRuleBuilder({
+    required this.lineColor,
+    this.lineHeight = 0.5,
+    this.verticalPadding = 16,
+    this.isFirstInMessage = false,
+  });
+
+  @override
+  Widget? visitElementAfter(md.Element element, TextStyle? preferredStyle) {
+    return Padding(
+      padding: EdgeInsets.only(
+        top: isFirstInMessage ? 0 : verticalPadding, // Убираем верхний отступ, если "---" в начале сообщения
+        bottom: verticalPadding,
+      ),
+      child: Container(
+        width: double.infinity,
+        height: lineHeight,
+        color: lineColor,
+      ),
+    );
+  }
+}
+
 class _MessageBubble extends StatelessWidget {
   const _MessageBubble({
     required this.message,
@@ -1131,6 +1159,52 @@ class _MessageBubble extends StatelessWidget {
   final double designHeight;
   final Color accentColor;
   final VoidCallback onCopy;
+
+  // Проверяет, начинается ли сообщение с горизонтальной линии (---)
+  static bool _isMessageStartingWithHr(String text) {
+    if (text.isEmpty) return false;
+    // Убираем все пробелы, табы и переводы строк в начале
+    final trimmed = text.trimLeft();
+    // Проверяем, начинается ли с "---", "***" или "___" (markdown горизонтальные линии)
+    // Также проверяем варианты с пробелами после дефисов
+    final normalized = trimmed.replaceAll(RegExp(r'\s+'), ' ');
+    return normalized.startsWith('---') || 
+           normalized.startsWith('***') || 
+           normalized.startsWith('___') ||
+           normalized.startsWith('- - -') ||
+           normalized.startsWith('* * *') ||
+           normalized.startsWith('_ _ _');
+  }
+
+  // Убирает горизонтальную линию (---) в начале сообщения
+  static String _removeLeadingHr(String text) {
+    if (text.isEmpty) return text;
+    
+    // Убираем все пробелы и переводы строк в начале
+    final trimmed = text.trimLeft();
+    
+    // Проверяем, начинается ли с горизонтальной линии
+    if (trimmed.startsWith('---') || 
+        trimmed.startsWith('***') || 
+        trimmed.startsWith('___')) {
+      // Находим конец первой строки (до первого перевода строки)
+      final firstLineEnd = trimmed.indexOf('\n');
+      if (firstLineEnd != -1) {
+        // Убираем первую строку с "---" и следующие пустые строки
+        var result = trimmed.substring(firstLineEnd + 1);
+        // Убираем все пустые строки в начале
+        while (result.startsWith('\n') || result.startsWith('\r\n')) {
+          result = result.replaceFirst(RegExp(r'^[\r\n]+'), '');
+        }
+        return result;
+      } else {
+        // Если это только "---" без текста после, возвращаем пустую строку
+        return '';
+      }
+    }
+    
+    return text;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1176,7 +1250,7 @@ class _MessageBubble extends StatelessWidget {
       child: message.isUser
           ? Text(message.text, style: textStyle)
           : MarkdownBody(
-              data: message.text,
+              data: _removeLeadingHr(message.text),
               styleSheet: MarkdownStyleSheet(
                 p: textStyle,
                 strong: textStyle.copyWith(
@@ -1247,8 +1321,28 @@ class _MessageBubble extends StatelessWidget {
                   top: scaleHeight(8),
                   bottom: scaleHeight(8),
                 ),
+                horizontalRuleDecoration: BoxDecoration(
+                  border: Border(
+                    top: BorderSide(
+                      color: message.isUser
+                          ? AppColors.white
+                          : (isDark ? AppColors.darkPrimaryText : AppColors.textPrimary),
+                      width: 3,
+                    ),
+                  ),
+                ),
               ),
               selectable: true,
+              builders: <String, MarkdownElementBuilder>{
+                'hr': _HorizontalRuleBuilder(
+                  lineColor: message.isUser
+                      ? AppColors.white
+                      : (isDark ? AppColors.darkPrimaryText : AppColors.textPrimary),
+                  lineHeight: 0.5,
+                  verticalPadding: scaleHeight(16),
+                  isFirstInMessage: _isMessageStartingWithHr(message.text),
+                ),
+              },
             ),
     );
 

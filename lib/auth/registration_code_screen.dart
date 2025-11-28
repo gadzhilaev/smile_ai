@@ -18,6 +18,35 @@ class RegistrationCodeScreen extends StatefulWidget {
       _RegistrationCodeScreenState();
 }
 
+// Кастомный formatter для обработки ввода кода
+class _CodeInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    // Фильтруем только цифры
+    final filtered = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
+    
+    // Ограничиваем до 1 символа
+    if (filtered.length > 1) {
+      return TextEditingValue(
+        text: filtered[0],
+        selection: TextSelection.collapsed(offset: 1),
+      );
+    }
+
+    if (filtered != newValue.text) {
+      return TextEditingValue(
+        text: filtered,
+        selection: TextSelection.collapsed(offset: filtered.length),
+      );
+    }
+
+    return newValue;
+  }
+}
+
 class _RegistrationCodeScreenState extends State<RegistrationCodeScreen> {
   static const double _designWidth = 428;
   static const double _designHeight = 926;
@@ -82,7 +111,7 @@ class _RegistrationCodeScreenState extends State<RegistrationCodeScreen> {
   void _onCodeChanged(int index, String value) {
     _onFieldStateChange();
     
-    // Если введена одна цифра и это не последнее поле, переходим на следующее
+    // Если введена одна цифра и справа есть поле, переходим на следующее
     if (value.length == 1 && index < 3) {
       // Используем addPostFrameCallback для гарантированного перехода после обновления UI
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -91,17 +120,13 @@ class _RegistrationCodeScreenState extends State<RegistrationCodeScreen> {
         }
       });
     }
-    // Если поле очищено
-    else if (value.isEmpty) {
-      if (index > 0) {
-        // Если это не первое поле, возвращаемся на предыдущее
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted && _focusNodes[index - 1].canRequestFocus) {
-            _focusNodes[index - 1].requestFocus();
-          }
-        });
-      }
-      // Если это первое поле (index == 0), фокус остается на нем - ничего не делаем
+    // Если поле очищено и слева есть поле, переходим на предыдущее
+    else if (value.isEmpty && index > 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _focusNodes[index - 1].canRequestFocus) {
+          _focusNodes[index - 1].requestFocus();
+        }
+      });
     }
   }
 
@@ -266,13 +291,14 @@ class _RegistrationCodeScreenState extends State<RegistrationCodeScreen> {
                                   BorderRadius.circular(codeFieldBorderRadius),
                               border: Border.all(color: borderColor, width: 2),
                             ),
-                            child: Center(
+                            child: Align(
+                              alignment: Alignment.center,
                               child: TextField(
                                 controller: _controllers[index],
                                 focusNode: _focusNodes[index],
                                 textAlign: TextAlign.center,
                                 style: AppTextStyle.bodyText(
-                                  scaleHeight(20),
+                                  scaleHeight(18),
                                   color: isDark
                                       ? AppColors.white
                                       : AppColors.textPrimary,
@@ -280,8 +306,7 @@ class _RegistrationCodeScreenState extends State<RegistrationCodeScreen> {
                                 cursorColor: AppColors.primaryBlue,
                                 keyboardType: TextInputType.number,
                                 inputFormatters: [
-                                  FilteringTextInputFormatter.digitsOnly,
-                                  LengthLimitingTextInputFormatter(1),
+                                  _CodeInputFormatter(),
                                 ],
                                 decoration: InputDecoration(
                                   border: InputBorder.none,
@@ -289,12 +314,22 @@ class _RegistrationCodeScreenState extends State<RegistrationCodeScreen> {
                                   contentPadding: EdgeInsets.zero,
                                 ),
                                 onChanged: (value) {
-                                  // Ограничиваем ввод до 1 символа
-                                  if (value.length > 1) {
-                                    _controllers[index].text = value[0];
-                                    value = value[0];
-                                  }
                                   _onCodeChanged(index, value);
+                                },
+                                onTap: () {
+                                  // При клике на поле, если оно уже заполнено, выделяем весь текст
+                                  if (_controllers[index].text.isNotEmpty) {
+                                    _controllers[index].selection = TextSelection(
+                                      baseOffset: 0,
+                                      extentOffset: _controllers[index].text.length,
+                                    );
+                                  }
+                                },
+                                onSubmitted: (_) {
+                                  // При нажатии Enter, если справа есть поле, переходим на него
+                                  if (index < 3) {
+                                    _focusNodes[index + 1].requestFocus();
+                                  }
                                 },
                               ),
                             ),

@@ -27,7 +27,7 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
   static const double _componentHeight = 53;
   static const double _fieldBorderRadius = 7;
   static const double _fieldInnerPadding = 18;
-  static const double _fieldLabelSpacing = 2;
+  static const double _fieldLabelSpacing = 1;
   static const double _fieldButtonSpacing = 25;
   static const double _buttonBorderRadius = 9;
   static const double _errorTextOffset = 21;
@@ -186,7 +186,7 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
         final double fieldInnerPadding = scaleWidth(_fieldInnerPadding);
         final double buttonBorderRadius = scaleHeight(_buttonBorderRadius);
         final double buttonHeight = scaleHeight(_componentHeight);
-        final double labelTopPadding = fieldHeight * 0.12;
+        final double labelTopPadding = 0;
         final double buttonSpacing = _showError
             ? scaleHeight(14)
             : scaleHeight(_fieldButtonSpacing);
@@ -261,7 +261,7 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
                     labelTopPadding: labelTopPadding,
                     hintFontSize: scaleHeight(16),
                     floatingLabelFontSize: scaleHeight(11),
-                    textFontSize: scaleHeight(15),
+                    textFontSize: scaleHeight(14),
                     hintText: l.authPasswordHint,
                     labelText: l.authPasswordHint,
                     isObscure: true,

@@ -48,6 +48,27 @@ class _RegistrationDataScreenState extends State<RegistrationDataScreen> {
     super.initState();
     // Предзаполняем email из параметра
     _emailController.text = widget.email;
+    
+    // Добавляем слушатели для обновления состояния кнопки
+    _fullNameController.addListener(_updateButtonState);
+    _usernameController.addListener(_updateButtonState);
+    _emailController.addListener(_updateButtonState);
+    _phoneController.addListener(_updateButtonState);
+  }
+
+  void _updateButtonState() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  bool _isAllFieldsFilled() {
+    return _fullNameController.text.trim().isNotEmpty &&
+        _usernameController.text.trim().isNotEmpty &&
+        _emailController.text.trim().isNotEmpty &&
+        _phoneController.text.trim().isNotEmpty &&
+        _selectedCountry != null &&
+        _selectedGender != null;
   }
 
   String _getCountryName(String? countryCode) {
@@ -212,6 +233,10 @@ class _RegistrationDataScreenState extends State<RegistrationDataScreen> {
 
   @override
   void dispose() {
+    _fullNameController.removeListener(_updateButtonState);
+    _usernameController.removeListener(_updateButtonState);
+    _emailController.removeListener(_updateButtonState);
+    _phoneController.removeListener(_updateButtonState);
     _fullNameController.dispose();
     _usernameController.dispose();
     _emailController.dispose();
@@ -310,6 +335,9 @@ class _RegistrationDataScreenState extends State<RegistrationDataScreen> {
                         hintText: 'Ник',
                         designWidth: _designWidth,
                         designHeight: _designHeight,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+                        ],
                       ),
                       SizedBox(height: scaleHeight(26)),
                       _AccountInputField(
@@ -368,12 +396,12 @@ class _RegistrationDataScreenState extends State<RegistrationDataScreen> {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: scaleWidth(26)),
                   child: InkWell(
-                    onTap: _isLoading ? null : _saveProfileData,
+                    onTap: (_isLoading || !_isAllFieldsFilled()) ? null : _saveProfileData,
                     child: Container(
                       width: scaleWidth(376),
                       height: scaleHeight(53),
                       decoration: BoxDecoration(
-                        color: _isLoading
+                        color: (_isLoading || !_isAllFieldsFilled())
                             ? AppColors.primaryBlue.withValues(alpha: 0.6)
                             : AppColors.primaryBlue,
                         borderRadius: BorderRadius.circular(scaleHeight(9)),
@@ -419,6 +447,7 @@ class _AccountInputField extends StatefulWidget {
     required this.designWidth,
     required this.designHeight,
     this.keyboardType = TextInputType.text,
+    this.inputFormatters,
   });
 
   final TextEditingController controller;
@@ -427,6 +456,7 @@ class _AccountInputField extends StatefulWidget {
   final double designWidth;
   final double designHeight;
   final TextInputType keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
 
   @override
   State<_AccountInputField> createState() => _AccountInputFieldState();
@@ -496,7 +526,7 @@ class _AccountInputFieldState extends State<_AccountInputField> {
             : MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (showLabel) SizedBox(height: scaleHeight(8)),
+          if (showLabel) SizedBox(height: scaleHeight(2)),
           if (showLabel)
             Text(
               widget.hintText,
@@ -506,15 +536,17 @@ class _AccountInputFieldState extends State<_AccountInputField> {
                 color: isDark ? AppColors.textSecondary : AppColors.textSecondary,
               ),
             ),
-          if (showLabel) SizedBox(height: scaleHeight(4)),
+          if (showLabel) SizedBox(height: scaleHeight(1)),
           Expanded(
-            child: Center(
+            child: Align(
+              alignment: Alignment.centerLeft,
               child: TextField(
                 controller: widget.controller,
                 focusNode: widget.focusNode,
                 keyboardType: widget.keyboardType,
+                inputFormatters: widget.inputFormatters,
                 style: AppTextStyle.fieldText(
-                  scaleHeight(14),
+                  scaleHeight(13),
                 ).copyWith(
                   color: isDark ? AppColors.white : AppColors.textPrimary,
                 ),
@@ -677,7 +709,7 @@ class _PhoneInputFieldState extends State<_PhoneInputField> {
                   : MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (showLabel) SizedBox(height: scaleHeight(8)),
+                if (showLabel) SizedBox(height: scaleHeight(2)),
                 if (showLabel)
                   Text(
                     widget.hintText,
@@ -689,9 +721,10 @@ class _PhoneInputFieldState extends State<_PhoneInputField> {
                           : AppColors.textSecondary,
                     ),
                   ),
-                if (showLabel) SizedBox(height: scaleHeight(4)),
+                if (showLabel) SizedBox(height: scaleHeight(1)),
                 Expanded(
-                  child: Center(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
                     child: TextField(
                       controller: widget.controller,
                       focusNode: widget.focusNode,
@@ -872,7 +905,7 @@ class _DropdownFieldState extends State<_DropdownField> {
               : MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (showLabel) SizedBox(height: scaleHeight(8)),
+            if (showLabel) SizedBox(height: scaleHeight(2)),
             if (showLabel)
               Text(
                 widget.hintText,
@@ -882,7 +915,7 @@ class _DropdownFieldState extends State<_DropdownField> {
                   color: isDark ? AppColors.white : AppColors.textSecondary,
                 ),
               ),
-            if (showLabel) SizedBox(height: scaleHeight(4)),
+            if (showLabel) SizedBox(height: scaleHeight(1)),
             Expanded(
               child: Stack(
                 alignment: Alignment.center,
@@ -1055,7 +1088,7 @@ class _GenderDropdownFieldState extends State<_GenderDropdownField> {
               : MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (showLabel) SizedBox(height: scaleHeight(8)),
+            if (showLabel) SizedBox(height: scaleHeight(2)),
             if (showLabel)
               Text(
                 widget.hintText,
@@ -1065,7 +1098,7 @@ class _GenderDropdownFieldState extends State<_GenderDropdownField> {
                   color: isDark ? AppColors.white : AppColors.textSecondary,
                 ),
               ),
-            if (showLabel) SizedBox(height: scaleHeight(4)),
+            if (showLabel) SizedBox(height: scaleHeight(1)),
             Expanded(
               child: Stack(
                 alignment: Alignment.center,
