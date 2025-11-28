@@ -36,6 +36,7 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
   final FocusNode _passwordFocusNode = FocusNode();
   bool _showError = false;
   String? _errorMessage;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -77,6 +78,13 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
       return;
     }
 
+    // Устанавливаем состояние загрузки
+    setState(() {
+      _isLoading = true;
+      _showError = false;
+      _errorMessage = null;
+    });
+
     // Выполняем вход через API
     try {
       final result = await ApiService.instance.login(widget.email, password);
@@ -86,6 +94,7 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
       if (result.containsKey('error')) {
         // Ошибка входа
         setState(() {
+          _isLoading = false;
           final l = AppLocalizations.of(context)!;
           _showError = true;
           _errorMessage = l.authPasswordErrorWrong;
@@ -97,6 +106,7 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
       final token = result['token'] as String?;
       if (token == null || token.isEmpty) {
         setState(() {
+          _isLoading = false;
           final l = AppLocalizations.of(context)!;
           _showError = true;
           _errorMessage = l.authPasswordErrorWrong;
@@ -139,6 +149,7 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
       }
 
       setState(() {
+        _isLoading = false;
         _showError = false;
         _errorMessage = null;
       });
@@ -154,6 +165,7 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
+        _isLoading = false;
         final l = AppLocalizations.of(context)!;
         _showError = true;
         _errorMessage = l.authPasswordErrorWrong;
@@ -295,7 +307,8 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
                   child: AuthSubmitButton(
                     label: l.authButtonLogin,
                     isEnabled: isButtonEnabled,
-                    onPressed: isButtonEnabled ? _submitPassword : null,
+                    isLoading: _isLoading,
+                    onPressed: isButtonEnabled && !_isLoading ? _submitPassword : null,
                     buttonHeight: buttonHeight,
                     borderRadius: buttonBorderRadius,
                     fontSize: scaleHeight(16),

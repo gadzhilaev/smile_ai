@@ -36,6 +36,7 @@ class _EmailScreenState extends State<EmailScreen> {
   final FocusNode _focusNode = FocusNode();
   bool _showError = false;
   String? _errorMessage;
+  bool _isLoading = false;
   late final TapGestureRecognizer _registerRecognizer;
 
   @override
@@ -96,6 +97,13 @@ class _EmailScreenState extends State<EmailScreen> {
 
     if (_showError) return;
 
+    // Устанавливаем состояние загрузки
+    setState(() {
+      _isLoading = true;
+      _showError = false;
+      _errorMessage = null;
+    });
+
     // Проверяем существование пользователя через API
     try {
       final result = await ApiService.instance.checkUser(email);
@@ -103,19 +111,23 @@ class _EmailScreenState extends State<EmailScreen> {
 
       if (!mounted) return;
 
+      setState(() {
+        _isLoading = false;
+      });
+
       if (exists) {
         // Пользователь существует - переходим к вводу пароля
         setState(() {
-      _showError = false;
-      _errorMessage = null;
+          _showError = false;
+          _errorMessage = null;
         });
 
-      FocusScope.of(context).unfocus();
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (_) => RegistrationSuccessScreen(email: email),
-        ),
-      );
+        FocusScope.of(context).unfocus();
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => RegistrationSuccessScreen(email: email),
+          ),
+        );
       } else {
         // Пользователь не существует
         setState(() {
@@ -127,10 +139,11 @@ class _EmailScreenState extends State<EmailScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
+        _isLoading = false;
         final l = AppLocalizations.of(context)!;
         _showError = true;
         _errorMessage = l.authEmailErrorNotRegistered;
-    });
+      });
     }
   }
 
@@ -252,7 +265,8 @@ class _EmailScreenState extends State<EmailScreen> {
                       child: AuthSubmitButton(
                         label: l.authButtonLogin,
                         isEnabled: isButtonEnabled,
-                        onPressed: isButtonEnabled ? _submitEmail : null,
+                        isLoading: _isLoading,
+                        onPressed: isButtonEnabled && !_isLoading ? _submitEmail : null,
                         buttonHeight: buttonHeight,
                         borderRadius: buttonBorderRadius,
                         fontSize: scaleHeight(16),

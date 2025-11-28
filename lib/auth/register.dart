@@ -37,6 +37,7 @@ class _RegistrationPlaceholderScreenState
   final FocusNode _focusNode = FocusNode();
   bool _showError = false;
   String? _errorMessage;
+  bool _isLoading = false;
   late final TapGestureRecognizer _loginRecognizer;
 
   @override
@@ -97,12 +98,23 @@ class _RegistrationPlaceholderScreenState
 
     if (_showError) return;
 
+    // Устанавливаем состояние загрузки
+    setState(() {
+      _isLoading = true;
+      _showError = false;
+      _errorMessage = null;
+    });
+
     // Проверяем существование пользователя через API
     try {
       final result = await ApiService.instance.checkUser(email);
       final exists = result['exists'] == true;
 
       if (!mounted) return;
+
+      setState(() {
+        _isLoading = false;
+      });
 
       if (exists) {
         // Пользователь уже зарегистрирован
@@ -128,6 +140,7 @@ class _RegistrationPlaceholderScreenState
     } catch (e) {
       if (!mounted) return;
       setState(() {
+        _isLoading = false;
         final l = AppLocalizations.of(context)!;
         _showError = true;
         _errorMessage = l.authEmailErrorInvalid;
@@ -249,7 +262,8 @@ class _RegistrationPlaceholderScreenState
                       child: AuthSubmitButton(
                         label: l.authButtonContinue,
                         isEnabled: isButtonEnabled,
-                        onPressed: isButtonEnabled ? _submitEmail : null,
+                        isLoading: _isLoading,
+                        onPressed: isButtonEnabled && !_isLoading ? _submitEmail : null,
                         buttonHeight: buttonHeight,
                         borderRadius: buttonBorderRadius,
                         fontSize: scaleHeight(16),

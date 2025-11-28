@@ -65,6 +65,7 @@ class _RegistrationCodeScreenState extends State<RegistrationCodeScreen> {
   final List<FocusNode> _focusNodes = List.generate(4, (_) => FocusNode());
   bool _showError = false;
   String? _errorMessage;
+  bool _isLoading = false;
   late final TapGestureRecognizer _loginRecognizer;
 
   @override
@@ -138,7 +139,7 @@ class _RegistrationCodeScreenState extends State<RegistrationCodeScreen> {
     return _getCode().length == 4;
   }
 
-  void _submitCode() {
+  Future<void> _submitCode() async {
     final code = _getCode();
 
     if (!_isCodeComplete()) {
@@ -154,9 +155,21 @@ class _RegistrationCodeScreenState extends State<RegistrationCodeScreen> {
       return;
     }
 
+    // Устанавливаем состояние загрузки
     setState(() {
+      _isLoading = true;
       _showError = false;
       _errorMessage = null;
+    });
+
+    // Здесь будет запрос к API для проверки кода
+    // Пока симулируем задержку
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    if (!mounted) return;
+
+    setState(() {
+      _isLoading = false;
     });
 
     FocusScope.of(context).unfocus();
@@ -359,7 +372,8 @@ class _RegistrationCodeScreenState extends State<RegistrationCodeScreen> {
                     child: AuthSubmitButton(
                       label: l.authButtonContinue,
                       isEnabled: isButtonEnabled,
-                      onPressed: isButtonEnabled ? _submitCode : null,
+                      isLoading: _isLoading,
+                      onPressed: isButtonEnabled && !_isLoading ? _submitCode : null,
                       buttonHeight: buttonHeight,
                       borderRadius: buttonBorderRadius,
                       fontSize: scaleHeight(16),

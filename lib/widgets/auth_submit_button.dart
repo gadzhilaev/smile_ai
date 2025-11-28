@@ -11,6 +11,7 @@ class AuthSubmitButton extends StatelessWidget {
     required this.borderRadius,
     required this.fontSize,
     this.onPressed,
+    this.isLoading = false,
   });
 
   final String label;
@@ -19,16 +20,21 @@ class AuthSubmitButton extends StatelessWidget {
   final double borderRadius;
   final double fontSize;
   final VoidCallback? onPressed;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final Color backgroundColor = isEnabled
+    final bool isButtonActive = isEnabled && !isLoading;
+    
+    final Color backgroundColor = isButtonActive
         ? AppColors.primaryBlue
-        : (isDark ? AppColors.black : const Color(0xFFD9D9D9));
-    final Color textColor = isEnabled
+        : (isLoading
+            ? AppColors.primaryBlue.withOpacity(0.6)
+            : (isDark ? AppColors.black : const Color(0xFFD9D9D9)));
+    final Color textColor = isButtonActive
         ? AppColors.white
         : (isDark ? AppColors.white : AppColors.textSecondary);
 
@@ -38,7 +44,7 @@ class AuthSubmitButton extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(borderRadius),
-        border: !isEnabled && isDark
+        border: !isButtonActive && isDark && !isLoading
             ? Border.all(
                 color: AppColors.white,
                 width: 1,
@@ -47,12 +53,21 @@ class AuthSubmitButton extends StatelessWidget {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(borderRadius),
-        onTap: isEnabled ? onPressed : null,
+        onTap: isButtonActive ? onPressed : null,
         child: Center(
-          child: Text(
-            label,
-            style: AppTextStyle.screenTitle(fontSize, color: textColor),
-          ),
+          child: isLoading
+              ? SizedBox(
+                  width: fontSize * 1.2,
+                  height: fontSize * 1.2,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
+                  ),
+                )
+              : Text(
+                  label,
+                  style: AppTextStyle.screenTitle(fontSize, color: textColor),
+                ),
         ),
       ),
     );

@@ -83,7 +83,185 @@ class _RegistrationPasswordScreenState
     });
   }
 
-  void _submitPassword() {
+  bool _isPasswordWeak(String password) {
+    // Проверка на простые пароли
+    final commonPasswords = [
+      'password',
+      '12345678',
+      '123456789',
+      'qwerty',
+      'qwerty123',
+      'password123',
+      'admin',
+      'letmein',
+      'welcome',
+      'monkey',
+      '1234567890',
+      'abc123',
+      'master',
+      'sunshine',
+      'princess',
+      'football',
+    ];
+
+    final lowerPassword = password.toLowerCase();
+    if (commonPasswords.contains(lowerPassword)) {
+      return true;
+    }
+
+    // Только цифры
+    if (RegExp(r'^\d+$').hasMatch(password)) {
+      return true;
+    }
+
+    // Только буквы одного регистра
+    if (RegExp(r'^[a-z]+$').hasMatch(password) || 
+        RegExp(r'^[A-Z]+$').hasMatch(password)) {
+      return true;
+    }
+
+    // Простые последовательности
+    if (_isSimpleSequence(password)) {
+      return true;
+    }
+
+    // Нет комбинации разных типов символов
+    final hasLower = RegExp(r'[a-z]').hasMatch(password);
+    final hasUpper = RegExp(r'[A-Z]').hasMatch(password);
+    final hasDigit = RegExp(r'\d').hasMatch(password);
+    final hasSpecial = RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(password);
+
+    // Если есть только один тип символов (кроме случая только цифр, уже проверено)
+    final typeCount = [hasLower, hasUpper, hasDigit, hasSpecial]
+        .where((x) => x)
+        .length;
+    
+    if (typeCount <= 1) {
+      return true;
+    }
+
+    return false;
+  }
+
+  bool _isSimpleSequence(String password) {
+    // Проверка на последовательности типа 12345678, abcdefgh, qwerty
+    if (password.length < 4) return false;
+
+    bool isAscending = true;
+    bool isDescending = true;
+    bool isKeyboardSequence = true;
+
+    for (int i = 1; i < password.length; i++) {
+      final prev = password.codeUnitAt(i - 1);
+      final curr = password.codeUnitAt(i);
+
+      if (curr != prev + 1) isAscending = false;
+      if (curr != prev - 1) isDescending = false;
+
+      // Проверка клавиатурных последовательностей
+      final keyboardRows = [
+        'qwertyuiop',
+        'asdfghjkl',
+        'zxcvbnm',
+        '1234567890',
+      ];
+      bool foundInRow = false;
+      for (final row in keyboardRows) {
+        if (row.contains(password[i - 1].toLowerCase()) &&
+            row.contains(password[i].toLowerCase())) {
+          final prevIndex = row.indexOf(password[i - 1].toLowerCase());
+          final currIndex = row.indexOf(password[i].toLowerCase());
+          if ((currIndex == prevIndex + 1) || (currIndex == prevIndex - 1)) {
+            foundInRow = true;
+            break;
+          }
+        }
+      }
+      if (!foundInRow) isKeyboardSequence = false;
+    }
+
+    return isAscending || isDescending || isKeyboardSequence;
+  }
+
+  Future<void> _showWeakPasswordDialog() async {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final size = MediaQuery.of(context).size;
+    final double heightFactor = size.height / 926;
+    double scaleHeight(double value) => value * heightFactor;
+
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: isDark
+              ? AppColors.darkBackgroundCard
+              : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(scaleHeight(12)),
+          ),
+          title: Text(
+            'Ваш пароль слишком легкий',
+            style: AppTextStyle.bodyTextBold(
+              scaleHeight(18),
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
+          content: Text(
+            'Вы уверены, что хотите его использовать?',
+            style: AppTextStyle.bodyText(
+              scaleHeight(16),
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Изменить',
+                style: AppTextStyle.bodyText(
+                  scaleHeight(16),
+                  color: AppColors.primaryBlue,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _proceedWithPassword();
+              },
+              child: Text(
+                'Продолжить',
+                style: AppTextStyle.bodyText(
+                  scaleHeight(16),
+                  color: AppColors.primaryBlue,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _proceedWithPassword() {
+    final password = _passwordController.text.trim();
+    FocusScope.of(context).unfocus();
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => RegistrationDataScreen(
+          email: widget.email,
+          password: password,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _submitPassword() async {
     final password = _passwordController.text.trim();
     final confirmPassword = _confirmPasswordController.text.trim();
 
@@ -112,17 +290,16 @@ class _RegistrationPasswordScreenState
       _errorMessage = null;
     });
 
-    if (!_showError) {
-      FocusScope.of(context).unfocus();
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (_) => RegistrationDataScreen(
-            email: widget.email,
-            password: password,
-          ),
-        ),
-      );
+    if (_showError) return;
+
+    // Проверка на слабый пароль
+    if (_isPasswordWeak(password)) {
+      await _showWeakPasswordDialog();
+      return;
     }
+
+    // Пароль надежный - продолжаем
+    _proceedWithPassword();
   }
 
   void _openLoginScreen() {
