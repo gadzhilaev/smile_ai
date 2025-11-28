@@ -51,6 +51,7 @@ class _AiScreenState extends State<AiScreen> {
   Timer? _copyToastTimer;
   int? _selectedChatIndexForContextMenu;
   OverlayEntry? _chatMenuOverlay;
+  bool _showScrollDownButton = false;
   
   // История чатов
   final List<ChatHistory> _chatHistory = [];
@@ -63,6 +64,21 @@ class _AiScreenState extends State<AiScreen> {
   void initState() {
     super.initState();
     _initializeScreen();
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.position.pixels;
+    final isAtBottom = (maxScroll - currentScroll) < 100; // 100 пикселей от низа
+    
+    if (_showScrollDownButton != !isAtBottom) {
+      setState(() {
+        _showScrollDownButton = !isAtBottom;
+      });
+    }
   }
 
   void _initializeScreen() {
@@ -357,6 +373,7 @@ class _AiScreenState extends State<AiScreen> {
     _copyToastTimer?.cancel();
     _chatMenuOverlay?.remove();
     _inputController.dispose();
+    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     for (var controller in _renameControllers.values) {
       controller.dispose();
@@ -653,7 +670,14 @@ class _AiScreenState extends State<AiScreen> {
           _scrollController.position.maxScrollExtent,
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOut,
-        );
+        ).then((_) {
+          // Скрываем кнопку после прокрутки
+          if (mounted) {
+            setState(() {
+              _showScrollDownButton = false;
+            });
+          }
+        });
       }
     });
   }
@@ -874,15 +898,15 @@ class _AiScreenState extends State<AiScreen> {
                   ],
                 ),
               ),
-              SizedBox(height: scaleHeight(24)),
+              SizedBox(height: scaleHeight(12)),
               Container(
                 width: double.infinity,
                 height: 1,
                     color: AppColors.textDarkGrey,
               ),
-              SizedBox(height: scaleHeight(24)),
+              SizedBox(height: scaleHeight(12)),
               Expanded(child: conversationArea),
-              SizedBox(height: scaleHeight(24)),
+              SizedBox(height: scaleHeight(12)),
               if (_hasConversation && _isTyping) ...[
                 Center(
                   child: GestureDetector(
@@ -1052,6 +1076,49 @@ class _AiScreenState extends State<AiScreen> {
                     color: isDark ? AppColors.black : AppColors.white,
                   ),
                   textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          // Кнопка прокрутки вниз - поверх всех элементов
+          if (_showScrollDownButton && _hasConversation)
+            Positioned(
+              bottom: scaleHeight(86), // Отступ от текстового поля (54 высота поля + 20 отступ снизу + 12 небольшой отступ, как между сообщениями и полем)
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      _scrollToBottom();
+                    },
+                    borderRadius: BorderRadius.circular(scaleHeight(20)),
+                    child: Container(
+                      width: scaleWidth(40),
+                      height: scaleHeight(40),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? AppColors.darkBackgroundCard
+                            : AppColors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x1F18274B),
+                            offset: Offset(0, 4),
+                            blurRadius: 12,
+                            spreadRadius: -2,
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        Icons.keyboard_arrow_down,
+                        color: isDark
+                            ? AppColors.white
+                            : _primaryTextColor,
+                        size: scaleHeight(24),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
