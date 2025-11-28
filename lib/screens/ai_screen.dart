@@ -1101,12 +1101,20 @@ class _AiScreenState extends State<AiScreen> {
                             ? AppColors.darkBackgroundCard
                             : AppColors.white,
                         shape: BoxShape.circle,
-                        boxShadow: const [
-                          BoxShadow(
+                        boxShadow: [
+                          const BoxShadow(
                             color: Color(0x1F18274B),
                             offset: Offset(0, 4),
                             blurRadius: 12,
                             spreadRadius: -2,
+                          ),
+                          BoxShadow(
+                            color: isDark
+                                ? Colors.white.withOpacity(0.5)
+                                : Colors.black.withOpacity(0.5),
+                            offset: const Offset(0, 2),
+                            blurRadius: 8,
+                            spreadRadius: 0,
                           ),
                         ],
                       ),

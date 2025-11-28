@@ -10,6 +10,7 @@ import '../settings/colors.dart';
 import '../widgets/custom_refresh_indicator.dart';
 import '../services/profile_service.dart';
 import '../services/api_service.dart';
+import '../services/auth_service.dart';
 import '../utils/env_utils.dart';
 import '../l10n/app_localizations.dart';
 import 'account_screen.dart';
@@ -20,6 +21,7 @@ import 'privacy_policy_screen.dart';
 import 'faq_screen.dart';
 import 'data_privacy_screen.dart';
 import 'support_screen.dart';
+import '../auth/login.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -491,6 +493,83 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ),
                             ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: scaleHeight(20)),
+                      // Контейнер 4: Выход
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: scaleWidth(32)),
+                        child: Container(
+                          width: scaleWidth(364),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: scaleWidth(23),
+                            vertical: scaleHeight(10),
+                          ),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? AppColors.darkBackgroundCard
+                                : Colors.white,
+                            borderRadius: BorderRadius.circular(scaleHeight(10)),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x1F18274B),
+                                offset: Offset(0, 14),
+                                blurRadius: 64,
+                                spreadRadius: -4,
+                              ),
+                              BoxShadow(
+                                color: Color(0x1F18274B),
+                                offset: Offset(0, 8),
+                                blurRadius: 22,
+                                spreadRadius: -6,
+                              ),
+                            ],
+                          ),
+                          child: InkWell(
+                            onTap: () async {
+                              // Очищаем .env файл
+                              try {
+                                await EnvUtils.clearEnvFile();
+                                debugPrint('ProfileScreen: .env file cleared');
+                              } catch (e) {
+                                debugPrint('ProfileScreen: error clearing .env: $e');
+                              }
+                              
+                              // Очищаем токен в AuthService
+                              await AuthService.instance.clearToken();
+                              debugPrint('ProfileScreen: token cleared');
+                              
+                              // Возвращаемся на экран входа
+                              if (!mounted) return;
+                              Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                  builder: (context) => const EmailScreen(),
+                                ),
+                                (route) => false,
+                              );
+                            },
+                            child: Row(
+                              children: [
+                                SvgPicture.asset(
+                                  'assets/icons/icon_exit.svg',
+                                  width: scaleWidth(24),
+                                  height: scaleHeight(24),
+                                  fit: BoxFit.contain,
+                                ),
+                                Expanded(
+                                  child: Center(
+                                    child: Text(
+                                      'Выход',
+                                      style: AppTextStyle.interRegular(
+                                        scaleHeight(16),
+                                        color: theme.colorScheme.onSurface,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),

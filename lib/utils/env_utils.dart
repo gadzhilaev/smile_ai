@@ -479,5 +479,53 @@ USER_GENDER=
       rethrow;
     }
   }
+
+  /// Очистить .env файл (сделать все переменные пустыми)
+  static Future<void> clearEnvFile() async {
+    try {
+      final envPath = await _getEnvFilePath();
+      final envFile = File(envPath);
+      
+      // Создаем содержимое файла с пустыми значениями
+      final emptyContent = '''AUTH_TOKEN=
+USER_ID=
+USER_EMAIL=
+USER_FULL_NAME=
+USER_NICKNAME=
+USER_PHONE=
+USER_COUNTRY=
+USER_GENDER=
+''';
+      
+      // Создаем родительские директории, если их нет
+      final parentDir = envFile.parent;
+      if (!await parentDir.exists()) {
+        await parentDir.create(recursive: true);
+        debugPrint('EnvUtils: created parent directory: ${parentDir.path}');
+      }
+      
+      // Записываем файл с пустыми значениями
+      await envFile.writeAsString(emptyContent, flush: true);
+      debugPrint('EnvUtils: .env file cleared successfully');
+      
+      // Очищаем in-memory значения
+      if (dotenv.isInitialized) {
+        dotenv.env['AUTH_TOKEN'] = '';
+        dotenv.env['USER_ID'] = '';
+        dotenv.env['USER_EMAIL'] = '';
+        dotenv.env['USER_FULL_NAME'] = '';
+        dotenv.env['USER_NICKNAME'] = '';
+        dotenv.env['USER_PHONE'] = '';
+        dotenv.env['USER_COUNTRY'] = '';
+        dotenv.env['USER_GENDER'] = '';
+        debugPrint('EnvUtils: in-memory .env values cleared');
+      }
+    } catch (e, stackTrace) {
+      debugPrint('EnvUtils: error clearing .env file: $e');
+      debugPrint('EnvUtils: error type: ${e.runtimeType}');
+      debugPrint('EnvUtils: stack trace: $stackTrace');
+      rethrow;
+    }
+  }
 }
 
