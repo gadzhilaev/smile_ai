@@ -552,7 +552,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             child: Row(
                               children: [
                                 SvgPicture.asset(
-                                  'assets/icons/icon_exit.svg',
+                                  isDark
+                                      ? 'assets/icons/dark/icon_exit_dark.svg'
+                                      : 'assets/icons/light/icon_exit.svg',
                                   width: scaleWidth(24),
                                   height: scaleHeight(24),
                                   fit: BoxFit.contain,

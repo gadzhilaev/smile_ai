@@ -1004,72 +1004,86 @@ class _AiScreenState extends State<AiScreen> {
                   bottom: scaleHeight(20),
                 ),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Expanded(
-                      child: Container(
-                        height: scaleHeight(54),
-                        decoration: BoxDecoration(
-                              color: isDark
-                                  ? AppColors.darkBackgroundCard
-                                  : AppColors.white,
-                              borderRadius:
-                                  BorderRadius.circular(scaleHeight(12)),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Color(0x1F18274B),
-                              offset: Offset(0, 14),
-                              blurRadius: 64,
-                              spreadRadius: -4,
-                            ),
-                            BoxShadow(
-                              color: Color(0x1F18274B),
-                              offset: Offset(0, 8),
-                              blurRadius: 22,
-                              spreadRadius: -6,
-                            ),
-                          ],
-                        ),
-                        padding: EdgeInsets.only(
-                          left: scaleWidth(16),
-                          right: scaleWidth(15),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: _inputController,
-                                style: AppTextStyle.bodyTextMedium(
-                                  scaleHeight(16),
-                                  color: isDark
-                                      ? AppColors.white
-                                      : _primaryTextColor,
-                                ),
-                                cursorColor: _accentColor,
-                                decoration: InputDecoration(
-                                      hintText: l.aiInputPlaceholder,
-                                  hintStyle: AppTextStyle.bodyTextMedium(
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Container(
+                          // Максимальная высота текстового поля (изменить здесь при необходимости)
+                          constraints: BoxConstraints(
+                            minHeight: scaleHeight(54),
+                            maxHeight: scaleHeight(150), // МАКСИМАЛЬНАЯ ВЫСОТА: изменить scaleHeight(200) на нужное значение
+                          ),
+                          decoration: BoxDecoration(
+                                color: isDark
+                                    ? AppColors.darkBackgroundCard
+                                    : AppColors.white,
+                                borderRadius:
+                                    BorderRadius.circular(scaleHeight(12)),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x1F18274B),
+                                offset: Offset(0, 14),
+                                blurRadius: 64,
+                                spreadRadius: -4,
+                              ),
+                              BoxShadow(
+                                color: Color(0x1F18274B),
+                                offset: Offset(0, 8),
+                                blurRadius: 22,
+                                spreadRadius: -6,
+                              ),
+                            ],
+                          ),
+                          padding: EdgeInsets.only(
+                            left: scaleWidth(16),
+                            right: scaleWidth(15),
+                            top: scaleHeight(16),
+                            bottom: scaleHeight(16),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: _inputController,
+                                  maxLines: null,
+                                  minLines: 1,
+                                  style: AppTextStyle.bodyTextMedium(
                                     scaleHeight(16),
                                     color: isDark
-                                        ? AppColors.darkSecondaryText
-                                        : AppColors.textDarkGrey,
+                                        ? AppColors.white
+                                        : _primaryTextColor,
                                   ),
-                                  border: InputBorder.none,
-                                  isDense: true,
+                                  cursorColor: _accentColor,
+                                  decoration: InputDecoration(
+                                        hintText: l.aiInputPlaceholder,
+                                    hintStyle: AppTextStyle.bodyTextMedium(
+                                      scaleHeight(16),
+                                      color: isDark
+                                          ? AppColors.darkSecondaryText
+                                          : AppColors.textDarkGrey,
+                                    ),
+                                    border: InputBorder.none,
+                                    isDense: true,
+                                    contentPadding: EdgeInsets.zero,
+                                  ),
+                                  textInputAction: TextInputAction.newline,
+                                  onSubmitted: (_) => _sendMessage(),
+                                      enableInteractiveSelection: true,
+                                      enableSuggestions: true,
+                                      autocorrect: true,
                                 ),
-                                textInputAction: TextInputAction.send,
-                                onSubmitted: (_) => _sendMessage(),
-                                    enableInteractiveSelection: true,
-                                    enableSuggestions: true,
-                                    autocorrect: true,
                               ),
-                            ),
-                                SvgPicture.asset(
-                                  'assets/icons/icon_mic.svg',
-                              width: scaleWidth(24),
-                              height: scaleHeight(24),
-                              fit: BoxFit.contain,
-                            ),
-                          ],
+                                  SvgPicture.asset(
+                                    'assets/icons/icon_mic.svg',
+                                width: scaleWidth(24),
+                                height: scaleHeight(24),
+                                fit: BoxFit.contain,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

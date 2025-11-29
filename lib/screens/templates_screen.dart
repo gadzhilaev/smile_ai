@@ -46,12 +46,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
         // Всегда обновляем список новыми данными
         _templates = List<TemplateModel>.from(templates);
         _isLoading = false;
-        // По умолчанию все группы развернуты
-        if (_expandedCategories.isEmpty) {
-          _expandedCategories.addAll(
-            _templates.map((t) => t.category).toSet(),
-          );
-        }
+        // По умолчанию все группы закрыты (свернуты)
+        // _expandedCategories остается пустым
       });
     }
   }
