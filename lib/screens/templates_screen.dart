@@ -29,6 +29,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
   List<TemplateModel> _templates = [];
   bool _isLoading = true;
   final ScrollController _scrollController = ScrollController();
+  final Set<String> _expandedCategories = <String>{};
 
   @override
   void initState() {
@@ -45,8 +46,35 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
         // Всегда обновляем список новыми данными
         _templates = List<TemplateModel>.from(templates);
         _isLoading = false;
+        // По умолчанию все группы развернуты
+        if (_expandedCategories.isEmpty) {
+          _expandedCategories.addAll(
+            _templates.map((t) => t.category).toSet(),
+          );
+        }
       });
     }
+  }
+
+  void _toggleCategory(String category) {
+    setState(() {
+      if (_expandedCategories.contains(category)) {
+        _expandedCategories.remove(category);
+      } else {
+        _expandedCategories.add(category);
+      }
+    });
+  }
+
+  Map<String, List<TemplateModel>> _groupTemplatesByCategory() {
+    final Map<String, List<TemplateModel>> grouped = {};
+    for (final template in _templates) {
+      if (!grouped.containsKey(template.category)) {
+        grouped[template.category] = [];
+      }
+      grouped[template.category]!.add(template);
+    }
+    return grouped;
   }
 
   Future<void> _updateTemplate(int id, String newTitle) async {
@@ -181,33 +209,13 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                                 ),
                                 child: Column(
                                   children: [
-                                    for (int i = 0; i < _templates.length; i++)
-                                      Padding(
-                                        padding: EdgeInsets.only(
-                                          bottom: i < _templates.length - 1
-                                              ? scaleHeight(20)
-                                              : 0,
-                                        ),
-                                        child: _TemplateCard(
-                                          template: _templates[i],
-                                          designWidth: _designWidth,
-                                          designHeight: _designHeight,
-                                          onApplyTemplate: widget.onApplyTemplate,
-                                          onEditTemplate: (text, onSaved) {
-                                            if (widget.onEditTemplate != null) {
-                                              widget.onEditTemplate!(
-                                                text,
-                                                (editedText) {
-                                                  _updateTemplate(
-                                                      _templates[i].id,
-                                                      editedText);
-                                                  onSaved(editedText);
-                                                },
-                                              );
-                                            }
-                                          },
-                                        ),
-                                      ),
+                                    ..._buildTemplateGroups(
+                                      scaleWidth,
+                                      scaleHeight,
+                                      theme,
+                                      isDark,
+                                      l,
+                                    ),
                                     // Отступ после последнего контейнера для нав бара
                                     SizedBox(height: scaleHeight(20)),
                                   ],
@@ -219,6 +227,225 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                 ],
               ),
       ),
+    );
+  }
+
+  List<Widget> _buildTemplateGroups(
+    double Function(double) scaleWidth,
+    double Function(double) scaleHeight,
+    ThemeData theme,
+    bool isDark,
+    AppLocalizations l,
+  ) {
+    final grouped = _groupTemplatesByCategory();
+    final List<Widget> widgets = [];
+    final categories = grouped.keys.toList();
+    
+    // Сортируем категории в определенном порядке
+    final categoryOrder = [
+      'Маркетинг',
+      'Продажи',
+      'Стратегия',
+      'Поддержка',
+      'Персонал',
+      'Аналитика',
+    ];
+    categories.sort((a, b) {
+      final indexA = categoryOrder.indexOf(a);
+      final indexB = categoryOrder.indexOf(b);
+      if (indexA == -1 && indexB == -1) return a.compareTo(b);
+      if (indexA == -1) return 1;
+      if (indexB == -1) return -1;
+      return indexA.compareTo(indexB);
+    });
+
+    for (int i = 0; i < categories.length; i++) {
+      final category = categories[i];
+      final templates = grouped[category]!;
+      final isExpanded = _expandedCategories.contains(category);
+      
+      widgets.add(
+        _TemplateGroup(
+          category: category,
+          templates: templates,
+          isExpanded: isExpanded,
+          onToggle: () => _toggleCategory(category),
+          designWidth: _designWidth,
+          designHeight: _designHeight,
+          onApplyTemplate: widget.onApplyTemplate,
+          onEditTemplate: (templateText, onSaved) {
+            if (widget.onEditTemplate != null) {
+              // Находим шаблон по тексту
+              TemplateModel? templateModel;
+              for (final t in templates) {
+                final title = t.isCustom
+                    ? t.title
+                    : localizedTemplateTitle(l, t.id);
+                if (title == templateText) {
+                  templateModel = t;
+                  break;
+                }
+              }
+              
+              if (templateModel != null) {
+                widget.onEditTemplate!(
+                  templateText,
+                  (editedText) {
+                    _updateTemplate(templateModel!.id, editedText);
+                    onSaved(editedText);
+                  },
+                );
+              }
+            }
+          },
+          scaleWidth: scaleWidth,
+          scaleHeight: scaleHeight,
+          theme: theme,
+          isDark: isDark,
+          l: l,
+        ),
+      );
+      
+      if (i < categories.length - 1) {
+        widgets.add(SizedBox(height: scaleHeight(20)));
+      }
+    }
+    
+    return widgets;
+  }
+}
+
+class _TemplateGroup extends StatelessWidget {
+  const _TemplateGroup({
+    required this.category,
+    required this.templates,
+    required this.isExpanded,
+    required this.onToggle,
+    required this.designWidth,
+    required this.designHeight,
+    required this.onApplyTemplate,
+    required this.onEditTemplate,
+    required this.scaleWidth,
+    required this.scaleHeight,
+    required this.theme,
+    required this.isDark,
+    required this.l,
+  });
+
+  final String category;
+  final List<TemplateModel> templates;
+  final bool isExpanded;
+  final VoidCallback onToggle;
+  final double designWidth;
+  final double designHeight;
+  final void Function(String, String)? onApplyTemplate;
+  final void Function(String, ValueChanged<String>)? onEditTemplate;
+  final double Function(double) scaleWidth;
+  final double Function(double) scaleHeight;
+  final ThemeData theme;
+  final bool isDark;
+  final AppLocalizations l;
+
+  String _getLocalizedCategoryName() {
+    switch (category) {
+      case 'Маркетинг':
+        return l.templateCategoryMarketing;
+      case 'Продажи':
+        return l.templateCategorySales;
+      case 'Стратегия':
+        return l.templateCategoryStrategy;
+      case 'Поддержка':
+        return l.templateCategorySupport;
+      case 'Персонал':
+        return l.templateCategoryStaff;
+      case 'Аналитика':
+        return l.templateCategoryAnalytics;
+      default:
+        return category;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Заголовок группы
+        InkWell(
+          onTap: onToggle,
+          borderRadius: BorderRadius.circular(scaleHeight(12)),
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(
+              horizontal: scaleWidth(14),
+              vertical: scaleHeight(12),
+            ),
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.darkBackgroundCard : AppColors.white,
+              borderRadius: BorderRadius.circular(scaleHeight(12)),
+              boxShadow: const [
+                BoxShadow(
+                  color: AppColors.overlayShadow,
+                  offset: Offset(0, 14),
+                  blurRadius: 64,
+                  spreadRadius: -4,
+                ),
+                BoxShadow(
+                  color: AppColors.overlayShadow,
+                  offset: Offset(0, 8),
+                  blurRadius: 22,
+                  spreadRadius: -6,
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                  size: scaleHeight(24),
+                  color: isDark
+                      ? AppColors.white
+                      : theme.colorScheme.onSurface,
+                ),
+                SizedBox(width: scaleWidth(12)),
+                Expanded(
+                  child: Text(
+                    _getLocalizedCategoryName(),
+                    style: AppTextStyle.screenTitleMedium(
+                      scaleHeight(18),
+                      color: isDark
+                          ? AppColors.white
+                          : theme.colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        // Шаблоны группы (показываются только если развернуто)
+        if (isExpanded) ...[
+          SizedBox(height: scaleHeight(12)),
+          ...templates.asMap().entries.map((entry) {
+            final index = entry.key;
+            final template = entry.value;
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: index < templates.length - 1
+                    ? scaleHeight(20)
+                    : 0,
+              ),
+              child: _TemplateCard(
+                template: template,
+                designWidth: designWidth,
+                designHeight: designHeight,
+                onApplyTemplate: onApplyTemplate,
+                onEditTemplate: onEditTemplate,
+              ),
+            );
+          }),
+        ],
+      ],
     );
   }
 }
