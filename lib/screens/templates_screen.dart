@@ -114,15 +114,33 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                 children: [
                   // Фиксированный заголовок
                   SizedBox(height: scaleHeight(16)),
-                  Center(
-                    child: Text(
-                      l.templatesTitle,
-                      style: AppTextStyle.screenTitleMedium(
-                        scaleHeight(20),
-                        color: isDark
-                            ? AppColors.white
-                            : theme.colorScheme.onSurface,
-                      ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: scaleWidth(24)),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Center(
+                          child: Text(
+                            l.templatesTitle,
+                            style: AppTextStyle.screenTitleMedium(
+                              scaleHeight(20),
+                              color: isDark
+                                  ? AppColors.white
+                                  : theme.colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          right: 0,
+                          child: Icon(
+                            Icons.edit,
+                            size: scaleHeight(24),
+                            color: isDark
+                                ? AppColors.white
+                                : theme.colorScheme.onSurface,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   SizedBox(height: scaleHeight(34)),
