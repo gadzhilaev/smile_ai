@@ -1153,8 +1153,8 @@ class _AiScreenState extends State<AiScreen> {
                           ),
                           BoxShadow(
                             color: isDark
-                                ? Colors.white.withOpacity(0.5)
-                                : Colors.black.withOpacity(0.5),
+                                ? Colors.white.withValues(alpha: 0.5)
+                                : Colors.black.withValues(alpha: 0.5),
                             offset: const Offset(0, 2),
                             blurRadius: 8,
                             spreadRadius: 0,
@@ -2044,14 +2044,14 @@ class _ThinkingIndicatorState extends State<_ThinkingIndicator>
         
         if (widget.isDark) {
           // Темная тема: серый -> белый -> серый
-          final grayColor = widget.baseColor.withOpacity(0.4);
+          final grayColor = widget.baseColor.withValues(alpha: 0.4);
           final whiteColor = AppColors.white;
           // Синусоида для плавного перехода: 0 -> 1 -> 0
           final t = (math.sin(progress * 2 * math.pi) + 1) / 2;
           currentColor = Color.lerp(grayColor, whiteColor, t)!;
         } else {
           // Светлая тема: светлый -> темный -> светлый
-          final lightColor = widget.baseColor.withOpacity(0.3);
+          final lightColor = widget.baseColor.withValues(alpha: 0.3);
           final darkColor = widget.baseColor;
           // Синусоида для плавного перехода: 0 -> 1 -> 0
           final t = (math.sin(progress * 2 * math.pi) + 1) / 2;

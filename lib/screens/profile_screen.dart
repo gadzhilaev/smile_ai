@@ -525,6 +525,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           child: InkWell(
                             onTap: () async {
+                              // Получаем Navigator до async операций
+                              final navigator = Navigator.of(context);
+                              
                               // Очищаем .env файл
                               try {
                                 await EnvUtils.clearEnvFile();
@@ -539,7 +542,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               
                               // Возвращаемся на экран входа
                               if (!mounted) return;
-                              Navigator.of(context).pushAndRemoveUntil(
+                              navigator.pushAndRemoveUntil(
                                 MaterialPageRoute(
                                   builder: (context) => const EmailScreen(),
                                 ),

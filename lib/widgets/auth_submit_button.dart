@@ -32,7 +32,7 @@ class AuthSubmitButton extends StatelessWidget {
     final Color backgroundColor = isButtonActive
         ? AppColors.primaryBlue
         : (isLoading
-            ? AppColors.primaryBlue.withOpacity(0.6)
+            ? AppColors.primaryBlue.withValues(alpha: 0.6)
             : (isDark ? AppColors.black : const Color(0xFFD9D9D9)));
     final Color textColor = isButtonActive
         ? AppColors.white
