@@ -335,9 +335,15 @@ class _RegistrationDataScreenState extends State<RegistrationDataScreen> {
                         hintText: 'Ник',
                         designWidth: _designWidth,
                         designHeight: _designHeight,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
-                        ],
+                        validator: (value) {
+                          if (value == null || value.isEmpty) return null;
+                          // Разрешаем только английские буквы, цифры и спецсимволы
+                          final validPattern = RegExp(r'^[a-zA-Z0-9_\-\.]+$');
+                          if (!validPattern.hasMatch(value)) {
+                            return 'Только английские буквы, цифры и спецсимволы';
+                          }
+                          return null;
+                        },
                       ),
                       SizedBox(height: scaleHeight(26)),
                       _AccountInputField(
@@ -448,6 +454,7 @@ class _AccountInputField extends StatefulWidget {
     required this.designHeight,
     this.keyboardType = TextInputType.text,
     this.inputFormatters,
+    this.validator,
   });
 
   final TextEditingController controller;
@@ -457,6 +464,7 @@ class _AccountInputField extends StatefulWidget {
   final double designHeight;
   final TextInputType keyboardType;
   final List<TextInputFormatter>? inputFormatters;
+  final String? Function(String?)? validator;
 
   @override
   State<_AccountInputField> createState() => _AccountInputFieldState();
@@ -464,6 +472,7 @@ class _AccountInputField extends StatefulWidget {
 
 class _AccountInputFieldState extends State<_AccountInputField> {
   bool _isFocused = false;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -484,12 +493,25 @@ class _AccountInputFieldState extends State<_AccountInputField> {
       setState(() {
         _isFocused = widget.focusNode.hasFocus;
       });
+      _validate();
     }
   }
 
   void _onTextChange() {
     if (mounted) {
       setState(() {});
+      _validate();
+    }
+  }
+
+  void _validate() {
+    if (widget.validator != null) {
+      final error = widget.validator!(widget.controller.text);
+      if (mounted) {
+        setState(() {
+          _errorMessage = error;
+        });
+      }
     }
   }
 
@@ -507,70 +529,99 @@ class _AccountInputFieldState extends State<_AccountInputField> {
 
     final bool hasText = widget.controller.text.isNotEmpty;
     final bool showLabel = _isFocused || hasText;
+    final bool hasError = _errorMessage != null && _errorMessage!.isNotEmpty;
 
-    return Container(
-      width: scaleWidth(376),
-      height: scaleHeight(52),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.black : AppColors.white,
-        borderRadius: BorderRadius.circular(scaleHeight(8)),
-        border: Border.all(
-          color: isDark ? AppColors.white : AppColors.black,
-          width: 1,
-        ),
-      ),
-      padding: EdgeInsets.symmetric(horizontal: scaleWidth(18)),
-      child: Column(
-        mainAxisAlignment: showLabel
-            ? MainAxisAlignment.start
-            : MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (showLabel) SizedBox(height: scaleHeight(2)),
-          if (showLabel)
-            Text(
-              widget.hintText,
-              style: AppTextStyle.fieldLabel(
-                scaleHeight(10),
-              ).copyWith(
-                color: isDark ? AppColors.textSecondary : AppColors.textSecondary,
-              ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: scaleWidth(376),
+          height: scaleHeight(52),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.black : AppColors.white,
+            borderRadius: BorderRadius.circular(scaleHeight(8)),
+            border: Border.all(
+              color: hasError
+                  ? AppColors.accentRed
+                  : (isDark ? AppColors.white : AppColors.black),
+              width: 1,
             ),
-          if (showLabel) SizedBox(height: scaleHeight(1)),
-          Expanded(
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: TextField(
-                controller: widget.controller,
-                focusNode: widget.focusNode,
-                keyboardType: widget.keyboardType,
-                inputFormatters: widget.inputFormatters,
-                style: AppTextStyle.fieldText(
-                  scaleHeight(13),
-                ).copyWith(
-                  color: isDark ? AppColors.white : AppColors.textPrimary,
-                ),
-                cursorColor:
-                    isDark ? AppColors.white : AppColors.textPrimary,
-                decoration: InputDecoration(
-                  hintText: showLabel ? null : widget.hintText,
-                  hintStyle: AppTextStyle.fieldHint(
+          ),
+          padding: EdgeInsets.symmetric(horizontal: scaleWidth(18)),
+          child: Column(
+            mainAxisAlignment: showLabel
+                ? MainAxisAlignment.start
+                : MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (showLabel) SizedBox(height: scaleHeight(2)),
+              if (showLabel)
+                Text(
+                  widget.hintText,
+                  style: AppTextStyle.fieldLabel(
                     scaleHeight(10),
                   ).copyWith(
-                    color: isDark
-                        ? AppColors.textSecondary
-                        : AppColors.textSecondary,
+                    color: hasError
+                        ? AppColors.accentRed
+                        : (isDark ? AppColors.textSecondary : AppColors.textSecondary),
                   ),
-                  border: InputBorder.none,
-                  isDense: true,
-                  contentPadding: EdgeInsets.zero,
                 ),
-                textInputAction: TextInputAction.next,
+              if (showLabel) SizedBox(height: scaleHeight(1)),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextField(
+                    controller: widget.controller,
+                    focusNode: widget.focusNode,
+                    keyboardType: widget.keyboardType,
+                    inputFormatters: widget.inputFormatters,
+                    style: AppTextStyle.fieldText(
+                      scaleHeight(13),
+                    ).copyWith(
+                      color: hasError
+                          ? AppColors.accentRed
+                          : (isDark ? AppColors.white : AppColors.textPrimary),
+                    ),
+                    cursorColor: hasError
+                        ? AppColors.accentRed
+                        : (isDark ? AppColors.white : AppColors.textPrimary),
+                    decoration: InputDecoration(
+                      hintText: showLabel ? null : widget.hintText,
+                      hintStyle: AppTextStyle.fieldHint(
+                        scaleHeight(10),
+                      ).copyWith(
+                        color: hasError
+                            ? AppColors.accentRed
+                            : (isDark
+                                ? AppColors.textSecondary
+                                : AppColors.textSecondary),
+                      ),
+                      border: InputBorder.none,
+                      isDense: true,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                    textInputAction: TextInputAction.next,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (hasError) ...[
+          SizedBox(height: scaleHeight(4)),
+          Padding(
+            padding: EdgeInsets.only(left: scaleWidth(18)),
+            child: Text(
+              _errorMessage!,
+              style: AppTextStyle.bodyText(
+                scaleHeight(12),
+              ).copyWith(
+                color: AppColors.accentRed,
               ),
             ),
           ),
         ],
-      ),
+      ],
     );
   }
 }
