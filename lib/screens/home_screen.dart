@@ -39,12 +39,12 @@ class _HomeScreenState extends State<HomeScreen> {
       _currentIndex = 0;
       // Только если переданы новые параметры, обновляем их и пересоздаем экран
       if (autoGenerateText != null || editText != null || category != null) {
-        _autoGenerateText = autoGenerateText;
-        _editText = editText;
-        _onTextSaved = onTextSaved;
-        _category = category;
-        _aiScreenKey++; // Изменяем ключ для пересоздания экрана
-        _aiScreen = null; // Сбрасываем кеш для пересоздания с новыми параметрами
+      _autoGenerateText = autoGenerateText;
+      _editText = editText;
+      _onTextSaved = onTextSaved;
+      _category = category;
+      _aiScreenKey++; // Изменяем ключ для пересоздания экрана
+      _aiScreen = null; // Сбрасываем кеш для пересоздания с новыми параметрами
       }
       // Иначе просто переключаемся на AI экран, сохраняя текущее состояние
     });

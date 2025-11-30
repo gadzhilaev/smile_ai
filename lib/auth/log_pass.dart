@@ -4,7 +4,9 @@ import '../settings/colors.dart';
 import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
 import '../services/api_service.dart';
+import '../services/fcm_service.dart';
 import '../utils/env_utils.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import '../screens/home_screen.dart';
 import '../widgets/auth_input_field.dart';
@@ -140,6 +142,17 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
         try {
           await EnvUtils.updateUserIdInEnv(userId);
           debugPrint('LogPass: user_id saved to .env file successfully: ${userId.substring(0, 8)}...');
+          
+          // Перезагружаем .env чтобы обновить USER_ID
+          await dotenv.load(fileName: ".env");
+          
+          // Инициализируем FCM с userId (это зарегистрирует токен на сервере)
+          try {
+            await FCMService.instance.initialize(userId);
+            debugPrint('LogPass: FCM инициализирован и токен зарегистрирован на сервере');
+          } catch (e) {
+            debugPrint('LogPass: WARNING - не удалось инициализировать FCM: $e');
+          }
         } catch (e) {
           debugPrint('LogPass: WARNING - could not save user_id to .env file: $e');
           // Продолжаем - это не критично

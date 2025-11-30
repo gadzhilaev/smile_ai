@@ -6,9 +6,11 @@ import '../settings/colors.dart';
 import '../services/profile_service.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
+import '../services/fcm_service.dart';
 import '../utils/env_utils.dart';
 import '../l10n/app_localizations.dart';
 import '../screens/home_screen.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class RegistrationDataScreen extends StatefulWidget {
   const RegistrationDataScreen({
@@ -63,10 +65,19 @@ class _RegistrationDataScreenState extends State<RegistrationDataScreen> {
   }
 
   bool _isAllFieldsFilled() {
+    // Проверяем, что номер телефона полностью введен (10 цифр после +7)
+    final phoneText = _phoneController.text.trim();
+    final phoneDigits = phoneText.replaceAll(RegExp(r'[^\d]'), '');
+    // Убираем первую 7, если есть
+    final phoneDigitsWithout7 = phoneDigits.isNotEmpty && phoneDigits[0] == '7'
+        ? phoneDigits.substring(1)
+        : phoneDigits;
+    final isPhoneComplete = phoneDigitsWithout7.length == 10;
+    
     return _fullNameController.text.trim().isNotEmpty &&
         _usernameController.text.trim().isNotEmpty &&
         _emailController.text.trim().isNotEmpty &&
-        _phoneController.text.trim().isNotEmpty &&
+        isPhoneComplete &&
         _selectedCountry != null &&
         _selectedGender != null;
   }
@@ -175,6 +186,17 @@ class _RegistrationDataScreenState extends State<RegistrationDataScreen> {
         try {
           await EnvUtils.updateUserIdInEnv(userId);
           debugPrint('RegistrationDataScreen: user_id saved to .env file successfully: ${userId.substring(0, 8)}...');
+          
+          // Перезагружаем .env чтобы обновить USER_ID
+          await dotenv.load(fileName: ".env");
+          
+          // Инициализируем FCM с userId (это зарегистрирует токен на сервере)
+          try {
+            await FCMService.instance.initialize(userId);
+            debugPrint('RegistrationDataScreen: FCM инициализирован и токен зарегистрирован на сервере');
+          } catch (e) {
+            debugPrint('RegistrationDataScreen: WARNING - не удалось инициализировать FCM: $e');
+          }
         } catch (e) {
           debugPrint('RegistrationDataScreen: WARNING - could not save user_id to .env file: $e');
           // Продолжаем выполнение

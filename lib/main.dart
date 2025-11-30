@@ -5,10 +5,12 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart';
 
 import 'l10n/app_localizations.dart';
 import 'services/notification_service.dart';
+import 'services/fcm_service.dart' show FCMService, firebaseMessagingBackgroundHandler;
 import 'services/language_service.dart';
 import 'services/theme_service.dart';
 import 'services/api_service.dart';
@@ -18,6 +20,7 @@ import 'utils/env_utils.dart';
 import 'settings/colors.dart';
 import 'auth/login.dart';
 import 'screens/home_screen.dart';
+import 'screens/support_screen.dart';
 
 void main() async {
   final WidgetsBinding widgetsBinding =
@@ -128,16 +131,67 @@ void main() async {
     debugPrint('Startup initialization error: $e');
   }
 
+  // Инициализируем Firebase Cloud Messaging
+  try {
+    debugPrint('Startup: initializing FCM...');
+    // Регистрируем фоновый обработчик
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    
+    // Если пользователь уже авторизован, инициализируем FCM с userId
+    final userId = dotenv.env['USER_ID'];
+    if (userId != null && userId.isNotEmpty) {
+      debugPrint('Startup: пользователь авторизован, инициализируем FCM с userId: ${userId.substring(0, 8)}...');
+      await FCMService.instance.initialize(userId);
+      debugPrint('Startup: FCM initialized successfully');
+    } else {
+      debugPrint('Startup: пользователь не авторизован, FCM будет инициализирован после входа');
+    }
+  } catch (e) {
+    debugPrint('Startup: FCM initialization error: $e');
+  }
+
   // Убираем нативный splash только после всех проверок
   FlutterNativeSplash.remove();
 
   runApp(MainApp(initialScreen: initialScreen));
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends StatefulWidget {
   const MainApp({super.key, this.initialScreen});
 
   final Widget? initialScreen;
+
+  @override
+  State<MainApp> createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+  @override
+  void initState() {
+    super.initState();
+    // Настраиваем callback для навигации при нажатии на уведомление
+    FCMService.instance.setNotificationTapCallback((data) {
+      _navigateToSupport();
+    });
+    
+    // Настраиваем обработчик для локальных уведомлений
+    NotificationService.instance.setNotificationTapCallback((payload) {
+      _navigateToSupport();
+    });
+  }
+
+  void _navigateToSupport() {
+    final navigator = navigatorKey.currentState;
+    if (navigator != null) {
+      navigator.push(
+        MaterialPageRoute(
+          builder: (_) => const SupportScreen(),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -148,6 +202,7 @@ class MainApp extends StatelessWidget {
           valueListenable: LanguageService.instance.localeNotifier,
           builder: (context, locale, __) {
             return MaterialApp(
+              navigatorKey: navigatorKey,
               debugShowCheckedModeBanner: false,
               themeMode: themeMode,
               theme: ThemeData(
@@ -176,7 +231,7 @@ class MainApp extends StatelessWidget {
                 GlobalWidgetsLocalizations.delegate,
                 GlobalCupertinoLocalizations.delegate,
               ],
-              home: initialScreen ?? const EmailScreen(),
+              home: widget.initialScreen ?? const EmailScreen(),
             );
           },
         );

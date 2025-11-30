@@ -79,11 +79,18 @@ class SupportService {
   static Future<List<Map<String, dynamic>>> getMessageHistory(
     String userId, {
     int limit = 50,
+    String? userName, // Имя пользователя для приветственного сообщения
   }) async {
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/message_history/$userId?limit=$limit'),
-      ).timeout(const Duration(seconds: 10));
+      var uri = Uri.parse('$baseUrl/message_history/$userId?limit=$limit');
+      if (userName != null && userName.isNotEmpty) {
+        uri = uri.replace(queryParameters: {
+          'limit': limit.toString(),
+          'user_name': userName,
+        });
+      }
+      
+      final response = await http.get(uri).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);

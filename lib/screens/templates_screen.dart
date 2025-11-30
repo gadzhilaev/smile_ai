@@ -143,15 +143,15 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
-                        Center(
-                          child: Text(
-                            l.templatesTitle,
-                            style: AppTextStyle.screenTitleMedium(
-                              scaleHeight(20),
-                              color: isDark
-                                  ? AppColors.white
-                                  : theme.colorScheme.onSurface,
-                            ),
+                  Center(
+                    child: Text(
+                      l.templatesTitle,
+                      style: AppTextStyle.screenTitleMedium(
+                        scaleHeight(20),
+                        color: isDark
+                            ? AppColors.white
+                            : theme.colorScheme.onSurface,
+                      ),
                           ),
                         ),
                         Positioned(
@@ -211,7 +211,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                                       theme,
                                       isDark,
                                       l,
-                                    ),
+                                      ),
                                     // Отступ после последнего контейнера для нав бара
                                     SizedBox(height: scaleHeight(20)),
                                   ],

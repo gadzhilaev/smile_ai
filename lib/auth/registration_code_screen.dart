@@ -123,11 +123,11 @@ class _RegistrationCodeScreenState extends State<RegistrationCodeScreen> {
     }
     // Если поле очищено и слева есть поле, переходим на предыдущее
     else if (value.isEmpty && index > 0) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && _focusNodes[index - 1].canRequestFocus) {
-          _focusNodes[index - 1].requestFocus();
-        }
-      });
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && _focusNodes[index - 1].canRequestFocus) {
+            _focusNodes[index - 1].requestFocus();
+          }
+        });
     }
   }
 

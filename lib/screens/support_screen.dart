@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -11,6 +12,8 @@ import '../settings/colors.dart';
 import '../l10n/app_localizations.dart';
 import '../services/profile_service.dart';
 import '../services/support_service.dart';
+import '../services/fcm_service.dart';
+import '../services/websocket_service.dart';
 
 class SupportScreen extends StatefulWidget {
   const SupportScreen({super.key});
@@ -30,11 +33,189 @@ class _SupportScreenState extends State<SupportScreen> {
   final List<XFile> _attachedImages = [];
   bool _isLoading = false;
   bool _isSending = false;
+  Timer? _pollingTimer; // Fallback на случай если WebSocket недоступен
+  DateTime? _lastMessageTime;
 
   @override
   void initState() {
     super.initState();
     _loadMessageHistory();
+    
+    // Подключаемся к WebSocket для обновлений в реальном времени
+    final userId = _getUserId();
+    if (userId != null && userId.isNotEmpty) {
+      WebSocketService.connectToChat(userId);
+      
+      // Подписываемся на новые сообщения через WebSocket
+      WebSocketService.onNewMessage = (data) {
+        if (mounted && data['user_id'] == userId) {
+          _handleNewMessageFromWebSocket(data);
+        }
+      };
+    }
+    
+    // Fallback: запускаем polling только если WebSocket не подключен
+    _startPollingFallback();
+    
+    // Подписываемся на обновления истории при получении push уведомлений
+    FCMService.onSupportReplyReceived = _loadMessageHistory;
+  }
+  
+  /// Обработка нового сообщения из WebSocket
+  void _handleNewMessageFromWebSocket(Map<String, dynamic> data) {
+    if (!mounted) return;
+    
+    try {
+      // Парсим данные сообщения
+      final messageText = data['message'] ?? '';
+      final isFromSupport = data['direction'] == 'support' || data['from_support'] == true;
+      
+      // Парсим изображения
+      List<String>? imagePaths;
+      if (data['photo_url'] != null) {
+        final photoUrl = data['photo_url'].toString();
+        if (photoUrl.isNotEmpty && !photoUrl.startsWith('[')) {
+          imagePaths = [photoUrl];
+        }
+      }
+      if (data['photo_urls'] != null) {
+        final parsed = _parseImageUrls(data['photo_urls']);
+        if (parsed.isNotEmpty) {
+          imagePaths = parsed;
+        }
+      }
+      
+      // Парсим дату
+      DateTime? createdAt;
+      if (data['created_at'] != null) {
+        try {
+          createdAt = DateTime.parse(data['created_at'].toString());
+        } catch (e) {
+          debugPrint('SupportScreen: ошибка парсинга даты из WebSocket: $e');
+        }
+      }
+      createdAt ??= DateTime.now();
+      
+      // Проверяем, нет ли уже такого сообщения (чтобы избежать дубликатов)
+      bool isDuplicate = false;
+      for (final existingMsg in _messages) {
+        if (existingMsg.text == messageText &&
+            existingMsg.fromSupport == isFromSupport &&
+            existingMsg.createdAt != null &&
+            existingMsg.createdAt!.difference(createdAt).abs().inSeconds < 5) {
+          isDuplicate = true;
+          break;
+        }
+      }
+      
+      if (!isDuplicate) {
+        setState(() {
+          _messages.add(
+            _SupportMessage(
+              fromSupport: isFromSupport,
+              text: messageText,
+              imagePaths: imagePaths,
+              isLocalFiles: false,
+              createdAt: createdAt,
+            ),
+          );
+        });
+        _scrollToBottom();
+        _lastMessageTime = createdAt;
+      }
+    } catch (e) {
+      debugPrint('SupportScreen: ошибка обработки сообщения из WebSocket: $e');
+    }
+  }
+  
+  /// Парсинг URL изображений
+  List<String> _parseImageUrls(dynamic value) {
+    if (value == null) return [];
+    
+    if (value is List) {
+      return List<String>.from(value.map((url) => url.toString()));
+    } else if (value is String) {
+      final trimmed = value.trim();
+      if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+        try {
+          final decoded = json.decode(trimmed) as List<dynamic>;
+          return List<String>.from(decoded.map((url) => url.toString()));
+        } catch (e) {
+          return [];
+        }
+      } else {
+        return [trimmed];
+      }
+    }
+    
+    return [];
+  }
+
+  /// Запуск polling как fallback (только если WebSocket не подключен)
+  void _startPollingFallback() {
+    _pollingTimer?.cancel();
+    _pollingTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      if (mounted) {
+        // Используем polling только если WebSocket не подключен
+        if (!WebSocketService.isConnected) {
+          _checkForNewMessages();
+        }
+      }
+    });
+  }
+
+  /// Проверка новых сообщений
+  Future<void> _checkForNewMessages() async {
+    final userId = _getUserId();
+    if (userId == null || userId.isEmpty) return;
+
+    try {
+      // Передаем user_name для приветственного сообщения
+      final fullName = ProfileService.instance.fullName;
+      final history = await SupportService.getMessageHistory(
+        userId,
+        userName: fullName.isNotEmpty ? fullName : null,
+      );
+      if (!mounted) return;
+
+      // Находим последнее сообщение по времени
+      DateTime? latestTime;
+      for (final msg in history) {
+        DateTime? msgTime;
+        if (msg['created_at'] != null) {
+          try {
+            msgTime = DateTime.parse(msg['created_at'].toString());
+          } catch (e) {
+            // Игнорируем ошибки парсинга
+          }
+        } else if (msg['timestamp'] != null) {
+          try {
+            final timestamp = msg['timestamp'];
+            if (timestamp is int) {
+              msgTime = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+            } else if (timestamp is String) {
+              msgTime = DateTime.parse(timestamp);
+            }
+          } catch (e) {
+            // Игнорируем ошибки парсинга
+          }
+        }
+        
+        if (msgTime != null && (latestTime == null || msgTime.isAfter(latestTime))) {
+          latestTime = msgTime;
+        }
+      }
+
+      // Если есть новые сообщения (после последнего известного времени)
+      if (latestTime != null && 
+          (_lastMessageTime == null || latestTime.isAfter(_lastMessageTime!))) {
+        // Перезагружаем историю
+        await _loadMessageHistory();
+        _lastMessageTime = latestTime;
+      }
+    } catch (e) {
+      debugPrint('SupportScreen: ошибка проверки новых сообщений: $e');
+    }
   }
 
   Future<void> _loadMessageHistory() async {
@@ -44,20 +225,25 @@ class _SupportScreenState extends State<SupportScreen> {
       _isLoading = true;
     });
 
-    // Если USER_ID не найден, показываем только приветственное сообщение
+    // Если USER_ID не найден, показываем пустой список сообщений
     if (userId == null || userId.isEmpty) {
-      debugPrint('SupportScreen: USER_ID not found, showing greeting only');
+      debugPrint('SupportScreen: USER_ID not found, showing empty chat');
       if (mounted) {
         setState(() {
+          _messages.clear();
           _isLoading = false;
         });
-        _addInitialSupportMessage();
       }
       return;
     }
 
     try {
-      final history = await SupportService.getMessageHistory(userId);
+      // Передаем user_name только для GET запроса истории (не для отправки сообщений)
+      final fullName = ProfileService.instance.fullName;
+      final history = await SupportService.getMessageHistory(
+        userId,
+        userName: fullName.isNotEmpty ? fullName : null,
+      );
       if (mounted) {
         setState(() {
           // Преобразуем историю в формат _SupportMessage
@@ -144,21 +330,44 @@ class _SupportScreenState extends State<SupportScreen> {
             // Если дата не найдена, используем текущую дату
             createdAt ??= DateTime.now();
             
-            _messages.add(
-              _SupportMessage(
-                fromSupport: msg['direction'] == 'support' || msg['from_support'] == true,
-                text: msg['message'] ?? '',
-                imagePath: singleImagePath,
-                imagePaths: imagePaths,
-                isLocalFiles: false, // Из истории - это URL, не локальные файлы
-                createdAt: createdAt,
-              ),
-            );
+            final messageText = msg['message'] ?? '';
+            final isFromSupport = msg['direction'] == 'support' || msg['from_support'] == true;
+            
+            // Проверяем, нет ли уже такого сообщения (чтобы избежать дубликатов)
+            bool isDuplicate = false;
+            for (final existingMsg in _messages) {
+              if (existingMsg.text == messageText &&
+                  existingMsg.fromSupport == isFromSupport &&
+                  existingMsg.createdAt != null &&
+                  existingMsg.createdAt!.difference(createdAt).abs().inSeconds < 5) {
+                // Сообщение с таким же текстом, направлением и временем (в пределах 5 секунд) уже есть
+                isDuplicate = true;
+                break;
+              }
+            }
+            
+            if (!isDuplicate) {
+              _messages.add(
+                _SupportMessage(
+                  fromSupport: isFromSupport,
+                  text: messageText,
+                  imagePath: singleImagePath,
+                  imagePaths: imagePaths,
+                  isLocalFiles: false, // Из истории - это URL, не локальные файлы
+                  createdAt: createdAt,
+                ),
+              );
+            }
           }
-          // Если истории нет, добавляем приветственное сообщение
-          if (_messages.isEmpty) {
-            _addInitialSupportMessage();
+          
+          // Обновляем время последнего сообщения
+          if (_messages.isNotEmpty) {
+            final lastMessage = _messages.last;
+            if (lastMessage.createdAt != null) {
+              _lastMessageTime = lastMessage.createdAt;
+            }
           }
+          
           _isLoading = false;
         });
         _scrollToBottom();
@@ -169,8 +378,7 @@ class _SupportScreenState extends State<SupportScreen> {
         setState(() {
           _isLoading = false;
         });
-        // При ошибке показываем приветственное сообщение
-        _addInitialSupportMessage();
+        // При ошибке показываем пустой список сообщений
       }
     }
   }
@@ -184,50 +392,6 @@ class _SupportScreenState extends State<SupportScreen> {
     }
   }
 
-  Future<void> _addInitialSupportMessage() async {
-    final fullName = ProfileService.instance.fullName;
-    final userId = _getUserId();
-    
-    // Если есть userId, отправляем приветственное сообщение на сервер
-    if (userId != null && userId.isNotEmpty) {
-      try {
-        final l = AppLocalizations.of(context)!;
-        final greeting =
-            '${l.supportGreetingPrefix}, ${fullName.isNotEmpty ? fullName : l.supportDefaultName}!';
-        
-        // Отправляем приветственное сообщение от поддержки
-        await SupportService.sendMessage(
-          userId: userId,
-          userName: 'Support',
-          message: greeting,
-        );
-        debugPrint('SupportScreen: приветственное сообщение отправлено на сервер');
-      } catch (e) {
-        debugPrint('SupportScreen: ошибка отправки приветственного сообщения: $e');
-      }
-    }
-    
-    // Добавляем сообщение в UI
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final l = AppLocalizations.of(context)!;
-      final greeting =
-          '${l.supportGreetingPrefix}, ${fullName.isNotEmpty ? fullName : l.supportDefaultName}!';
-      if (mounted) {
-        setState(() {
-          _messages.add(
-            _SupportMessage(
-              fromSupport: true,
-              text: greeting,
-              isGreeting: true,
-              createdAt: DateTime.now(),
-            ),
-          );
-        });
-        _scrollToBottom();
-      }
-    });
-  }
-  
   String _formatDate(DateTime date) {
     // Форматируем дату в формате "16 ноября"
     final months = [
@@ -479,6 +643,13 @@ class _SupportScreenState extends State<SupportScreen> {
 
   @override
   void dispose() {
+    // Отключаемся от WebSocket
+    WebSocketService.disconnect();
+    WebSocketService.onNewMessage = null;
+    
+    // Отписываемся от обновлений
+    FCMService.onSupportReplyReceived = null;
+    _pollingTimer?.cancel();
     _inputController.dispose();
     _scrollController.dispose();
     super.dispose();

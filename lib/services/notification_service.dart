@@ -1,6 +1,7 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io' show Platform;
+import 'dart:convert';
 import 'notification_settings_service.dart';
 
 class NotificationService {
@@ -80,11 +81,24 @@ class NotificationService {
     await androidImplementation?.createNotificationChannel(channel);
   }
 
+  /// Callback для навигации при нажатии на уведомление
+  Function(String)? _onNotificationTappedCallback;
+
+  /// Установить callback для навигации
+  void setNotificationTapCallback(Function(String) callback) {
+    _onNotificationTappedCallback = callback;
+  }
+
   /// Обработка нажатия на уведомление
   void _onNotificationTapped(NotificationResponse response) {
     // Здесь можно обработать нажатие на уведомление
     if (kDebugMode) {
       print('Notification tapped: ${response.payload}');
+    }
+    
+    // Вызываем callback для навигации
+    if (_onNotificationTappedCallback != null && response.payload != null) {
+      _onNotificationTappedCallback!(response.payload!);
     }
   }
 
@@ -207,6 +221,84 @@ class NotificationService {
       notificationBody,
       details,
       payload: message,
+    );
+  }
+
+  /// Показать уведомление от поддержки
+  Future<void> showSupportNotification({
+    required String title,
+    required String body,
+    Map<String, dynamic>? data,
+  }) async {
+    if (!_isInitialized) {
+      await initialize();
+    }
+
+    // Проверяем настройки уведомлений
+    final settingsService = NotificationSettingsService.instance;
+    if (!settingsService.shouldShowNotifications()) {
+      if (kDebugMode) {
+        print('Notifications disabled in settings');
+      }
+      return;
+    }
+
+    // Проверяем разрешение перед отправкой
+    final bool hasPermission = await isPermissionGranted();
+    if (!hasPermission) {
+      if (kDebugMode) {
+        print('Notification permission not granted');
+      }
+      return;
+    }
+
+    // Проверяем настройки звука и вибрации
+    final bool enableSound = settingsService.sound;
+    final bool enableVibration = settingsService.vibration;
+
+    // Обновляем канал перед отправкой уведомления
+    if (Platform.isAndroid) {
+      await _updateNotificationChannel();
+    }
+
+    final AndroidNotificationDetails androidDetails =
+        AndroidNotificationDetails(
+      _channelId,
+      _channelName,
+      channelDescription: _channelDescription,
+      importance: Importance.high,
+      priority: Priority.high,
+      showWhen: true,
+      icon: '@mipmap/ic_launcher',
+      playSound: enableSound,
+      enableVibration: enableVibration,
+    );
+
+    final DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: enableSound,
+    );
+
+    final NotificationDetails details = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+    );
+
+    // Обрезаем сообщение для уведомления (первые 100 символов)
+    final String notificationBody = body.length > 100
+        ? '${body.substring(0, 100)}...'
+        : body;
+
+    // Используем payload для передачи данных о навигации
+    final String payload = data != null ? jsonEncode(data) : 'support';
+
+    await _notificationsPlugin.show(
+      1, // Другой ID для уведомлений поддержки
+      title,
+      notificationBody,
+      details,
+      payload: payload,
     );
   }
 

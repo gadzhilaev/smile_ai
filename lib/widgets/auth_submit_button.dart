@@ -65,9 +65,9 @@ class AuthSubmitButton extends StatelessWidget {
                   ),
                 )
               : Text(
-                  label,
-                  style: AppTextStyle.screenTitle(fontSize, color: textColor),
-                ),
+            label,
+            style: AppTextStyle.screenTitle(fontSize, color: textColor),
+          ),
         ),
       ),
     );
