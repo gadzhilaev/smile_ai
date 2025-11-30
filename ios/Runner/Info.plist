@@ -49,7 +49,15 @@
 		<false/>
 		<key>NSPhotoLibraryUsageDescription</key>
 		<string>Разрешите доступ к фотографиям, чтобы отправлять изображения в поддержку Smile AI.</string>
-		<key>NSCameraUsageDescription</key>
-		<string>Разрешите доступ к камере, чтобы делать фотографии и отправлять их в поддержку Smile AI.</string>
-	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Разрешите доступ к камере, чтобы делать фотографии и отправлять их в поддержку Smile AI.</string>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+		<string>fetch</string>
+		<string>processing</string>
+	</array>
+</dict>
 </plist>

@@ -3,16 +3,31 @@ import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import '../firebase_options.dart';
 import 'support_service.dart';
 import 'notification_service.dart';
 
 /// Обработчик фоновых сообщений Firebase
+/// ВАЖНО: Этот обработчик должен быть top-level функцией
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-  debugPrint('FCMService: фоновое сообщение получено: ${message.messageId}');
-  debugPrint('FCMService: данные: ${message.data}');
-  debugPrint('FCMService: уведомление: ${message.notification?.title} - ${message.notification?.body}');
+  // Инициализируем Firebase с правильными опциями
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  
+  debugPrint('═══════════════════════════════════════════════════════');
+  debugPrint('🌙 FCMService: ФОНОВОЕ СООБЩЕНИЕ ПОЛУЧЕНО');
+  debugPrint('═══════════════════════════════════════════════════════');
+  debugPrint('   Message ID: ${message.messageId}');
+  debugPrint('   From: ${message.from}');
+  debugPrint('   Sent Time: ${message.sentTime}');
+  debugPrint('   Data: ${message.data}');
+  debugPrint('   Notification Title: ${message.notification?.title}');
+  debugPrint('   Notification Body: ${message.notification?.body}');
+  debugPrint('   Notification Android: ${message.notification?.android}');
+  debugPrint('   Notification Apple: ${message.notification?.apple}');
+  debugPrint('═══════════════════════════════════════════════════════');
   
   // Проверяем тип уведомления
   final isSupportMessage = message.data['type'] == 'support_reply' || 
@@ -22,7 +37,8 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   
   if (isSupportMessage) {
     final userId = message.data['user_id'];
-    debugPrint('FCMService: получен ответ от поддержки для пользователя: $userId');
+    debugPrint('✅ FCMService: Получен ответ от поддержки для пользователя: $userId');
+    debugPrint('   Уведомление будет показано автоматически через Firebase');
     // В фоне уведомление показывается автоматически через Firebase
   }
 }
@@ -47,7 +63,9 @@ class FCMService {
     if (_isInitialized) {
       // Если уже инициализирован, но userId изменился, перерегистрируем токен
       if (_currentUserId != userId) {
-        debugPrint('FCMService: userId изменился, перерегистрируем токен');
+        debugPrint('🔄 FCMService: userId изменился, перерегистрируем токен');
+        debugPrint('   Старый userId: ${_currentUserId?.substring(0, 8) ?? "null"}...');
+        debugPrint('   Новый userId: ${userId.substring(0, 8)}...');
         _currentUserId = userId;
         await registerTokenForUser(userId);
       }
@@ -57,7 +75,12 @@ class FCMService {
     _currentUserId = userId;
     
     try {
-      debugPrint('🔔 FCMService: Инициализация FCM для userId: ${userId.substring(0, 8)}...');
+      debugPrint('═══════════════════════════════════════════════════════');
+      debugPrint('🔔 FCMService: НАЧАЛО ИНИЦИАЛИЗАЦИИ FCM');
+      debugPrint('═══════════════════════════════════════════════════════');
+      debugPrint('📱 Платформа: ${Platform.isAndroid ? "Android" : "iOS"}');
+      debugPrint('👤 UserId: ${userId.substring(0, 8)}...');
+      debugPrint('═══════════════════════════════════════════════════════');
       
       // Запрашиваем разрешение на уведомления
       NotificationSettings settings = await _messaging.requestPermission(
@@ -67,21 +90,39 @@ class FCMService {
         provisional: false,
       );
       
-      debugPrint('📱 FCMService: Разрешение на уведомления: ${settings.authorizationStatus}');
+      debugPrint('📱 FCMService: Запрос разрешения на уведомления...');
+      debugPrint('   Статус разрешения: ${settings.authorizationStatus}');
+      debugPrint('   Alert: ${settings.alert}');
+      debugPrint('   Badge: ${settings.badge}');
+      debugPrint('   Sound: ${settings.sound}');
       
       if (settings.authorizationStatus == AuthorizationStatus.authorized ||
           settings.authorizationStatus == AuthorizationStatus.provisional) {
+        debugPrint('✅ FCMService: Разрешение на уведомления ПРЕДОСТАВЛЕНО');
         // Настраиваем обработчики сообщений
         _setupMessageHandlers();
         
         // Слушаем обновления токена
         _messaging.onTokenRefresh.listen((newToken) {
-          debugPrint('FCMService: токен обновлен: ${newToken.substring(0, 20)}...');
+          debugPrint('═══════════════════════════════════════════════════════');
+          debugPrint('🔄 FCMService: FCM ТОКЕН ОБНОВЛЕН');
+          debugPrint('═══════════════════════════════════════════════════════');
+          debugPrint('   Старый токен: ${_fcmToken?.substring(0, 20) ?? "null"}...');
+          debugPrint('   Новый токен: ${newToken.substring(0, 20)}...');
+          debugPrint('   Полный новый токен: $newToken');
+          debugPrint('   Регистрация нового токена на сервере...');
+          debugPrint('═══════════════════════════════════════════════════════');
           _fcmToken = newToken;
           if (_currentUserId != null) {
             registerTokenForUser(_currentUserId!);
           }
         });
+        
+        debugPrint('✅ FCMService: Обработчики сообщений настроены');
+        debugPrint('   - onMessage (приложение активно)');
+        debugPrint('   - onMessageOpenedApp (открыто из уведомления)');
+        debugPrint('   - getInitialMessage (открыто при запуске)');
+        debugPrint('   - onTokenRefresh (обновление токена)');
         
         // Для iOS нужно сначала получить APNS токен
         if (Platform.isIOS) {
@@ -92,12 +133,22 @@ class FCMService {
         }
         
         _isInitialized = true;
-        debugPrint('✅ FCMService: FCM инициализирован успешно');
+        debugPrint('═══════════════════════════════════════════════════════');
+        debugPrint('✅ FCMService: FCM ИНИЦИАЛИЗИРОВАН УСПЕШНО');
+        debugPrint('═══════════════════════════════════════════════════════');
       } else {
-        debugPrint('❌ FCMService: разрешение на уведомления не предоставлено');
+        debugPrint('═══════════════════════════════════════════════════════');
+        debugPrint('❌ FCMService: РАЗРЕШЕНИЕ НА УВЕДОМЛЕНИЯ НЕ ПРЕДОСТАВЛЕНО');
+        debugPrint('   Статус: ${settings.authorizationStatus}');
+        debugPrint('═══════════════════════════════════════════════════════');
       }
-    } catch (e) {
-      debugPrint('❌ FCMService: ошибка инициализации: $e');
+    } catch (e, stackTrace) {
+      debugPrint('═══════════════════════════════════════════════════════');
+      debugPrint('❌ FCMService: ОШИБКА ИНИЦИАЛИЗАЦИИ');
+      debugPrint('═══════════════════════════════════════════════════════');
+      debugPrint('Ошибка: $e');
+      debugPrint('Stack trace: $stackTrace');
+      debugPrint('═══════════════════════════════════════════════════════');
     }
   }
   
@@ -105,20 +156,26 @@ class FCMService {
   
   /// Инициализация для iOS с обработкой APNS токена
   Future<void> _initializeIOS(String userId) async {
+    debugPrint('🍎 FCMService: Инициализация для iOS...');
     // Пытаемся получить APNS токен
     try {
+      debugPrint('   Попытка получить APNS токен...');
       final apnsToken = await _messaging.getAPNSToken();
       if (apnsToken != null) {
-        debugPrint('📱 FCMService: APNS токен получен: ${apnsToken.substring(0, 20)}...');
+        debugPrint('✅ FCMService: APNS токен получен: ${apnsToken.substring(0, 20)}...');
+        debugPrint('   Полный APNS токен: $apnsToken');
         // Если APNS токен есть, получаем FCM токен
         await _getFCMTokenAndRegister(userId);
       } else {
-        debugPrint('⚠️ FCMService: APNS токен еще не доступен, начнем периодические попытки');
+        debugPrint('⚠️ FCMService: APNS токен еще не доступен');
+        debugPrint('   Начинаем периодические попытки получения токена...');
         // Начинаем периодические попытки получить токен
         _startIOSTokenRetry(userId);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('⚠️ FCMService: ошибка получения APNS токена: $e');
+      debugPrint('   Stack trace: $stackTrace');
+      debugPrint('   Начинаем периодические попытки...');
       // Начинаем периодические попытки
       _startIOSTokenRetry(userId);
     }
@@ -128,26 +185,45 @@ class FCMService {
   void _startIOSTokenRetry(String userId) {
     _iosTokenRetryTimer?.cancel();
     int attempts = 0;
-    const maxAttempts = 10; // Максимум 10 попыток (50 секунд)
+    const maxAttempts = 20; // Максимум 20 попыток (100 секунд)
+    
+    debugPrint('🔄 FCMService: Запуск периодических попыток получения токена');
+    debugPrint('   Интервал: 5 секунд');
+    debugPrint('   Максимум попыток: $maxAttempts');
     
     _iosTokenRetryTimer = Timer.periodic(const Duration(seconds: 5), (timer) async {
       attempts++;
-      debugPrint('🔄 FCMService: Попытка $attempts получить FCM токен для iOS...');
+      debugPrint('═══════════════════════════════════════════════════════');
+      debugPrint('🔄 FCMService: Попытка $attempts/$maxAttempts получить FCM токен для iOS');
+      debugPrint('═══════════════════════════════════════════════════════');
       
       try {
         // Проверяем APNS токен
+        debugPrint('   Проверка APNS токена...');
         final apnsToken = await _messaging.getAPNSToken();
         if (apnsToken != null) {
-          debugPrint('📱 FCMService: APNS токен получен: ${apnsToken.substring(0, 20)}...');
+          debugPrint('✅ FCMService: APNS токен получен!');
+          debugPrint('   APNS токен: ${apnsToken.substring(0, 20)}...');
+          debugPrint('   Полный APNS токен: $apnsToken');
           timer.cancel();
           await _getFCMTokenAndRegister(userId);
-        } else if (attempts >= maxAttempts) {
-          debugPrint('⚠️ FCMService: Достигнуто максимальное количество попыток, останавливаем');
-          timer.cancel();
+        } else {
+          debugPrint('   ⚠️ APNS токен еще не доступен');
+          if (attempts >= maxAttempts) {
+            debugPrint('═══════════════════════════════════════════════════════');
+            debugPrint('⚠️ FCMService: Достигнуто максимальное количество попыток');
+            debugPrint('   Останавливаем попытки получения токена');
+            debugPrint('═══════════════════════════════════════════════════════');
+            timer.cancel();
+          }
         }
-      } catch (e) {
-        debugPrint('⚠️ FCMService: Ошибка при попытке $attempts: $e');
+      } catch (e, stackTrace) {
+        debugPrint('   ❌ Ошибка при попытке $attempts: $e');
+        debugPrint('   Stack trace: $stackTrace');
         if (attempts >= maxAttempts) {
+          debugPrint('═══════════════════════════════════════════════════════');
+          debugPrint('⚠️ FCMService: Достигнуто максимальное количество попыток');
+          debugPrint('═══════════════════════════════════════════════════════');
           timer.cancel();
         }
       }
@@ -160,19 +236,34 @@ class FCMService {
     _iosTokenRetryTimer?.cancel();
     _iosTokenRetryTimer = null;
     
+    debugPrint('═══════════════════════════════════════════════════════');
+    debugPrint('🔑 FCMService: ПОЛУЧЕНИЕ FCM ТОКЕНА');
+    debugPrint('═══════════════════════════════════════════════════════');
+    
     try {
       // Получаем токен устройства
+      debugPrint('   Запрос FCM токена у Firebase...');
       _fcmToken = await _messaging.getToken();
       if (_fcmToken != null) {
-        debugPrint('🔑 FCMService: FCM Token получен: ${_fcmToken!.substring(0, 20)}...');
+        debugPrint('✅ FCMService: FCM Token получен!');
+        debugPrint('   Токен (первые 20 символов): ${_fcmToken!.substring(0, 20)}...');
+        debugPrint('   Полный токен: $_fcmToken');
+        debugPrint('   Длина токена: ${_fcmToken!.length} символов');
         
         // Регистрируем токен на сервере
+        debugPrint('   Регистрация токена на сервере...');
         await registerTokenForUser(userId);
       } else {
-        debugPrint('⚠️ FCMService: FCM токен еще не доступен');
+        debugPrint('⚠️ FCMService: FCM токен вернул null');
+        debugPrint('   Это может быть нормально для iOS симулятора');
       }
-    } catch (e) {
-      debugPrint('❌ FCMService: ошибка получения FCM токена: $e');
+    } catch (e, stackTrace) {
+      debugPrint('═══════════════════════════════════════════════════════');
+      debugPrint('❌ FCMService: ОШИБКА ПОЛУЧЕНИЯ FCM ТОКЕНА');
+      debugPrint('═══════════════════════════════════════════════════════');
+      debugPrint('Ошибка: $e');
+      debugPrint('Stack trace: $stackTrace');
+      debugPrint('═══════════════════════════════════════════════════════');
       // Для iOS это нормально, если APNS токен еще не получен
       if (!Platform.isIOS) {
         rethrow;
@@ -204,25 +295,62 @@ class FCMService {
     
     try {
       final platform = Platform.isAndroid ? 'android' : 'ios';
-      debugPrint('📤 FCMService: Регистрация устройства: userId=${userId.substring(0, 8)}..., platform=$platform');
+      debugPrint('═══════════════════════════════════════════════════════');
+      debugPrint('📤 FCMService: РЕГИСТРАЦИЯ УСТРОЙСТВА НА СЕРВЕРЕ');
+      debugPrint('═══════════════════════════════════════════════════════');
+      debugPrint('   UserId: ${userId.substring(0, 8)}...');
+      debugPrint('   Platform: $platform');
+      debugPrint('   FCM Token: ${_fcmToken!.substring(0, 20)}...');
+      debugPrint('   Полный FCM Token: $_fcmToken');
+      debugPrint('   URL сервера: ${SupportService.baseUrl}/register_device');
+      debugPrint('═══════════════════════════════════════════════════════');
+      
       await SupportService.registerDevice(
         userId: userId,
         fcmToken: _fcmToken!,
         platform: platform,
       );
-      debugPrint('✅ FCMService: Устройство успешно зарегистрировано на сервере для пользователя: ${userId.substring(0, 8)}...');
-    } catch (e) {
-      debugPrint('❌ FCMService: ошибка регистрации токена: $e');
+      
+      debugPrint('═══════════════════════════════════════════════════════');
+      debugPrint('✅ FCMService: УСТРОЙСТВО УСПЕШНО ЗАРЕГИСТРИРОВАНО!');
+      debugPrint('═══════════════════════════════════════════════════════');
+      debugPrint('   UserId: ${userId.substring(0, 8)}...');
+      debugPrint('   Platform: $platform');
+      debugPrint('   Теперь push-уведомления будут приходить на это устройство');
+      debugPrint('═══════════════════════════════════════════════════════');
+    } catch (e, stackTrace) {
+      debugPrint('═══════════════════════════════════════════════════════');
+      debugPrint('❌ FCMService: ОШИБКА РЕГИСТРАЦИИ ТОКЕНА НА СЕРВЕРЕ');
+      debugPrint('═══════════════════════════════════════════════════════');
+      debugPrint('Ошибка: $e');
+      debugPrint('Stack trace: $stackTrace');
+      debugPrint('   UserId: ${userId.substring(0, 8)}...');
+      debugPrint('   Platform: ${Platform.isAndroid ? 'android' : 'ios'}');
+      debugPrint('   FCM Token: ${_fcmToken?.substring(0, 20) ?? "null"}...');
+      debugPrint('═══════════════════════════════════════════════════════');
     }
   }
   
   /// Настройка обработчиков сообщений
   void _setupMessageHandlers() {
+    debugPrint('═══════════════════════════════════════════════════════');
+    debugPrint('🔧 FCMService: НАСТРОЙКА ОБРАБОТЧИКОВ СООБЩЕНИЙ');
+    debugPrint('═══════════════════════════════════════════════════════');
+    
     // Обработка сообщений, когда приложение на переднем плане
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      debugPrint('FCMService: сообщение получено (приложение активно): ${message.messageId}');
-      debugPrint('FCMService: данные: ${message.data}');
-      debugPrint('FCMService: уведомление: ${message.notification?.title} - ${message.notification?.body}');
+      debugPrint('═══════════════════════════════════════════════════════');
+      debugPrint('📨 FCMService: СООБЩЕНИЕ ПОЛУЧЕНО (ПРИЛОЖЕНИЕ АКТИВНО)');
+      debugPrint('═══════════════════════════════════════════════════════');
+      debugPrint('   Message ID: ${message.messageId}');
+      debugPrint('   From: ${message.from}');
+      debugPrint('   Sent Time: ${message.sentTime}');
+      debugPrint('   Data: ${message.data}');
+      debugPrint('   Notification Title: ${message.notification?.title}');
+      debugPrint('   Notification Body: ${message.notification?.body}');
+      debugPrint('   Notification Android: ${message.notification?.android}');
+      debugPrint('   Notification Apple: ${message.notification?.apple}');
+      debugPrint('═══════════════════════════════════════════════════════');
       
       // Проверяем тип уведомления или наличие данных от поддержки
       final isSupportMessage = message.data['type'] == 'support_reply' || 
@@ -258,11 +386,25 @@ class FCMService {
     
     // Обработка нажатия на уведомление (когда приложение открыто из уведомления)
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      debugPrint('FCMService: приложение открыто из уведомления: ${message.messageId}');
-      debugPrint('FCMService: данные: ${message.data}');
+      debugPrint('═══════════════════════════════════════════════════════');
+      debugPrint('👆 FCMService: ПРИЛОЖЕНИЕ ОТКРЫТО ИЗ УВЕДОМЛЕНИЯ');
+      debugPrint('═══════════════════════════════════════════════════════');
+      debugPrint('   Message ID: ${message.messageId}');
+      debugPrint('   From: ${message.from}');
+      debugPrint('   Data: ${message.data}');
+      debugPrint('   Notification Title: ${message.notification?.title}');
+      debugPrint('   Notification Body: ${message.notification?.body}');
+      debugPrint('   Route: ${message.data['route']}');
+      debugPrint('═══════════════════════════════════════════════════════');
       
       // Проверяем тип уведомления
-      if (message.data['type'] == 'support_reply') {
+      final isSupportMessage = message.data['type'] == 'support_reply' || 
+                               message.data['type'] == 'support_message' ||
+                               message.data['direction'] == 'support' ||
+                               message.data['from_support'] == true ||
+                               message.data['route'] == 'support_chat';
+      
+      if (isSupportMessage) {
         // Вызываем callback для обновления истории
         if (onSupportReplyReceived != null) {
           onSupportReplyReceived!();
@@ -276,11 +418,25 @@ class FCMService {
     // Проверяем, было ли приложение открыто из уведомления при запуске
     _messaging.getInitialMessage().then((RemoteMessage? message) {
       if (message != null) {
-        debugPrint('FCMService: приложение открыто из уведомления при запуске: ${message.messageId}');
-        debugPrint('FCMService: данные: ${message.data}');
+        debugPrint('═══════════════════════════════════════════════════════');
+        debugPrint('🚀 FCMService: ПРИЛОЖЕНИЕ ОТКРЫТО ИЗ УВЕДОМЛЕНИЯ ПРИ ЗАПУСКЕ');
+        debugPrint('═══════════════════════════════════════════════════════');
+        debugPrint('   Message ID: ${message.messageId}');
+        debugPrint('   From: ${message.from}');
+        debugPrint('   Data: ${message.data}');
+        debugPrint('   Notification Title: ${message.notification?.title}');
+        debugPrint('   Notification Body: ${message.notification?.body}');
+        debugPrint('   Route: ${message.data['route']}');
+        debugPrint('═══════════════════════════════════════════════════════');
         
         // Проверяем тип уведомления
-        if (message.data['type'] == 'support_reply') {
+        final isSupportMessage = message.data['type'] == 'support_reply' || 
+                                 message.data['type'] == 'support_message' ||
+                                 message.data['direction'] == 'support' ||
+                                 message.data['from_support'] == true ||
+                                 message.data['route'] == 'support_chat';
+        
+        if (isSupportMessage) {
           // Вызываем callback для обновления истории
           if (onSupportReplyReceived != null) {
             onSupportReplyReceived!();
