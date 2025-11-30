@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "182230473446",
+    "project_id": "smile-ai-282df",
+    "storage_bucket": "smile-ai-282df.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:182230473446:android:048937ca64512d7338f927",
+        "android_client_info": {
+          "package_name": "com.example.smile_ai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1h87Qs9RPGJDVO-7kEcWwh8SUDd7giz4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

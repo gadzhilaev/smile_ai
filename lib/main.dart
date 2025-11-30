@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 import 'l10n/app_localizations.dart';
 import 'services/notification_service.dart';
@@ -23,6 +25,16 @@ void main() async {
 
   // Держим нативный splash, пока идёт инициализация
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
+  // Инициализируем Firebase
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    debugPrint('Startup: Firebase initialized successfully');
+  } catch (e) {
+    debugPrint('Startup: Firebase initialization error: $e');
+  }
 
   // Создаем .env файл с пустыми значениями, если его нет
   await EnvUtils.createEnvFileIfNotExists();
