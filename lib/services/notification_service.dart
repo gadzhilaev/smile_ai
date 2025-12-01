@@ -1,5 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'dart:io' show Platform;
 import 'dart:convert';
 import 'notification_settings_service.dart';
@@ -154,9 +155,27 @@ class NotificationService {
   }
 
   /// Показать уведомление о завершении генерации AI
-  Future<void> showAiMessageNotification(String message) async {
+  Future<void> showAiMessageNotification(
+    String message, {
+    String? conversationId,
+  }) async {
     if (!_isInitialized) {
       await initialize();
+    }
+
+    // Проверяем, находится ли приложение в foreground
+    // Уведомление отправляется всегда, даже если приложение активно,
+    // потому что пользователь может быть на другой странице (не на AI экране)
+    // Если пользователь на AI экране, он увидит сообщение в чате,
+    // а уведомление будет дополнительным напоминанием
+    final appLifecycleState = WidgetsBinding.instance.lifecycleState;
+    if (kDebugMode) {
+      print('📱 [NotificationService] Состояние приложения: $appLifecycleState');
+      if (appLifecycleState == AppLifecycleState.resumed) {
+        print('📱 [NotificationService] Приложение активно, но отправляем уведомление (пользователь может быть на другой странице)');
+      } else {
+        print('📱 [NotificationService] Приложение не активно, отправляем уведомление');
+      }
     }
 
     // Проверяем настройки уведомлений
@@ -215,12 +234,20 @@ class NotificationService {
         ? '${message.substring(0, 100)}...'
         : message;
 
+    // Формируем payload с данными для навигации
+    final Map<String, dynamic> payloadData = {
+      'type': 'ai_generation',
+      'route': 'ai_chat',
+      'conversation_id': conversationId ?? '',
+    };
+    final String payload = jsonEncode(payloadData);
+
     await _notificationsPlugin.show(
       0,
       'AI завершил генерацию',
       notificationBody,
       details,
-      payload: message,
+      payload: payload,
     );
   }
 

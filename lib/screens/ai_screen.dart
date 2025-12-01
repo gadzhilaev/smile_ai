@@ -1,10 +1,14 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:excel/excel.dart' hide Border;
+import 'package:csv/csv.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -25,12 +29,14 @@ class AiScreen extends StatefulWidget {
     this.editText,
     this.onTextSaved,
     this.category,
+    this.conversationId,
   });
 
   final String? autoGenerateText;
   final String? editText;
   final ValueChanged<String>? onTextSaved;
   final String? category;
+  final String? conversationId; // ID чата для открытия конкретного чата
 
   @override
   State<AiScreen> createState() => _AiScreenState();
@@ -57,6 +63,7 @@ class _AiScreenState extends State<AiScreen> {
   int? _selectedChatIndexForContextMenu;
   OverlayEntry? _chatMenuOverlay;
   bool _showScrollDownButton = false;
+  bool _isLoadingChat = false; // Флаг загрузки чата по conversationId
   
   // История чатов
   final List<ChatHistory> _chatHistory = [];
@@ -68,8 +75,207 @@ class _AiScreenState extends State<AiScreen> {
   @override
   void initState() {
     super.initState();
-    _initializeScreen();
+    // Если передан conversationId, загружаем чат синхронно в initState
+    if (widget.conversationId != null && widget.conversationId!.isNotEmpty) {
+      // Устанавливаем флаги сразу, чтобы не показывать пустой экран
+      _hasConversation = true;
+      _isLoadingChat = true;
+      // Загружаем чат асинхронно, но без видимого переключения
+      _loadChatByConversationId(widget.conversationId!);
+    } else {
+      _initializeScreen();
+    }
     _scrollController.addListener(_onScroll);
+  }
+  
+  @override
+  void didUpdateWidget(AiScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Если conversationId изменился, загружаем новый чат
+    if (widget.conversationId != null && 
+        widget.conversationId!.isNotEmpty && 
+        widget.conversationId != oldWidget.conversationId) {
+      // Устанавливаем флаги сразу
+      _hasConversation = true;
+      _isLoadingChat = true;
+      // Загружаем новый чат
+      _loadChatByConversationId(widget.conversationId!);
+    }
+  }
+  
+  // Загрузка чата по conversationId без видимого переключения
+  Future<void> _loadChatByConversationId(String conversationId) async {
+    try {
+      // Загружаем историю чатов
+      await _loadConversationsFromApi();
+      
+      if (!mounted) return;
+      
+      // Ищем чат с нужным conversationId
+      final chatIndex = _chatHistory.indexWhere(
+        (chat) => chat.conversationId == conversationId,
+      );
+      
+      if (chatIndex != -1) {
+        // Открываем найденный чат без видимого переключения
+        final chat = _chatHistory[chatIndex];
+        
+        // Загружаем историю чата БЕЗ промежуточных setState
+        // Сначала загружаем данные, потом одним setState обновляем UI
+        if (chat.conversationId != null && chat.conversationId!.isNotEmpty) {
+          try {
+            final historyResult = await ApiService.instance.getChatHistory(chat.conversationId!);
+            
+            if (!mounted) return;
+
+            if (historyResult.containsKey('error')) {
+              if (mounted) {
+                setState(() {
+                  _isLoadingChat = false;
+                });
+              }
+              return;
+            }
+
+            // Получаем conversation_id из ответа
+            final responseConversationId = historyResult['conversation_id'] as String?;
+            final actualConversationId = responseConversationId ?? chat.conversationId!;
+
+            // Преобразуем сообщения из API в ChatMessage
+            final messagesList = historyResult['messages'] as List<dynamic>? ?? [];
+            final List<ChatMessage> loadedMessages = [];
+            
+            for (final msg in messagesList) {
+              final content = msg['content'] as String? ?? '';
+              final role = msg['role'] as String? ?? '';
+              final isUser = role == 'user';
+              
+              // Парсим файлы из сообщения
+              List<Map<String, dynamic>>? files;
+              if (msg['files'] != null && msg['files'] != 'null') {
+                if (msg['files'] is List) {
+                  files = List<Map<String, dynamic>>.from(
+                    (msg['files'] as List).map((file) => file as Map<String, dynamic>)
+                  );
+                }
+              }
+              
+              loadedMessages.add(ChatMessage(
+                text: content,
+                isUser: isUser,
+                isThinking: false,
+                files: files,
+              ));
+            }
+
+            // Обновляем сообщения и историю чата ОДНИМ setState
+            if (mounted) {
+              setState(() {
+                _currentChatId = chat.id;
+                _messages.clear();
+                _messages.addAll(loadedMessages);
+                _hasConversation = true;
+                
+                // Обновляем историю чата с правильным conversation_id
+                final chatIndex = _chatHistory.indexWhere((c) => c.id == chat.id);
+                if (chatIndex != -1) {
+                  _chatHistory[chatIndex] = ChatHistory(
+                    id: _chatHistory[chatIndex].id,
+                    title: _chatHistory[chatIndex].title,
+                    messages: List.from(_messages),
+                    conversationId: actualConversationId,
+                  );
+                }
+                
+                _isLoadingChat = false; // Загрузка завершена
+              });
+              
+              _scrollToBottom();
+            }
+          } catch (e) {
+            if (mounted) {
+              setState(() {
+                _isLoadingChat = false;
+              });
+            }
+          }
+        }
+      } else {
+        // Если чат не найден, создаем новый с этим conversationId и загружаем его историю
+        setState(() {
+          final newChat = ChatHistory(
+            id: DateTime.now().millisecondsSinceEpoch.toString(),
+            title: 'Новый чат',
+            messages: [],
+            conversationId: conversationId,
+          );
+          _chatHistory.insert(0, newChat);
+          _currentChatId = newChat.id;
+        });
+        
+        // Загружаем историю нового чата
+        try {
+          final historyResult = await ApiService.instance.getChatHistory(conversationId);
+          
+          if (!mounted) return;
+
+          if (!historyResult.containsKey('error')) {
+            final messagesList = historyResult['messages'] as List<dynamic>? ?? [];
+            final List<ChatMessage> loadedMessages = [];
+            
+            for (final msg in messagesList) {
+              final content = msg['content'] as String? ?? '';
+              final role = msg['role'] as String? ?? '';
+              final isUser = role == 'user';
+              
+              List<Map<String, dynamic>>? files;
+              if (msg['files'] != null && msg['files'] != 'null') {
+                if (msg['files'] is List) {
+                  files = List<Map<String, dynamic>>.from(
+                    (msg['files'] as List).map((file) => file as Map<String, dynamic>)
+                  );
+                }
+              }
+              
+              loadedMessages.add(ChatMessage(
+                text: content,
+                isUser: isUser,
+                isThinking: false,
+                files: files,
+              ));
+            }
+
+            if (mounted) {
+              setState(() {
+                _messages.clear();
+                _messages.addAll(loadedMessages);
+                _isLoadingChat = false;
+              });
+              
+              _scrollToBottom();
+            }
+          } else {
+            if (mounted) {
+              setState(() {
+                _isLoadingChat = false;
+              });
+            }
+          }
+        } catch (e) {
+          if (mounted) {
+            setState(() {
+              _isLoadingChat = false;
+            });
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingChat = false;
+        });
+      }
+    }
   }
 
   void _onScroll() {
@@ -92,6 +298,17 @@ class _AiScreenState extends State<AiScreen> {
       _currentCategory = widget.category;
     }
     
+    // Если передан conversationId, сразу загружаем чат (синхронно)
+    if (widget.conversationId != null && widget.conversationId!.isNotEmpty) {
+      setState(() {
+        _isLoadingChat = true;
+        _hasConversation = true; // Сразу показываем, что есть чат
+      });
+      // Загружаем чат асинхронно, но без видимого переключения
+      _openChatByConversationId(widget.conversationId!);
+      return;
+    }
+    
     // Если передан текст для редактирования, загружаем его в поле ввода
     if (widget.editText != null) {
       _inputController.text = widget.editText!;
@@ -102,6 +319,56 @@ class _AiScreenState extends State<AiScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _sendMessageWithApi(widget.autoGenerateText!, category: widget.category);
       });
+    }
+  }
+  
+  // Открыть чат по conversationId
+  Future<void> _openChatByConversationId(String conversationId) async {
+    try {
+      // Загружаем историю чатов
+      await _loadConversationsFromApi();
+      
+      if (!mounted) return;
+      
+      // Ищем чат с нужным conversationId
+      final chatIndex = _chatHistory.indexWhere(
+        (chat) => chat.conversationId == conversationId,
+      );
+      
+      if (chatIndex != -1) {
+        // Открываем найденный чат
+        await _openChat(chatIndex);
+      } else {
+        // Если чат не найден, создаем новый с этим conversationId
+        setState(() {
+          final newChat = ChatHistory(
+            id: DateTime.now().millisecondsSinceEpoch.toString(),
+            title: 'Новый чат',
+            messages: [],
+            conversationId: conversationId,
+          );
+          _chatHistory.insert(0, newChat);
+          _currentChatId = newChat.id;
+        });
+        
+        // Загружаем историю этого чата
+        final chatIndex = _chatHistory.indexWhere((c) => c.id == _currentChatId);
+        if (chatIndex != -1) {
+          await _openChat(chatIndex);
+        }
+      }
+      
+      if (mounted) {
+        setState(() {
+          _isLoadingChat = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingChat = false;
+        });
+      }
     }
   }
 
@@ -223,8 +490,11 @@ class _AiScreenState extends State<AiScreen> {
           _isTyping = false;
             // Сохраняем чат после завершения генерации
             _saveCurrentChat();
-            // Отправляем уведомление о завершении генерации
-            NotificationService.instance.showAiMessageNotification(responseText);
+            // Отправляем уведомление о завершении генерации (только если приложение не активно)
+            NotificationService.instance.showAiMessageNotification(
+              responseText,
+              conversationId: newConversationId,
+            );
         } else {
           _currentTypingIndex += 1;
             _messages[_messages.length - 1] = ChatMessage(
@@ -415,6 +685,7 @@ class _AiScreenState extends State<AiScreen> {
         _currentChatId = chat.id;
         _messages.clear();
         _hasConversation = true;
+        _isLoadingChat = false; // Сбрасываем флаг загрузки при открытии чата
         _hideChatMenuOverlay();
       });
 
@@ -733,7 +1004,7 @@ class _AiScreenState extends State<AiScreen> {
   }
 
 
-  // Функция для скачивания и открытия диалога "Поделиться"
+  // Функция для скачивания и обработки файла
   Future<void> _downloadAndShareFile(String downloadUrl, String filename) async {
     try {
       // Показываем индикатор загрузки
@@ -769,11 +1040,24 @@ class _AiScreenState extends State<AiScreen> {
           Navigator.of(context).pop();
         }
         
-        // Открываем диалог "Поделиться"
-        await Share.shareXFiles(
-          [XFile(filePath)],
-          text: filename,
-        );
+        // Проверяем тип файла
+        final isExcel = filename.endsWith('.xlsx') || filename.endsWith('.xls');
+        final isCsv = filename.endsWith('.csv');
+        
+        if (isExcel || isCsv) {
+          // Парсим и отображаем Excel/CSV файл
+          final bytes = response.bodyBytes;
+          if (isExcel) {
+            _showExcelViewer(bytes, filename);
+          } else {
+            _showCsvViewer(bytes, filename);
+          }
+        } else {
+          // Для других типов файлов сразу открываем диалог "Поделиться"
+          await Share.shareXFiles(
+            [XFile(filePath)],
+          );
+        }
       } else {
         if (mounted) {
           Navigator.of(context).pop();
@@ -787,6 +1071,92 @@ class _AiScreenState extends State<AiScreen> {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Ошибка: $e')),
+        );
+      }
+    }
+  }
+  
+  // Отображение Excel файла
+  void _showExcelViewer(List<int> bytes, String filename) async {
+    try {
+      final excel = Excel.decodeBytes(bytes);
+      final sheet = excel.tables[excel.tables.keys.first];
+      
+      if (sheet == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Не удалось прочитать Excel файл')),
+          );
+        }
+        return;
+      }
+      
+      // Преобразуем данные в список строк
+      final List<List<String>> rows = [];
+      for (var row in sheet.rows) {
+        final List<String> rowData = [];
+        for (var cell in row) {
+          rowData.add(cell?.value?.toString() ?? '');
+        }
+        rows.add(rowData);
+      }
+      
+      // Получаем путь к файлу для кнопки "Поделиться"
+      final directory = await getApplicationDocumentsDirectory();
+      final filePath = '${directory.path}/$filename';
+      
+      if (mounted) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => _FileViewerScreen(
+              filename: filename,
+              rows: rows,
+              filePath: filePath,
+            ),
+            fullscreenDialog: true,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка при чтении Excel: $e')),
+        );
+      }
+    }
+  }
+  
+  // Отображение CSV файла
+  void _showCsvViewer(List<int> bytes, String filename) async {
+    try {
+      final csvString = utf8.decode(bytes);
+      final rows = const CsvToListConverter().convert(csvString);
+      
+      // Преобразуем в List<List<String>>
+      final List<List<String>> stringRows = rows.map((row) {
+        return row.map((cell) => cell.toString()).toList();
+      }).toList();
+      
+      // Получаем путь к файлу для кнопки "Поделиться"
+      final directory = await getApplicationDocumentsDirectory();
+      final filePath = '${directory.path}/$filename';
+      
+      if (mounted) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => _FileViewerScreen(
+              filename: filename,
+              rows: stringRows,
+              filePath: filePath,
+            ),
+            fullscreenDialog: true,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка при чтении CSV: $e')),
         );
       }
     }
@@ -826,11 +1196,19 @@ class _AiScreenState extends State<AiScreen> {
 
     Widget conversationArea;
     if (_hasConversation) {
-      conversationArea = Padding(
-        padding: EdgeInsets.symmetric(horizontal: scaleWidth(24)),
-        child: _messages.isEmpty
-            ? const SizedBox.shrink()
-            : ListView.builder(
+      // Если идет загрузка чата по conversationId, показываем индикатор загрузки
+      if (_isLoadingChat && _messages.isEmpty) {
+        conversationArea = Center(
+          child: CircularProgressIndicator(
+            color: isDark ? AppColors.darkPrimaryText : AppColors.textPrimary,
+          ),
+        );
+      } else {
+        conversationArea = Padding(
+          padding: EdgeInsets.symmetric(horizontal: scaleWidth(24)),
+          child: _messages.isEmpty
+              ? const SizedBox.shrink()
+              : ListView.builder(
                 controller: _scrollController,
                 itemCount: _messages.length,
                 itemBuilder: (context, index) {
@@ -851,7 +1229,8 @@ class _AiScreenState extends State<AiScreen> {
                   );
                 },
               ),
-      );
+        );
+      }
     } else {
       conversationArea = SingleChildScrollView(
         padding: EdgeInsets.only(bottom: scaleHeight(24)),
@@ -2268,5 +2647,289 @@ class _ThinkingIndicatorState extends State<_ThinkingIndicator>
         );
       },
     );
+  }
+}
+
+// Полноэкранный экран для отображения Excel/CSV файлов
+class _FileViewerScreen extends StatefulWidget {
+  const _FileViewerScreen({
+    required this.filename,
+    required this.rows,
+    required this.filePath,
+  });
+
+  final String filename;
+  final List<List<String>> rows;
+  final String filePath;
+
+  @override
+  State<_FileViewerScreen> createState() => _FileViewerScreenState();
+}
+
+class _FileViewerScreenState extends State<_FileViewerScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Разрешаем все ориентации для этого экрана
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+  }
+
+  @override
+  void dispose() {
+    // Возвращаем только портретную ориентацию при закрытии
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final size = MediaQuery.of(context).size;
+    const double designWidth = 428;
+    const double designHeight = 926;
+    final double widthFactor = size.width / designWidth;
+    final double heightFactor = size.height / designHeight;
+    
+    double scaleWidth(double value) => value * widthFactor;
+    double scaleHeight(double value) => value * heightFactor;
+
+    // Определяем максимальную ширину колонки для лучшего отображения
+    final maxColumnWidth = size.width * 0.3;
+
+    return Scaffold(
+      backgroundColor: isDark ? AppColors.darkBackgroundMain : AppColors.backgroundMain,
+      appBar: AppBar(
+        backgroundColor: isDark ? AppColors.darkBackgroundMain : AppColors.backgroundMain,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(
+            Icons.close,
+            color: isDark ? AppColors.darkPrimaryText : AppColors.textPrimary,
+            size: scaleWidth(24),
+          ),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          widget.filename,
+          style: AppTextStyle.chatMessage(
+            scaleHeight(18),
+            color: isDark ? AppColors.darkPrimaryText : AppColors.textPrimary,
+          ).copyWith(fontWeight: FontWeight.w600),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        centerTitle: true,
+      ),
+      body: widget.rows.isEmpty
+          ? Center(
+              child: Text(
+                'Файл пуст',
+                style: AppTextStyle.chatMessage(
+                  scaleHeight(16),
+                  color: isDark ? AppColors.darkSecondaryText : AppColors.textSecondary,
+                ),
+              ),
+            )
+          : LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    padding: EdgeInsets.all(scaleHeight(16)),
+                    child: Table(
+                      border: TableBorder.all(
+                        color: isDark ? AppColors.darkSecondaryText : AppColors.textSecondary,
+                        width: 1,
+                      ),
+                      columnWidths: widget.rows.isNotEmpty
+                          ? Map.fromIterable(
+                              List.generate(
+                                widget.rows[0].length,
+                                (index) => index,
+                              ),
+                              key: (index) => index,
+                              value: (index) => FixedColumnWidth(
+                                math.min(maxColumnWidth, constraints.maxWidth / widget.rows[0].length),
+                              ),
+                            )
+                          : null,
+                      children: widget.rows.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final row = entry.value;
+                        return TableRow(
+                          decoration: index == 0
+                              ? BoxDecoration(
+                                  color: isDark
+                                      ? AppColors.darkBackgroundCard
+                                      : AppColors.backgroundMain,
+                                )
+                              : null,
+                          children: row.map((cell) {
+                            return Container(
+                              constraints: BoxConstraints(
+                                maxWidth: maxColumnWidth,
+                              ),
+                              padding: EdgeInsets.all(scaleHeight(8)),
+                              child: Text(
+                                cell,
+                                style: AppTextStyle.chatMessage(
+                                  scaleHeight(12),
+                                  color: isDark ? AppColors.darkPrimaryText : AppColors.textPrimary,
+                                ).copyWith(
+                                  fontWeight: index == 0 ? FontWeight.w600 : FontWeight.normal,
+                                ),
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            );
+                          }).toList(),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                );
+              },
+            ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _shareFile(context),
+        backgroundColor: isDark ? AppColors.darkBackgroundCard : AppColors.accentRed,
+        child: Icon(
+          Icons.share,
+          color: AppColors.white,
+          size: scaleWidth(24),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+    );
+  }
+
+  Future<void> _shareFile(BuildContext context) async {
+    try {
+      print('🔍 [FileViewer] Начало функции _shareFile');
+      print('🔍 [FileViewer] filePath: ${widget.filePath}');
+      print('🔍 [FileViewer] filename: ${widget.filename}');
+      
+      // Проверяем, что файл существует
+      final file = File(widget.filePath);
+      final fileExists = await file.exists();
+      print('🔍 [FileViewer] Файл существует: $fileExists');
+      
+      if (!fileExists) {
+        print('❌ [FileViewer] Файл не найден по пути: ${widget.filePath}');
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Файл не найден')),
+          );
+        }
+        return;
+      }
+
+      final fileSize = await file.length();
+      print('🔍 [FileViewer] Размер файла: $fileSize байт');
+
+      // Используем try-catch для обработки ошибок плагина
+      if (kIsWeb) {
+        print('🌐 [FileViewer] Платформа: Web');
+        // Для веб используем другой метод
+        await Share.share(widget.filename);
+        print('✅ [FileViewer] Share.share успешно выполнен');
+      } else {
+        print('📱 [FileViewer] Платформа: Mobile (iOS/Android)');
+        print('🔍 [FileViewer] Платформа: ${Platform.operatingSystem}');
+        
+        // Для iOS нужно указать sharePositionOrigin
+        if (Platform.isIOS) {
+          print('🍎 [FileViewer] iOS платформа обнаружена');
+          try {
+            // Получаем размер экрана для правильного позиционирования
+            final size = MediaQuery.of(context).size;
+            final box = context.findRenderObject() as RenderBox?;
+            final position = box?.localToGlobal(Offset.zero) ?? Offset.zero;
+            
+            print('🔍 [FileViewer] Размер экрана: ${size.width}x${size.height}');
+            print('🔍 [FileViewer] Позиция: ${position.dx}, ${position.dy}');
+            
+            // Используем shareXFiles с sharePositionOrigin для iOS
+            await Share.shareXFiles(
+              [XFile(widget.filePath)],
+              sharePositionOrigin: Rect.fromLTWH(
+                position.dx,
+                position.dy,
+                size.width,
+                size.height,
+              ),
+            );
+            print('✅ [FileViewer] Share.shareXFiles успешно выполнен на iOS');
+          } catch (e, stackTrace) {
+            print('❌ [FileViewer] Ошибка shareXFiles на iOS: $e');
+            print('❌ [FileViewer] Stack trace: $stackTrace');
+            
+            // Fallback: пробуем без sharePositionOrigin
+            try {
+              print('🔄 [FileViewer] Пробуем fallback без sharePositionOrigin');
+              await Share.shareXFiles(
+                [XFile(widget.filePath)],
+              );
+              print('✅ [FileViewer] Fallback успешно выполнен');
+            } catch (e2, stackTrace2) {
+              print('❌ [FileViewer] Ошибка fallback: $e2');
+              print('❌ [FileViewer] Stack trace fallback: $stackTrace2');
+              
+              // Последний fallback: обычный share
+              if (context.mounted) {
+                print('🔄 [FileViewer] Пробуем последний fallback: Share.share');
+                await Share.share(
+                  'Файл: ${widget.filename}',
+                );
+                print('✅ [FileViewer] Share.share успешно выполнен');
+              }
+            }
+          }
+        } else {
+          // Для Android
+          print('🤖 [FileViewer] Android платформа обнаружена');
+          try {
+            await Share.shareXFiles(
+              [XFile(widget.filePath)],
+            );
+            print('✅ [FileViewer] Share.shareXFiles успешно выполнен на Android');
+          } catch (e, stackTrace) {
+            print('❌ [FileViewer] Ошибка shareXFiles на Android: $e');
+            print('❌ [FileViewer] Stack trace: $stackTrace');
+            
+            // Fallback для Android
+            if (context.mounted) {
+              print('🔄 [FileViewer] Пробуем fallback: Share.share');
+              await Share.share(
+                'Файл: ${widget.filename}',
+              );
+              print('✅ [FileViewer] Share.share успешно выполнен');
+            }
+          }
+        }
+      }
+    } catch (e, stackTrace) {
+      print('❌ [FileViewer] Критическая ошибка в _shareFile: $e');
+      print('❌ [FileViewer] Stack trace: $stackTrace');
+      
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Ошибка при открытии диалога "Поделиться": $e'),
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+    }
   }
 }

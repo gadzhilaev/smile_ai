@@ -8,10 +8,17 @@ import '../widgets/bottom_nav_bar.dart';
 import '../settings/colors.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({super.key, this.conversationId});
+
+  final String? conversationId;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
+}
+
+// Вспомогательный класс для передачи conversationId
+class HomeScreenWithConversationId extends HomeScreen {
+  const HomeScreenWithConversationId({super.key, required super.conversationId});
 }
 
 class _HomeScreenState extends State<HomeScreen> {
@@ -28,6 +35,18 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _category;
   int _aiScreenKey = 0;
   int _templatesScreenKey = 0;
+  String? _conversationId;
+  
+  @override
+  void initState() {
+    super.initState();
+    // Если передан conversationId из конструктора, сохраняем его
+    if (widget.conversationId != null && widget.conversationId!.isNotEmpty) {
+      _conversationId = widget.conversationId;
+      // Сразу устанавливаем индекс на AI экран
+      _currentIndex = 0;
+    }
+  }
 
   void navigateToAiScreen({
     String? autoGenerateText,
@@ -66,12 +85,28 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildScreen(int index) {
     switch (index) {
       case 0:
+        // Если передан conversationId и экран уже создан, обновляем его через новый ключ
+        // чтобы conversationId был обработан в initState
+        if (_conversationId != null && _conversationId!.isNotEmpty && _aiScreen != null) {
+          // Пересоздаем экран с новым conversationId, но только один раз
+          // чтобы избежать видимого переключения
+          _aiScreen = AiScreen(
+            key: ValueKey('ai_${_conversationId}'),
+            autoGenerateText: _autoGenerateText,
+            editText: _editText,
+            onTextSaved: _onTextSaved,
+            category: _category,
+            conversationId: _conversationId,
+          );
+          return _aiScreen!;
+        }
         _aiScreen ??= AiScreen(
           key: ValueKey(_aiScreenKey),
           autoGenerateText: _autoGenerateText,
           editText: _editText,
           onTextSaved: _onTextSaved,
           category: _category,
+          conversationId: _conversationId,
         );
         return _aiScreen!;
       case 1:

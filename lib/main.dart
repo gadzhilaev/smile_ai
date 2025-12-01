@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -21,7 +22,6 @@ import 'settings/colors.dart';
 import 'auth/login.dart';
 import 'screens/home_screen.dart';
 import 'screens/support_screen.dart';
-import 'screens/ai_screen.dart';
 
 void main() async {
   final WidgetsBinding widgetsBinding =
@@ -158,11 +158,35 @@ class _MainAppState extends State<MainApp> {
     
     // Настраиваем обработчик для локальных уведомлений
     NotificationService.instance.setNotificationTapCallback((payload) {
-      // Парсим payload для определения типа уведомления
-      if (payload.contains('ai') || payload.contains('generation')) {
-        _navigateToAI();
-      } else {
-        _navigateToSupport();
+      try {
+        // Пытаемся распарсить payload как JSON
+        final Map<String, dynamic>? data = jsonDecode(payload) as Map<String, dynamic>?;
+        if (data != null) {
+          final type = data['type']?.toString().toLowerCase() ?? '';
+          final route = data['route']?.toString().toLowerCase() ?? '';
+          final conversationId = data['conversation_id']?.toString();
+          
+          // Проверяем, является ли это уведомлением о завершении генерации AI
+          if (type == 'ai_generation' || route == 'ai_chat' || route.contains('ai')) {
+            _navigateToAI(conversationId: conversationId);
+          } else {
+            _navigateToSupport();
+          }
+        } else {
+          // Fallback: если payload не JSON, проверяем как строку
+          if (payload.contains('ai') || payload.contains('generation')) {
+            _navigateToAI();
+          } else {
+            _navigateToSupport();
+          }
+        }
+      } catch (e) {
+        // Если не удалось распарсить, используем fallback
+        if (payload.contains('ai') || payload.contains('generation')) {
+          _navigateToAI();
+        } else {
+          _navigateToSupport();
+        }
       }
     });
   }
@@ -184,7 +208,8 @@ class _MainAppState extends State<MainApp> {
                           data['ai_complete'] == true;
 
     if (isAIGeneration) {
-      _navigateToAI();
+      final conversationId = data['conversation_id']?.toString();
+      _navigateToAI(conversationId: conversationId);
     } else {
       // По умолчанию открываем поддержку
       _navigateToSupport();
@@ -202,13 +227,18 @@ class _MainAppState extends State<MainApp> {
     }
   }
 
-  void _navigateToAI() {
+  void _navigateToAI({String? conversationId}) {
     final navigator = navigatorKey.currentState;
     if (navigator != null) {
-      navigator.push(
+      // Открываем HomeScreen с conversationId, если он передан
+      // HomeScreen уже содержит AiScreen с навбаром
+      navigator.pushAndRemoveUntil(
         MaterialPageRoute(
-          builder: (_) => const AiScreen(),
+          builder: (_) => conversationId != null && conversationId.isNotEmpty
+              ? HomeScreenWithConversationId(conversationId: conversationId)
+              : const HomeScreen(),
         ),
+        (route) => false, // Удаляем все предыдущие маршруты
       );
     }
   }
