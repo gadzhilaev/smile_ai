@@ -310,8 +310,11 @@ class _SupportScreenState extends State<SupportScreen> {
       );
       if (mounted) {
         setState(() {
-          // Преобразуем историю в формат _SupportMessage
-          _messages.clear();
+          // НЕ очищаем список полностью, чтобы не потерять сообщения, добавленные через WebSocket
+          // Вместо этого добавляем только новые сообщения из истории
+          // Создаем временный список для новых сообщений из истории
+          final newMessagesFromHistory = <_SupportMessage>[];
+          
           for (final msg in history) {
             List<String>? imagePaths;
             
@@ -426,6 +429,7 @@ class _SupportScreenState extends State<SupportScreen> {
                     imagePaths: imagePaths,
                     isLocalFiles: false,
                     createdAt: createdAt,
+                    tempId: null, // Убираем tempId, чтобы сообщение не считалось локальным
                   );
                   foundLocalMessage = true;
                   break;
@@ -434,21 +438,40 @@ class _SupportScreenState extends State<SupportScreen> {
             }
             
             // Если не нашли локальное сообщение, проверяем на дубликаты
+            // Проверяем все сообщения, включая те, что были добавлены через WebSocket
             if (!foundLocalMessage) {
               bool isDuplicate = false;
               for (final existingMsg in _messages) {
+                // Проверяем на дубликаты: одинаковый текст, от того же отправителя, в пределах 5 секунд
                 if (existingMsg.text == messageText &&
                     existingMsg.fromSupport == isFromSupport &&
                     existingMsg.createdAt != null &&
-                    existingMsg.createdAt!.difference(createdAt).abs().inSeconds < 5 &&
-                    existingMsg.tempId == null) {
-                  isDuplicate = true;
-                  break;
+                    existingMsg.createdAt!.difference(createdAt).abs().inSeconds < 5) {
+                  // Проверяем изображения
+                  bool imagesMatch = true;
+                  final existingImages = existingMsg.imagePaths ?? [];
+                  final newImages = imagePaths ?? [];
+                  if (existingImages.length != newImages.length) {
+                    imagesMatch = false;
+                  } else if (existingImages.isNotEmpty && newImages.isNotEmpty) {
+                    // Сравниваем URL изображений
+                    for (int j = 0; j < existingImages.length; j++) {
+                      if (existingImages[j] != newImages[j]) {
+                        imagesMatch = false;
+                        break;
+                      }
+                    }
+                  }
+                  
+                  if (imagesMatch) {
+                    isDuplicate = true;
+                    break;
+                  }
                 }
               }
               
               if (!isDuplicate) {
-                _messages.add(
+                newMessagesFromHistory.add(
                   _SupportMessage(
                     fromSupport: isFromSupport,
                     text: messageText,
@@ -456,11 +479,59 @@ class _SupportScreenState extends State<SupportScreen> {
                     imagePaths: imagePaths,
                     isLocalFiles: false, // Из истории - это URL, не локальные файлы
                     createdAt: createdAt,
+                    tempId: null, // Сообщение из истории не имеет tempId
                   ),
                 );
               }
             }
           }
+          
+          // Теперь добавляем новые сообщения из истории в основной список
+          // Проверяем каждое сообщение на дубликаты с уже существующими сообщениями
+          for (final newMsg in newMessagesFromHistory) {
+            bool isDuplicate = false;
+            for (final existingMsg in _messages) {
+              // Проверяем на дубликаты: одинаковый текст, от того же отправителя, в пределах 5 секунд
+              if (existingMsg.text == newMsg.text &&
+                  existingMsg.fromSupport == newMsg.fromSupport &&
+                  existingMsg.createdAt != null &&
+                  newMsg.createdAt != null &&
+                  existingMsg.createdAt!.difference(newMsg.createdAt!).abs().inSeconds < 5) {
+                // Проверяем изображения
+                bool imagesMatch = true;
+                final existingImages = existingMsg.imagePaths ?? [];
+                final newImages = newMsg.imagePaths ?? [];
+                if (existingImages.length != newImages.length) {
+                  imagesMatch = false;
+                } else if (existingImages.isNotEmpty && newImages.isNotEmpty) {
+                  // Сравниваем URL изображений
+                  for (int j = 0; j < existingImages.length; j++) {
+                    if (existingImages[j] != newImages[j]) {
+                      imagesMatch = false;
+                      break;
+                    }
+                  }
+                }
+                
+                if (imagesMatch) {
+                  isDuplicate = true;
+                  break;
+                }
+              }
+            }
+            
+            if (!isDuplicate) {
+              _messages.add(newMsg);
+            }
+          }
+          
+          // Сортируем сообщения по времени создания
+          _messages.sort((a, b) {
+            if (a.createdAt == null && b.createdAt == null) return 0;
+            if (a.createdAt == null) return 1;
+            if (b.createdAt == null) return -1;
+            return a.createdAt!.compareTo(b.createdAt!);
+          });
           
           // Обновляем время последнего сообщения
           if (_messages.isNotEmpty) {
