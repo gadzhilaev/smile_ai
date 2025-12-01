@@ -157,6 +157,7 @@ class FCMService {
   /// Инициализация для iOS с обработкой APNS токена
   Future<void> _initializeIOS(String userId) async {
     debugPrint('🍎 FCMService: Инициализация для iOS...');
+    
     // Пытаемся получить APNS токен
     try {
       debugPrint('   Попытка получить APNS токен...');
@@ -168,6 +169,21 @@ class FCMService {
         await _getFCMTokenAndRegister(userId);
       } else {
         debugPrint('⚠️ FCMService: APNS токен еще не доступен');
+        debugPrint('   Пытаемся получить FCM токен напрямую (может работать без APNS токена)...');
+        
+        // Пытаемся получить FCM токен напрямую (иногда работает даже без APNS токена)
+        try {
+          final fcmToken = await _messaging.getToken();
+          if (fcmToken != null) {
+            debugPrint('✅ FCMService: FCM токен получен напрямую!');
+            _fcmToken = fcmToken;
+            await registerTokenForUser(userId);
+            return;
+          }
+        } catch (e) {
+          debugPrint('   FCM токен напрямую не получен: $e');
+        }
+        
         debugPrint('   Начинаем периодические попытки получения токена...');
         // Начинаем периодические попытки получить токен
         _startIOSTokenRetry(userId);
@@ -175,11 +191,26 @@ class FCMService {
     } catch (e, stackTrace) {
       debugPrint('⚠️ FCMService: ошибка получения APNS токена: $e');
       debugPrint('   Stack trace: $stackTrace');
+      
+      // Пытаемся получить FCM токен напрямую
+      try {
+        final fcmToken = await _messaging.getToken();
+        if (fcmToken != null) {
+          debugPrint('✅ FCMService: FCM токен получен напрямую после ошибки!');
+          _fcmToken = fcmToken;
+          await registerTokenForUser(userId);
+          return;
+        }
+      } catch (e2) {
+        debugPrint('   FCM токен напрямую не получен: $e2');
+      }
+      
       debugPrint('   Начинаем периодические попытки...');
       // Начинаем периодические попытки
       _startIOSTokenRetry(userId);
     }
   }
+  
   
   /// Периодические попытки получить FCM токен на iOS
   void _startIOSTokenRetry(String userId) {
@@ -198,6 +229,21 @@ class FCMService {
       debugPrint('═══════════════════════════════════════════════════════');
       
       try {
+        // Сначала пытаемся получить FCM токен напрямую (может работать даже без APNS токена)
+        try {
+          final fcmToken = await _messaging.getToken();
+          if (fcmToken != null) {
+            debugPrint('✅ FCMService: FCM токен получен напрямую!');
+            debugPrint('   FCM токен: ${fcmToken.substring(0, 20)}...');
+            _fcmToken = fcmToken;
+            timer.cancel();
+            await registerTokenForUser(userId);
+            return;
+          }
+        } catch (e) {
+          // Игнорируем ошибку, продолжаем проверку APNS
+        }
+        
         // Проверяем APNS токен
         debugPrint('   Проверка APNS токена...');
         final apnsToken = await _messaging.getAPNSToken();
@@ -213,6 +259,9 @@ class FCMService {
             debugPrint('═══════════════════════════════════════════════════════');
             debugPrint('⚠️ FCMService: Достигнуто максимальное количество попыток');
             debugPrint('   Останавливаем попытки получения токена');
+            debugPrint('   ВАЖНО: Проверьте настройки Push Notifications в Xcode:');
+            debugPrint('   - Signing & Capabilities → Push Notifications');
+            debugPrint('   - Signing & Capabilities → Background Modes → Remote notifications');
             debugPrint('═══════════════════════════════════════════════════════');
             timer.cancel();
           }
@@ -397,7 +446,7 @@ class FCMService {
       debugPrint('   Route: ${message.data['route']}');
       debugPrint('═══════════════════════════════════════════════════════');
       
-      // Проверяем тип уведомления
+      // Проверяем тип уведомления для обновления UI
       final isSupportMessage = message.data['type'] == 'support_reply' || 
                                message.data['type'] == 'support_message' ||
                                message.data['direction'] == 'support' ||
@@ -412,6 +461,7 @@ class FCMService {
       }
       
       // Навигация будет обработана через глобальный ключ навигатора
+      // Логика навигации (AI или Support) обрабатывается в main.dart
       _handleNotificationNavigation(message.data);
     });
     
@@ -429,7 +479,7 @@ class FCMService {
         debugPrint('   Route: ${message.data['route']}');
         debugPrint('═══════════════════════════════════════════════════════');
         
-        // Проверяем тип уведомления
+        // Проверяем тип уведомления для обновления UI
         final isSupportMessage = message.data['type'] == 'support_reply' || 
                                  message.data['type'] == 'support_message' ||
                                  message.data['direction'] == 'support' ||
@@ -443,6 +493,8 @@ class FCMService {
           }
         }
         
+        // Навигация будет обработана через глобальный ключ навигатора
+        // Логика навигации (AI или Support) обрабатывается в main.dart
         _handleNotificationNavigation(message.data);
       }
     });

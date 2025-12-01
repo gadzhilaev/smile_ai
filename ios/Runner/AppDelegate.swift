@@ -44,14 +44,41 @@ import UserNotifications
   // Регистрация токена APNS
   override func application(_ application: UIApplication,
                            didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-    print("📱 iOS: APNS токен получен: \(deviceToken.map { String(format: "%02.2hhx", $0) }.joined())")
+    let tokenString = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
+    print("📱 iOS: APNS токен получен в AppDelegate: \(tokenString)")
+    
+    // Устанавливаем APNS токен для Firebase Messaging
     Messaging.messaging().apnsToken = deviceToken
+    
+    // Пытаемся получить FCM токен сразу после установки APNS токена
+    Messaging.messaging().token { token, error in
+      if let error = error {
+        print("❌ iOS: Ошибка получения FCM токена: \(error.localizedDescription)")
+      } else if let token = token {
+        print("🔑 iOS: FCM токен получен в AppDelegate: \(token)")
+        // Отправляем уведомление в Flutter
+        let dataDict: [String: String] = ["token": token]
+        NotificationCenter.default.post(
+          name: Notification.Name("FCMToken"),
+          object: nil,
+          userInfo: dataDict
+        )
+      }
+    }
   }
   
   // Ошибка регистрации APNS
   override func application(_ application: UIApplication,
                            didFailToRegisterForRemoteNotificationsWithError error: Error) {
     print("❌ iOS: Ошибка регистрации APNS: \(error.localizedDescription)")
+    print("   Детали ошибки: \(error)")
+    
+    // Проверяем, может ли быть проблема с capabilities
+    if let nsError = error as NSError? {
+      print("   Код ошибки: \(nsError.code)")
+      print("   Домен ошибки: \(nsError.domain)")
+      print("   Информация: \(nsError.userInfo)")
+    }
   }
   
   // Получение push-уведомления в фоне

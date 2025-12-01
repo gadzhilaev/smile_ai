@@ -1,6 +1,10 @@
 import 'dart:async';
 import 'dart:math' as math;
+import 'dart:io';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -169,6 +173,16 @@ class _AiScreenState extends State<AiScreen> {
       final responseText = result['response'] as String? ?? '';
       final newConversationId = result['conversation_id'] as String?;
       
+      // Парсим файлы из ответа
+      List<Map<String, dynamic>>? files;
+      if (result['files'] != null && result['files'] != 'null') {
+        if (result['files'] is List) {
+          files = List<Map<String, dynamic>>.from(
+            (result['files'] as List).map((file) => file as Map<String, dynamic>)
+          );
+        }
+      }
+      
       setState(() {
         _isTyping = true; // Начинаем генерацию
       });
@@ -204,6 +218,7 @@ class _AiScreenState extends State<AiScreen> {
               text: responseText,
             isUser: false,
             isThinking: false,
+            files: files, // Добавляем файлы в сообщение
           );
           _isTyping = false;
             // Сохраняем чат после завершения генерации
@@ -430,10 +445,21 @@ class _AiScreenState extends State<AiScreen> {
             final role = msg['role'] as String? ?? '';
             final isUser = role == 'user';
             
+            // Парсим файлы из сообщения
+            List<Map<String, dynamic>>? files;
+            if (msg['files'] != null && msg['files'] != 'null') {
+              if (msg['files'] is List) {
+                files = List<Map<String, dynamic>>.from(
+                  (msg['files'] as List).map((file) => file as Map<String, dynamic>)
+                );
+              }
+            }
+            
             loadedMessages.add(ChatMessage(
               text: content,
               isUser: isUser,
               isThinking: false,
+              files: files,
             ));
           }
 
@@ -706,6 +732,66 @@ class _AiScreenState extends State<AiScreen> {
     _scrollToBottom();
   }
 
+
+  // Функция для скачивания и открытия диалога "Поделиться"
+  Future<void> _downloadAndShareFile(String downloadUrl, String filename) async {
+    try {
+      // Показываем индикатор загрузки
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+      
+      // Формируем полный URL
+      const baseUrl = 'https://alpha-backend-c91h.onrender.com';
+      final fullUrl = downloadUrl.startsWith('/') 
+          ? '$baseUrl$downloadUrl' 
+          : downloadUrl;
+      
+      // Скачиваем файл
+      final response = await http.get(Uri.parse(fullUrl));
+      
+      if (response.statusCode == 200) {
+        // Получаем директорию для сохранения
+        final directory = await getApplicationDocumentsDirectory();
+        final filePath = '${directory.path}/$filename';
+        final file = File(filePath);
+        
+        // Сохраняем файл
+        await file.writeAsBytes(response.bodyBytes);
+        
+        // Закрываем индикатор загрузки
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
+        
+        // Открываем диалог "Поделиться"
+        await Share.shareXFiles(
+          [XFile(filePath)],
+          text: filename,
+        );
+      } else {
+        if (mounted) {
+          Navigator.of(context).pop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Ошибка при скачивании файла')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка: $e')),
+        );
+      }
+    }
+  }
+
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
@@ -760,6 +846,7 @@ class _AiScreenState extends State<AiScreen> {
                       designHeight: _designHeight,
                       accentColor: _accentColor,
                       onCopy: _showCopyToastOnce,
+                      onDownloadFile: _downloadAndShareFile,
                     ),
                   );
                 },
@@ -1284,6 +1371,7 @@ class _MessageBubble extends StatelessWidget {
     required this.designHeight,
     required this.accentColor,
     required this.onCopy,
+    required this.onDownloadFile,
   });
 
   final ChatMessage message;
@@ -1291,6 +1379,7 @@ class _MessageBubble extends StatelessWidget {
   final double designHeight;
   final Color accentColor;
   final VoidCallback onCopy;
+  final Future<void> Function(String downloadUrl, String filename) onDownloadFile;
 
   // Проверяет, начинается ли сообщение с горизонтальной линии (---)
   static bool _isMessageStartingWithHr(String text) {
@@ -1387,7 +1476,27 @@ class _MessageBubble extends StatelessWidget {
                   isDark: isDark,
                   size: scaleHeight(20),
                 )
-              : MarkdownBody(
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Файлы (если есть)
+                    if (message.files != null && message.files!.isNotEmpty)
+                      Padding(
+                        padding: EdgeInsets.only(
+                          bottom: message.text.isNotEmpty ? scaleHeight(8) : 0,
+                        ),
+                        child: Wrap(
+                          spacing: scaleWidth(8),
+                          runSpacing: scaleHeight(8),
+                          children: message.files!.map((file) {
+                            return _buildFilePreview(file, isDark, scaleWidth, scaleHeight, onDownloadFile);
+                          }).toList(),
+                        ),
+                      ),
+                    // Текст сообщения
+                    if (message.text.isNotEmpty)
+                      MarkdownBody(
               data: _removeLeadingHr(message.text),
               styleSheet: MarkdownStyleSheet(
                 p: textStyle,
@@ -1482,6 +1591,8 @@ class _MessageBubble extends StatelessWidget {
                 ),
               },
             ),
+                  ],
+                ),
     );
 
     if (message.isUser) {
@@ -1513,6 +1624,79 @@ class _MessageBubble extends StatelessWidget {
       );
     }
   }
+  
+  // Функция для отображения превью файла
+  Widget _buildFilePreview(
+    Map<String, dynamic> file,
+    bool isDark,
+    double Function(double) scaleWidth,
+    double Function(double) scaleHeight,
+    Future<void> Function(String, String) onDownloadFile,
+  ) {
+    final filename = file['filename'] as String? ?? 'file';
+    final mime = file['mime'] as String? ?? '';
+    final downloadUrl = file['download_url'] as String? ?? '';
+    
+    // Определяем иконку по типу файла
+    IconData fileIcon = Icons.insert_drive_file;
+    if (mime.contains('excel') || mime.contains('spreadsheet') || filename.endsWith('.xlsx') || filename.endsWith('.xls')) {
+      fileIcon = Icons.table_chart;
+    } else if (mime.contains('csv') || filename.endsWith('.csv')) {
+      fileIcon = Icons.table_view;
+    } else if (mime.contains('pdf') || filename.endsWith('.pdf')) {
+      fileIcon = Icons.picture_as_pdf;
+    } else if (mime.contains('word') || filename.endsWith('.doc') || filename.endsWith('.docx')) {
+      fileIcon = Icons.description;
+    }
+    
+    return GestureDetector(
+      onTap: () => onDownloadFile(downloadUrl, filename),
+      child: Container(
+        width: scaleHeight(100),
+        height: scaleHeight(100),
+        decoration: BoxDecoration(
+          color: isDark 
+              ? AppColors.darkBackgroundMain 
+              : AppColors.backgroundMain,
+          borderRadius: BorderRadius.circular(scaleHeight(12)),
+          border: Border.all(
+            color: isDark 
+                ? AppColors.darkSecondaryText 
+                : AppColors.textSecondary,
+            width: 1,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              fileIcon,
+              size: scaleWidth(40),
+              color: isDark 
+                  ? AppColors.darkPrimaryText 
+                  : AppColors.textPrimary,
+            ),
+            SizedBox(height: scaleHeight(4)),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: scaleWidth(4)),
+              child: Text(
+                filename,
+                style: AppTextStyle.chatMessage(
+                  scaleHeight(10),
+                  color: isDark 
+                      ? AppColors.darkSecondaryText 
+                      : AppColors.textSecondary,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class ChatMessage {
@@ -1520,11 +1704,13 @@ class ChatMessage {
     required this.text,
     required this.isUser,
     this.isThinking = false,
+    this.files,
   });
 
   final String text;
   final bool isUser;
   final bool isThinking; // Флаг для состояния "думает"
+  final List<Map<String, dynamic>>? files; // Файлы из ответа AI (Excel, CSV и т.д.)
 }
 
 class ChatHistory {

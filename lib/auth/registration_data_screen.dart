@@ -475,7 +475,6 @@ class _AccountInputField extends StatefulWidget {
     required this.designWidth,
     required this.designHeight,
     this.keyboardType = TextInputType.text,
-    this.inputFormatters,
     this.validator,
   });
 
@@ -485,7 +484,6 @@ class _AccountInputField extends StatefulWidget {
   final double designWidth;
   final double designHeight;
   final TextInputType keyboardType;
-  final List<TextInputFormatter>? inputFormatters;
   final String? Function(String?)? validator;
 
   @override
@@ -596,7 +594,6 @@ class _AccountInputFieldState extends State<_AccountInputField> {
                     controller: widget.controller,
                     focusNode: widget.focusNode,
                     keyboardType: widget.keyboardType,
-                    inputFormatters: widget.inputFormatters,
                     style: AppTextStyle.fieldText(
                       scaleHeight(13),
                     ).copyWith(

@@ -79,7 +79,7 @@ class _SupportScreenState extends State<SupportScreen> {
         }
       }
       if (data['photo_urls'] != null) {
-        final parsed = _parseImageUrls(data['photo_urls']);
+        final parsed = parseImageUrls(data['photo_urls']);
         if (parsed.isNotEmpty) {
           imagePaths = parsed;
         }
@@ -91,45 +91,89 @@ class _SupportScreenState extends State<SupportScreen> {
         try {
           createdAt = DateTime.parse(data['created_at'].toString());
         } catch (e) {
-          debugPrint('SupportScreen: ошибка парсинга даты из WebSocket: $e');
+          // Ошибка парсинга даты
         }
       }
       createdAt ??= DateTime.now();
       
-      // Проверяем, нет ли уже такого сообщения (чтобы избежать дубликатов)
-      bool isDuplicate = false;
-      for (final existingMsg in _messages) {
-        if (existingMsg.text == messageText &&
-            existingMsg.fromSupport == isFromSupport &&
+      // Проверяем, нет ли локального сообщения с таким же содержимым (чтобы заменить его)
+      bool foundLocalMessage = false;
+      for (int i = 0; i < _messages.length; i++) {
+        final existingMsg = _messages[i];
+        // Если это локальное сообщение пользователя с таким же текстом и изображениями
+        if (existingMsg.tempId != null &&
+            !existingMsg.fromSupport &&
+            existingMsg.text == messageText &&
             existingMsg.createdAt != null &&
-            existingMsg.createdAt!.difference(createdAt).abs().inSeconds < 5) {
-          isDuplicate = true;
-          break;
+            existingMsg.createdAt!.difference(createdAt).abs().inSeconds < 10) {
+          // Проверяем изображения
+          bool imagesMatch = true;
+          if (imagePaths != null && imagePaths.isNotEmpty) {
+            final localImages = existingMsg.imagePaths ?? [];
+            if (localImages.length != imagePaths.length) {
+              imagesMatch = false;
+            }
+          } else if (existingMsg.imagePaths != null && existingMsg.imagePaths!.isNotEmpty) {
+            imagesMatch = false;
+          }
+          
+          if (imagesMatch) {
+            // Заменяем локальное сообщение на сообщение с сервера
+            setState(() {
+              _messages[i] = _SupportMessage(
+                fromSupport: isFromSupport,
+                text: messageText,
+                imagePaths: imagePaths,
+                isLocalFiles: false,
+                createdAt: createdAt,
+              );
+            });
+            foundLocalMessage = true;
+            break;
+          }
         }
       }
       
-      if (!isDuplicate) {
-        setState(() {
-          _messages.add(
-            _SupportMessage(
-              fromSupport: isFromSupport,
-              text: messageText,
-              imagePaths: imagePaths,
-              isLocalFiles: false,
-              createdAt: createdAt,
-            ),
-          );
-        });
+      // Если не нашли локальное сообщение для замены, проверяем на дубликаты
+      if (!foundLocalMessage) {
+        bool isDuplicate = false;
+        for (final existingMsg in _messages) {
+          if (existingMsg.text == messageText &&
+              existingMsg.fromSupport == isFromSupport &&
+              existingMsg.createdAt != null &&
+              existingMsg.createdAt!.difference(createdAt).abs().inSeconds < 5 &&
+              existingMsg.tempId == null) { // Не проверяем локальные сообщения
+            isDuplicate = true;
+            break;
+          }
+        }
+        
+        if (!isDuplicate) {
+          setState(() {
+            _messages.add(
+              _SupportMessage(
+                fromSupport: isFromSupport,
+                text: messageText,
+                imagePaths: imagePaths,
+                isLocalFiles: false,
+                createdAt: createdAt,
+              ),
+            );
+          });
+          _scrollToBottom();
+        }
+      } else {
         _scrollToBottom();
-        _lastMessageTime = createdAt;
       }
+      
+      _lastMessageTime = createdAt;
     } catch (e) {
-      debugPrint('SupportScreen: ошибка обработки сообщения из WebSocket: $e');
+      // Ошибка обработки сообщения из WebSocket
     }
   }
   
   /// Парсинг URL изображений
-  List<String> _parseImageUrls(dynamic value) {
+  List<String> parseImageUrls(dynamic value) {
     if (value == null) return [];
     
     if (value is List) {
@@ -171,7 +215,7 @@ class _SupportScreenState extends State<SupportScreen> {
 
     try {
       // Передаем user_name для приветственного сообщения
-      final fullName = ProfileService.instance.fullName;
+    final fullName = ProfileService.instance.fullName;
       final history = await SupportService.getMessageHistory(
         userId,
         userName: fullName.isNotEmpty ? fullName : null,
@@ -214,20 +258,19 @@ class _SupportScreenState extends State<SupportScreen> {
         _lastMessageTime = latestTime;
       }
     } catch (e) {
-      debugPrint('SupportScreen: ошибка проверки новых сообщений: $e');
+      // Ошибка проверки новых сообщений
     }
   }
 
   Future<void> _loadMessageHistory() async {
     final userId = _getUserId();
     
-    setState(() {
+      setState(() {
       _isLoading = true;
     });
 
     // Если USER_ID не найден, показываем пустой список сообщений
     if (userId == null || userId.isEmpty) {
-      debugPrint('SupportScreen: USER_ID not found, showing empty chat');
       if (mounted) {
         setState(() {
           _messages.clear();
@@ -252,7 +295,7 @@ class _SupportScreenState extends State<SupportScreen> {
             List<String>? imagePaths;
             
             // Функция для безопасного парсинга строки как JSON-массива или обычной строки
-            List<String> _parseImageUrls(dynamic value) {
+            List<String> parseImageUrls(dynamic value) {
               if (value == null) return [];
               
               if (value is List) {
@@ -267,7 +310,7 @@ class _SupportScreenState extends State<SupportScreen> {
                     final decoded = json.decode(trimmed) as List<dynamic>;
                     return List<String>.from(decoded.map((url) => url.toString()));
                   } catch (e) {
-                    debugPrint('SupportScreen: ошибка парсинга JSON-массива: $e, значение: $trimmed');
+                    // Ошибка парсинга JSON-массива
                     // Если не удалось распарсить, возвращаем пустой список
                     return [];
                   }
@@ -282,7 +325,7 @@ class _SupportScreenState extends State<SupportScreen> {
             
             // Обрабатываем photo_url (одно фото)
             if (msg['photo_url'] != null) {
-              final parsed = _parseImageUrls(msg['photo_url']);
+              final parsed = parseImageUrls(msg['photo_url']);
               if (parsed.isNotEmpty) {
                 imagePaths = parsed;
               }
@@ -290,7 +333,7 @@ class _SupportScreenState extends State<SupportScreen> {
             
             // Обрабатываем photo_urls (несколько фото) - имеет приоритет над photo_url
             if (msg['photo_urls'] != null) {
-              final parsed = _parseImageUrls(msg['photo_urls']);
+              final parsed = parseImageUrls(msg['photo_urls']);
               if (parsed.isNotEmpty) {
                 imagePaths = parsed;
               }
@@ -313,7 +356,7 @@ class _SupportScreenState extends State<SupportScreen> {
                 final dateStr = msg['created_at'].toString();
                 createdAt = DateTime.parse(dateStr);
               } catch (e) {
-                debugPrint('SupportScreen: ошибка парсинга даты: $e');
+                // Ошибка парсинга даты
               }
             } else if (msg['timestamp'] != null) {
               try {
@@ -324,7 +367,7 @@ class _SupportScreenState extends State<SupportScreen> {
                   createdAt = DateTime.parse(timestamp);
                 }
               } catch (e) {
-                debugPrint('SupportScreen: ошибка парсинга timestamp: $e');
+                // Ошибка парсинга timestamp
               }
             }
             // Если дата не найдена, используем текущую дату
@@ -333,30 +376,68 @@ class _SupportScreenState extends State<SupportScreen> {
             final messageText = msg['message'] ?? '';
             final isFromSupport = msg['direction'] == 'support' || msg['from_support'] == true;
             
-            // Проверяем, нет ли уже такого сообщения (чтобы избежать дубликатов)
-            bool isDuplicate = false;
-            for (final existingMsg in _messages) {
-              if (existingMsg.text == messageText &&
-                  existingMsg.fromSupport == isFromSupport &&
+            // Проверяем, нет ли локального сообщения для замены
+            bool foundLocalMessage = false;
+            for (int i = 0; i < _messages.length; i++) {
+              final existingMsg = _messages[i];
+              if (existingMsg.tempId != null &&
+                  !existingMsg.fromSupport &&
+                  existingMsg.text == messageText &&
                   existingMsg.createdAt != null &&
-                  existingMsg.createdAt!.difference(createdAt).abs().inSeconds < 5) {
-                // Сообщение с таким же текстом, направлением и временем (в пределах 5 секунд) уже есть
-                isDuplicate = true;
-                break;
+                  existingMsg.createdAt!.difference(createdAt).abs().inSeconds < 10) {
+                // Проверяем изображения
+                bool imagesMatch = true;
+                if (imagePaths != null && imagePaths.isNotEmpty) {
+                  final localImages = existingMsg.imagePaths ?? [];
+                  if (localImages.length != imagePaths.length) {
+                    imagesMatch = false;
+                  }
+                } else if (existingMsg.imagePaths != null && existingMsg.imagePaths!.isNotEmpty) {
+                  imagesMatch = false;
+                }
+                
+                if (imagesMatch) {
+                  // Заменяем локальное сообщение на сообщение из истории
+                  _messages[i] = _SupportMessage(
+                    fromSupport: isFromSupport,
+                    text: messageText,
+                    imagePath: singleImagePath,
+                    imagePaths: imagePaths,
+                    isLocalFiles: false,
+                    createdAt: createdAt,
+                  );
+                  foundLocalMessage = true;
+                  break;
+                }
               }
             }
             
-            if (!isDuplicate) {
-              _messages.add(
-                _SupportMessage(
-                  fromSupport: isFromSupport,
-                  text: messageText,
-                  imagePath: singleImagePath,
-                  imagePaths: imagePaths,
-                  isLocalFiles: false, // Из истории - это URL, не локальные файлы
-                  createdAt: createdAt,
-                ),
-              );
+            // Если не нашли локальное сообщение, проверяем на дубликаты
+            if (!foundLocalMessage) {
+              bool isDuplicate = false;
+              for (final existingMsg in _messages) {
+                if (existingMsg.text == messageText &&
+                    existingMsg.fromSupport == isFromSupport &&
+                    existingMsg.createdAt != null &&
+                    existingMsg.createdAt!.difference(createdAt).abs().inSeconds < 5 &&
+                    existingMsg.tempId == null) {
+                  isDuplicate = true;
+                  break;
+                }
+              }
+              
+              if (!isDuplicate) {
+                _messages.add(
+                  _SupportMessage(
+                    fromSupport: isFromSupport,
+                    text: messageText,
+                    imagePath: singleImagePath,
+                    imagePaths: imagePaths,
+                    isLocalFiles: false, // Из истории - это URL, не локальные файлы
+                    createdAt: createdAt,
+                  ),
+                );
+              }
             }
           }
           
@@ -369,11 +450,11 @@ class _SupportScreenState extends State<SupportScreen> {
           }
           
           _isLoading = false;
-        });
-        _scrollToBottom();
+      });
+      _scrollToBottom();
       }
     } catch (e) {
-      debugPrint('SupportScreen: ошибка загрузки истории: $e');
+      // Ошибка загрузки истории
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -387,7 +468,7 @@ class _SupportScreenState extends State<SupportScreen> {
     try {
       return dotenv.env['USER_ID'];
     } catch (e) {
-      debugPrint('SupportScreen: ошибка получения USER_ID: $e');
+      // Ошибка получения USER_ID
       return null;
     }
   }
@@ -453,13 +534,14 @@ class _SupportScreenState extends State<SupportScreen> {
         return;
       }
 
-      final List<XFile>? files = await _imagePicker.pickMultiImage(
+      // Выбираем изображения (ограничение будет применено после выбора)
+      final files = await _imagePicker.pickMultiImage(
         maxWidth: 1024,
         maxHeight: 1024,
       );
-      if (files == null || files.isEmpty) return;
+      if (files.isEmpty) return;
       
-      // Ограничиваем количество до оставшихся слотов
+      // Дополнительная проверка (на случай если pickMultiImage не поддерживает limit)
       final filesToAdd = files.take(remainingSlots).toList();
       
       setState(() {
@@ -473,7 +555,7 @@ class _SupportScreenState extends State<SupportScreen> {
         );
       }
     } catch (e) {
-      debugPrint('SupportScreen: ошибка выбора изображения: $e');
+      // Ошибка выбора изображения
     }
   }
 
@@ -511,7 +593,7 @@ class _SupportScreenState extends State<SupportScreen> {
     // Проверяем, что путь валидный (не JSON-массив)
     final trimmed = path.trim();
     if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
-      debugPrint('SupportScreen: попытка открыть невалидный путь (JSON-массив): $path');
+      // Попытка открыть невалидный путь
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Ошибка: невалидный путь к изображению')),
@@ -542,14 +624,14 @@ class _SupportScreenState extends State<SupportScreen> {
                       },
                     )
                   : Image.file(
-                      File(path),
-                      fit: BoxFit.contain,
+                File(path),
+                fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) {
                         return const Center(
                           child: Text('Ошибка загрузки изображения'),
                         );
                       },
-                    ),
+              ),
             ),
           ),
         );
@@ -563,7 +645,6 @@ class _SupportScreenState extends State<SupportScreen> {
 
     final userId = _getUserId();
     if (userId == null || userId.isEmpty) {
-      debugPrint('SupportScreen: USER_ID not found, cannot send message');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Ошибка: пользователь не авторизован')),
@@ -580,6 +661,9 @@ class _SupportScreenState extends State<SupportScreen> {
     final messageText = text;
     final imagesToSend = List<XFile>.from(_attachedImages);
     
+    // Генерируем временный ID для локального сообщения
+    final tempId = DateTime.now().millisecondsSinceEpoch.toString();
+    
     // Добавляем сообщение в UI сразу для лучшего UX
     // Помечаем как локальные файлы, чтобы показывать их локально
     setState(() {
@@ -590,6 +674,7 @@ class _SupportScreenState extends State<SupportScreen> {
           imagePaths: imagesToSend.map((img) => img.path).toList(),
           isLocalFiles: true, // Это локальные файлы, показываем их локально
           createdAt: DateTime.now(),
+          tempId: tempId, // Временный ID для отслеживания
         ),
       );
       _inputController.clear();
@@ -620,13 +705,14 @@ class _SupportScreenState extends State<SupportScreen> {
         message: messageText,
         photos: photoFiles, // Отправляем все фото одним запросом
       );
-      debugPrint('SupportScreen: сообщение отправлено успешно');
+      
+      // После успешной отправки помечаем локальное сообщение для замены
+      // Оно будет заменено при получении с сервера через WebSocket
     } catch (e) {
-      debugPrint('SupportScreen: ошибка отправки сообщения: $e');
       if (mounted) {
-        // Удаляем сообщение из списка при ошибке
+        // Удаляем локальное сообщение из списка при ошибке
         setState(() {
-          _messages.removeLast();
+          _messages.removeWhere((msg) => msg.tempId == tempId);
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Ошибка отправки: $e')),
@@ -744,10 +830,10 @@ class _SupportScreenState extends State<SupportScreen> {
                             ),
                           )
                         : ListView.builder(
-                            controller: _scrollController,
-                            itemCount: _messages.length,
-                            physics: const BouncingScrollPhysics(),
-                            itemBuilder: (context, index) {
+                      controller: _scrollController,
+                      itemCount: _messages.length,
+                      physics: const BouncingScrollPhysics(),
+                      itemBuilder: (context, index) {
                         final message = _messages[index];
                         final isLast = index == _messages.length - 1;
                         final showDate = _shouldShowDate(index);
@@ -780,9 +866,9 @@ class _SupportScreenState extends State<SupportScreen> {
                               ),
                             // Сообщение
                             Padding(
-                              padding: EdgeInsets.only(
-                                bottom: isLast ? 0 : scaleHeight(20),
-                              ),
+                          padding: EdgeInsets.only(
+                            bottom: isLast ? 0 : scaleHeight(20),
+                          ),
                               child: Column(
                                 crossAxisAlignment: message.fromSupport
                                     ? CrossAxisAlignment.start
@@ -799,7 +885,7 @@ class _SupportScreenState extends State<SupportScreen> {
                                   child: Wrap(
                                     spacing: scaleWidth(8),
                                     runSpacing: scaleHeight(8),
-                                    alignment: message.fromSupport
+                            alignment: message.fromSupport
                                         ? WrapAlignment.start
                                         : WrapAlignment.end,
                                     children: message.imagePaths!.where((imagePath) {
@@ -849,12 +935,12 @@ class _SupportScreenState extends State<SupportScreen> {
                                 ),
                                   // Текстовый бабл
                                   _SupportBubble(
-                                    message: message,
-                                    designWidth: SupportScreen._designWidth,
-                                    designHeight: SupportScreen._designHeight,
-                                  ),
+                              message: message,
+                              designWidth: SupportScreen._designWidth,
+                              designHeight: SupportScreen._designHeight,
+                            ),
                                 ],
-                              ),
+                          ),
                             ),
                           ],
                         );
@@ -888,14 +974,14 @@ class _SupportScreenState extends State<SupportScreen> {
                                   onTap: () => _openImageFullScreen(
                                     _attachedImages[index].path,
                                   ),
-                                  child: ClipRRect(
+                      child: ClipRRect(
                                     borderRadius: BorderRadius.circular(scaleHeight(12)),
-                                    child: Image.file(
+                        child: Image.file(
                                       File(_attachedImages[index].path),
                                       width: scaleHeight(100),
                                       height: scaleHeight(100),
-                                      fit: BoxFit.cover,
-                                    ),
+                          fit: BoxFit.cover,
+                        ),
                                   ),
                                 ),
                                 Positioned(
@@ -998,13 +1084,13 @@ class _SupportScreenState extends State<SupportScreen> {
                                 ),
                               )
                             : Image.asset(
-                                isDark
-                                    ? 'assets/icons/light/icon_teleg.png'
-                                    : 'assets/icons/dark/icon_teleg_dark.png',
-                                width: scaleWidth(24),
-                                height: scaleWidth(24),
-                                fit: BoxFit.contain,
-                              ),
+                          isDark
+                              ? 'assets/icons/light/icon_teleg.png'
+                              : 'assets/icons/dark/icon_teleg_dark.png',
+                          width: scaleWidth(24),
+                          height: scaleWidth(24),
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ],
                   ),
@@ -1022,20 +1108,20 @@ class _SupportMessage {
   _SupportMessage({
     required this.fromSupport,
     required this.text,
-    this.isGreeting = false,
     this.imagePath,
     this.imagePaths,
     this.isLocalFiles = false, // Флаг для локальных файлов (только что отправленные)
     this.createdAt,
+    this.tempId, // Временный ID для локальных сообщений
   });
 
   final bool fromSupport;
   final String text;
-  final bool isGreeting;
   final String? imagePath; // Для обратной совместимости
   final List<String>? imagePaths; // Для множественных изображений
   final bool isLocalFiles; // true если это локальные файлы (только что отправленные), false если URL из истории
   final DateTime? createdAt; // Дата создания сообщения
+  final String? tempId; // Временный ID для локальных сообщений (для предотвращения дубликатов)
 }
 
 class _SupportBubble extends StatelessWidget {
@@ -1096,7 +1182,6 @@ class _SupportBubble extends StatelessWidget {
                 borderRadius: borderRadius,
                 designWidth: designWidth,
                 designHeight: designHeight,
-                isGreeting: message.isGreeting,
               ),
             ]
           : [
@@ -1109,7 +1194,6 @@ class _SupportBubble extends StatelessWidget {
                 designWidth: designWidth,
                 designHeight: designHeight,
                 alignRight: true,
-                isGreeting: message.isGreeting,
               ),
               SizedBox(width: scaleWidth(6)),
               _Avatar(
@@ -1169,7 +1253,6 @@ class _BubbleContent extends StatelessWidget {
     required this.designWidth,
     required this.designHeight,
     this.alignRight = false,
-    this.isGreeting = false,
   });
 
   final String nameText;
@@ -1179,7 +1262,6 @@ class _BubbleContent extends StatelessWidget {
   final double designWidth;
   final double designHeight;
   final bool alignRight;
-  final bool isGreeting;
 
   @override
   Widget build(BuildContext context) {
@@ -1224,12 +1306,7 @@ class _BubbleContent extends StatelessWidget {
           if (messageText.isNotEmpty)
             Text(
               messageText,
-              style: isGreeting
-                  ? AppTextStyle.screenTitle(
-                      scaleHeight(16),
-                      color: isDark ? AppColors.white : AppColors.black,
-                    )
-                  : AppTextStyle.bodyText(
+              style: AppTextStyle.bodyText(
                       scaleHeight(16),
                       color: isDark ? AppColors.white : AppColors.black,
                     ),

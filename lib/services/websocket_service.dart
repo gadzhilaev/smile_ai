@@ -1,9 +1,9 @@
-import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'package:flutter/foundation.dart';
 import 'support_service.dart';
 
 class WebSocketService {
-  static IO.Socket? _socket;
+  static io.Socket? _socket;
   static String? _currentUserId;
   
   // Callback для новых сообщений
@@ -20,9 +20,9 @@ class WebSocketService {
     final serverUrl = SupportService.baseUrl;
     
     // Создаем соединение
-    _socket = IO.io(
+    _socket = io.io(
       serverUrl,
-      IO.OptionBuilder()
+      io.OptionBuilder()
           .setTransports(['websocket'])
           .enableAutoConnect()
           .build(),
