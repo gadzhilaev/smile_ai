@@ -1530,9 +1530,7 @@ class _AiScreenState extends State<AiScreen> {
                                   ),
                                 )
                               : Image.asset(
-                                  isDark
-                                      ? 'assets/icons/dark/icon_teleg_dark.png'
-                                      : 'assets/icons/light/icon_teleg.png',
+                                  'assets/icons/light/icon_teleg.png',
                                   width: scaleWidth(24),
                                   height: scaleHeight(24),
                                   fit: BoxFit.contain,
@@ -2637,12 +2635,10 @@ class _FileViewerScreenState extends State<_FileViewerScreen> {
   @override
   void initState() {
     super.initState();
-    // Разрешаем все ориентации для этого экрана
+    // Запрещаем поворот экрана - оставляем только портретную ориентацию
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
     ]);
   }
 

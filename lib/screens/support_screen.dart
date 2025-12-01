@@ -118,7 +118,7 @@ class _SupportScreenState extends State<SupportScreen> {
           }
           
           if (imagesMatch) {
-            // Заменяем локальное сообщение на сообщение с сервера
+            // Заменяем локальное сообщение на сообщение с сервера (убираем tempId)
             setState(() {
               _messages[i] = _SupportMessage(
                 fromSupport: isFromSupport,
@@ -126,6 +126,7 @@ class _SupportScreenState extends State<SupportScreen> {
                 imagePaths: imagePaths,
                 isLocalFiles: false,
                 createdAt: createdAt,
+                tempId: null, // Убираем tempId, чтобы сообщение не считалось локальным
               );
             });
             foundLocalMessage = true;
@@ -135,16 +136,35 @@ class _SupportScreenState extends State<SupportScreen> {
       }
       
       // Если не нашли локальное сообщение для замены, проверяем на дубликаты
+      // (сообщения от поддержки или уже сохраненные сообщения)
       if (!foundLocalMessage) {
         bool isDuplicate = false;
         for (final existingMsg in _messages) {
+          // Проверяем на дубликаты: одинаковый текст, от того же отправителя, в пределах 5 секунд
           if (existingMsg.text == messageText &&
               existingMsg.fromSupport == isFromSupport &&
               existingMsg.createdAt != null &&
-              existingMsg.createdAt!.difference(createdAt).abs().inSeconds < 5 &&
-              existingMsg.tempId == null) { // Не проверяем локальные сообщения
-            isDuplicate = true;
-            break;
+              existingMsg.createdAt!.difference(createdAt).abs().inSeconds < 5) {
+            // Проверяем изображения
+            bool imagesMatch = true;
+            final existingImages = existingMsg.imagePaths ?? [];
+            final newImages = imagePaths ?? [];
+            if (existingImages.length != newImages.length) {
+              imagesMatch = false;
+            } else if (existingImages.isNotEmpty && newImages.isNotEmpty) {
+              // Сравниваем URL изображений
+              for (int j = 0; j < existingImages.length; j++) {
+                if (existingImages[j] != newImages[j]) {
+                  imagesMatch = false;
+                  break;
+                }
+              }
+            }
+            
+            if (imagesMatch) {
+              isDuplicate = true;
+              break;
+            }
           }
         }
         
@@ -157,6 +177,7 @@ class _SupportScreenState extends State<SupportScreen> {
                 imagePaths: imagePaths,
                 isLocalFiles: false,
                 createdAt: createdAt,
+                tempId: null, // Сообщение с сервера не имеет tempId
               ),
             );
           });
@@ -706,8 +727,9 @@ class _SupportScreenState extends State<SupportScreen> {
         photos: photoFiles, // Отправляем все фото одним запросом
       );
       
-      // После успешной отправки помечаем локальное сообщение для замены
-      // Оно будет заменено при получении с сервера через WebSocket
+      // После успешной отправки НЕ перезагружаем историю сразу
+      // Сообщение уже добавлено локально, оно будет заменено при получении с сервера через WebSocket
+      // НЕ вызываем _loadMessageHistory() здесь, чтобы избежать дублирования
     } catch (e) {
       if (mounted) {
         // Удаляем локальное сообщение из списка при ошибке

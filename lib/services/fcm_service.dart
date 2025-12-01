@@ -52,7 +52,6 @@ class FCMService {
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   String? _fcmToken;
   bool _isInitialized = false;
-  Timer? _iosTokenRetryTimer; // Таймер для повторных попыток получения токена на iOS
   
   /// Callback для обновления истории при получении уведомления от поддержки
   static Function()? onSupportReplyReceived;
@@ -124,12 +123,25 @@ class FCMService {
         debugPrint('   - getInitialMessage (открыто при запуске)');
         debugPrint('   - onTokenRefresh (обновление токена)');
         
-        // Для iOS нужно сначала получить APNS токен
-        if (Platform.isIOS) {
-          await _initializeIOS(userId);
-        } else {
-          // Для Android сразу получаем FCM токен
+        // Для Android просто получаем токен
+        // Для iOS получаем токен только если есть платный аккаунт (иначе будет ошибка)
+        if (Platform.isAndroid) {
           await _getFCMTokenAndRegister(userId);
+        } else if (Platform.isIOS) {
+          // Для iOS пытаемся получить токен, но не делаем сложных проверок APNS
+          // Если нет платного аккаунта, токен не получится - это нормально
+          try {
+            _fcmToken = await _messaging.getToken();
+            if (_fcmToken != null) {
+              debugPrint('✅ FCMService: FCM Token получен для iOS!');
+              await registerTokenForUser(userId);
+            } else {
+              debugPrint('⚠️ FCMService: FCM токен для iOS вернул null (возможно, нет платного аккаунта)');
+            }
+          } catch (e) {
+            debugPrint('⚠️ FCMService: Не удалось получить FCM токен для iOS: $e');
+            debugPrint('   Это нормально, если нет платного Apple Developer аккаунта');
+          }
         }
         
         _isInitialized = true;
@@ -154,137 +166,8 @@ class FCMService {
   
   String? _currentUserId;
   
-  /// Инициализация для iOS с обработкой APNS токена
-  Future<void> _initializeIOS(String userId) async {
-    debugPrint('🍎 FCMService: Инициализация для iOS...');
-    
-    // Пытаемся получить APNS токен
-    try {
-      debugPrint('   Попытка получить APNS токен...');
-      final apnsToken = await _messaging.getAPNSToken();
-      if (apnsToken != null) {
-        debugPrint('✅ FCMService: APNS токен получен: ${apnsToken.substring(0, 20)}...');
-        debugPrint('   Полный APNS токен: $apnsToken');
-        // Если APNS токен есть, получаем FCM токен
-        await _getFCMTokenAndRegister(userId);
-      } else {
-        debugPrint('⚠️ FCMService: APNS токен еще не доступен');
-        debugPrint('   Пытаемся получить FCM токен напрямую (может работать без APNS токена)...');
-        
-        // Пытаемся получить FCM токен напрямую (иногда работает даже без APNS токена)
-        try {
-          final fcmToken = await _messaging.getToken();
-          if (fcmToken != null) {
-            debugPrint('✅ FCMService: FCM токен получен напрямую!');
-            _fcmToken = fcmToken;
-            await registerTokenForUser(userId);
-            return;
-          }
-        } catch (e) {
-          debugPrint('   FCM токен напрямую не получен: $e');
-        }
-        
-        debugPrint('   Начинаем периодические попытки получения токена...');
-        // Начинаем периодические попытки получить токен
-        _startIOSTokenRetry(userId);
-      }
-    } catch (e, stackTrace) {
-      debugPrint('⚠️ FCMService: ошибка получения APNS токена: $e');
-      debugPrint('   Stack trace: $stackTrace');
-      
-      // Пытаемся получить FCM токен напрямую
-      try {
-        final fcmToken = await _messaging.getToken();
-        if (fcmToken != null) {
-          debugPrint('✅ FCMService: FCM токен получен напрямую после ошибки!');
-          _fcmToken = fcmToken;
-          await registerTokenForUser(userId);
-          return;
-        }
-      } catch (e2) {
-        debugPrint('   FCM токен напрямую не получен: $e2');
-      }
-      
-      debugPrint('   Начинаем периодические попытки...');
-      // Начинаем периодические попытки
-      _startIOSTokenRetry(userId);
-    }
-  }
-  
-  
-  /// Периодические попытки получить FCM токен на iOS
-  void _startIOSTokenRetry(String userId) {
-    _iosTokenRetryTimer?.cancel();
-    int attempts = 0;
-    const maxAttempts = 20; // Максимум 20 попыток (100 секунд)
-    
-    debugPrint('🔄 FCMService: Запуск периодических попыток получения токена');
-    debugPrint('   Интервал: 5 секунд');
-    debugPrint('   Максимум попыток: $maxAttempts');
-    
-    _iosTokenRetryTimer = Timer.periodic(const Duration(seconds: 5), (timer) async {
-      attempts++;
-      debugPrint('═══════════════════════════════════════════════════════');
-      debugPrint('🔄 FCMService: Попытка $attempts/$maxAttempts получить FCM токен для iOS');
-      debugPrint('═══════════════════════════════════════════════════════');
-      
-      try {
-        // Сначала пытаемся получить FCM токен напрямую (может работать даже без APNS токена)
-        try {
-          final fcmToken = await _messaging.getToken();
-          if (fcmToken != null) {
-            debugPrint('✅ FCMService: FCM токен получен напрямую!');
-            debugPrint('   FCM токен: ${fcmToken.substring(0, 20)}...');
-            _fcmToken = fcmToken;
-            timer.cancel();
-            await registerTokenForUser(userId);
-            return;
-          }
-        } catch (e) {
-          // Игнорируем ошибку, продолжаем проверку APNS
-        }
-        
-        // Проверяем APNS токен
-        debugPrint('   Проверка APNS токена...');
-        final apnsToken = await _messaging.getAPNSToken();
-        if (apnsToken != null) {
-          debugPrint('✅ FCMService: APNS токен получен!');
-          debugPrint('   APNS токен: ${apnsToken.substring(0, 20)}...');
-          debugPrint('   Полный APNS токен: $apnsToken');
-          timer.cancel();
-          await _getFCMTokenAndRegister(userId);
-        } else {
-          debugPrint('   ⚠️ APNS токен еще не доступен');
-          if (attempts >= maxAttempts) {
-            debugPrint('═══════════════════════════════════════════════════════');
-            debugPrint('⚠️ FCMService: Достигнуто максимальное количество попыток');
-            debugPrint('   Останавливаем попытки получения токена');
-            debugPrint('   ВАЖНО: Проверьте настройки Push Notifications в Xcode:');
-            debugPrint('   - Signing & Capabilities → Push Notifications');
-            debugPrint('   - Signing & Capabilities → Background Modes → Remote notifications');
-            debugPrint('═══════════════════════════════════════════════════════');
-            timer.cancel();
-          }
-        }
-      } catch (e, stackTrace) {
-        debugPrint('   ❌ Ошибка при попытке $attempts: $e');
-        debugPrint('   Stack trace: $stackTrace');
-        if (attempts >= maxAttempts) {
-          debugPrint('═══════════════════════════════════════════════════════');
-          debugPrint('⚠️ FCMService: Достигнуто максимальное количество попыток');
-          debugPrint('═══════════════════════════════════════════════════════');
-          timer.cancel();
-        }
-      }
-    });
-  }
-  
   /// Получение FCM токена и регистрация на сервере
   Future<void> _getFCMTokenAndRegister(String userId) async {
-    // Останавливаем таймер повторных попыток, если он запущен
-    _iosTokenRetryTimer?.cancel();
-    _iosTokenRetryTimer = null;
-    
     debugPrint('═══════════════════════════════════════════════════════');
     debugPrint('🔑 FCMService: ПОЛУЧЕНИЕ FCM ТОКЕНА');
     debugPrint('═══════════════════════════════════════════════════════');
@@ -524,10 +407,9 @@ class FCMService {
   /// Проверить, инициализирован ли сервис
   bool get isInitialized => _isInitialized;
   
-  /// Очистка ресурсов (остановка таймеров)
+  /// Очистка ресурсов
   void cleanup() {
-    _iosTokenRetryTimer?.cancel();
-    _iosTokenRetryTimer = null;
+    // Очистка ресурсов при необходимости
   }
 }
 
