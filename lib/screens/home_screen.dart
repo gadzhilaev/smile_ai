@@ -91,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // Пересоздаем экран с новым conversationId, но только один раз
           // чтобы избежать видимого переключения
           _aiScreen = AiScreen(
-            key: ValueKey('ai_${_conversationId}'),
+            key: ValueKey('ai_$_conversationId'),
             autoGenerateText: _autoGenerateText,
             editText: _editText,
             onTextSaved: _onTextSaved,

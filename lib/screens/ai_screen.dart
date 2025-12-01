@@ -2715,16 +2715,15 @@ class _FileViewerScreenState extends State<_FileViewerScreen> {
                         width: 1,
                       ),
                       columnWidths: widget.rows.isNotEmpty
-                          ? Map.fromIterable(
-                              List.generate(
+                          ? {
+                              for (var index in List.generate(
                                 widget.rows[0].length,
                                 (index) => index,
-                              ),
-                              key: (index) => index,
-                              value: (index) => FixedColumnWidth(
-                                math.min(maxColumnWidth, constraints.maxWidth / widget.rows[0].length),
-                              ),
-                            )
+                              ))
+                                index: FixedColumnWidth(
+                                  math.min(maxColumnWidth, constraints.maxWidth / widget.rows[0].length),
+                                ),
+                            }
                           : null,
                       children: widget.rows.asMap().entries.map((entry) {
                         final index = entry.key;
@@ -2778,17 +2777,12 @@ class _FileViewerScreenState extends State<_FileViewerScreen> {
 
   Future<void> _shareFile(BuildContext context) async {
     try {
-      print('🔍 [FileViewer] Начало функции _shareFile');
-      print('🔍 [FileViewer] filePath: ${widget.filePath}');
-      print('🔍 [FileViewer] filename: ${widget.filename}');
       
       // Проверяем, что файл существует
       final file = File(widget.filePath);
       final fileExists = await file.exists();
-      print('🔍 [FileViewer] Файл существует: $fileExists');
       
       if (!fileExists) {
-        print('❌ [FileViewer] Файл не найден по пути: ${widget.filePath}');
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Файл не найден')),
@@ -2797,30 +2791,22 @@ class _FileViewerScreenState extends State<_FileViewerScreen> {
         return;
       }
 
-      final fileSize = await file.length();
-      print('🔍 [FileViewer] Размер файла: $fileSize байт');
-
       // Используем try-catch для обработки ошибок плагина
       if (kIsWeb) {
-        print('🌐 [FileViewer] Платформа: Web');
         // Для веб используем другой метод
         await Share.share(widget.filename);
-        print('✅ [FileViewer] Share.share успешно выполнен');
       } else {
-        print('📱 [FileViewer] Платформа: Mobile (iOS/Android)');
-        print('🔍 [FileViewer] Платформа: ${Platform.operatingSystem}');
         
         // Для iOS нужно указать sharePositionOrigin
         if (Platform.isIOS) {
-          print('🍎 [FileViewer] iOS платформа обнаружена');
           try {
+            if (!context.mounted) return;
             // Получаем размер экрана для правильного позиционирования
             final size = MediaQuery.of(context).size;
+            if (!context.mounted) return;
             final box = context.findRenderObject() as RenderBox?;
             final position = box?.localToGlobal(Offset.zero) ?? Offset.zero;
             
-            print('🔍 [FileViewer] Размер экрана: ${size.width}x${size.height}');
-            print('🔍 [FileViewer] Позиция: ${position.dx}, ${position.dy}');
             
             // Используем shareXFiles с sharePositionOrigin для iOS
             await Share.shareXFiles(
@@ -2832,58 +2818,41 @@ class _FileViewerScreenState extends State<_FileViewerScreen> {
                 size.height,
               ),
             );
-            print('✅ [FileViewer] Share.shareXFiles успешно выполнен на iOS');
-          } catch (e, stackTrace) {
-            print('❌ [FileViewer] Ошибка shareXFiles на iOS: $e');
-            print('❌ [FileViewer] Stack trace: $stackTrace');
+          } catch (e) {
             
             // Fallback: пробуем без sharePositionOrigin
             try {
-              print('🔄 [FileViewer] Пробуем fallback без sharePositionOrigin');
               await Share.shareXFiles(
                 [XFile(widget.filePath)],
               );
-              print('✅ [FileViewer] Fallback успешно выполнен');
-            } catch (e2, stackTrace2) {
-              print('❌ [FileViewer] Ошибка fallback: $e2');
-              print('❌ [FileViewer] Stack trace fallback: $stackTrace2');
+            } catch (e2) {
               
               // Последний fallback: обычный share
               if (context.mounted) {
-                print('🔄 [FileViewer] Пробуем последний fallback: Share.share');
                 await Share.share(
                   'Файл: ${widget.filename}',
                 );
-                print('✅ [FileViewer] Share.share успешно выполнен');
               }
             }
           }
         } else {
           // Для Android
-          print('🤖 [FileViewer] Android платформа обнаружена');
           try {
             await Share.shareXFiles(
               [XFile(widget.filePath)],
             );
-            print('✅ [FileViewer] Share.shareXFiles успешно выполнен на Android');
-          } catch (e, stackTrace) {
-            print('❌ [FileViewer] Ошибка shareXFiles на Android: $e');
-            print('❌ [FileViewer] Stack trace: $stackTrace');
+          } catch (e) {
             
             // Fallback для Android
             if (context.mounted) {
-              print('🔄 [FileViewer] Пробуем fallback: Share.share');
               await Share.share(
                 'Файл: ${widget.filename}',
               );
-              print('✅ [FileViewer] Share.share успешно выполнен');
             }
           }
         }
       }
-    } catch (e, stackTrace) {
-      print('❌ [FileViewer] Критическая ошибка в _shareFile: $e');
-      print('❌ [FileViewer] Stack trace: $stackTrace');
+    } catch (e) {
       
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
