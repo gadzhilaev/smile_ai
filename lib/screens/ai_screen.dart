@@ -1416,53 +1416,6 @@ class _AiScreenState extends State<AiScreen> {
               SizedBox(height: scaleHeight(12)),
               Expanded(child: conversationArea),
               SizedBox(height: scaleHeight(12)),
-              if (_hasConversation && _isTyping) ...[
-                Center(
-                  child: GestureDetector(
-                    onTap: _stopGeneration,
-                    child: Container(
-                          width: scaleWidth(255),
-                      height: scaleHeight(44),
-                      decoration: BoxDecoration(
-                            border:
-                                Border.all(color: AppColors.borderDefault),
-                            borderRadius:
-                                BorderRadius.circular(scaleHeight(12)),
-                      ),
-                          padding: EdgeInsets.symmetric(
-                              horizontal: scaleWidth(16)),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: scaleWidth(18),
-                            height: scaleWidth(18),
-                            decoration: BoxDecoration(
-                              color: _accentColor,
-                              borderRadius: BorderRadius.circular(
-                                scaleWidth(2),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: scaleWidth(11)),
-                          Flexible(
-                            child: Text(
-                                  l.aiStopGeneration,
-                                  style: AppTextStyle.bodyTextMedium(
-                                    scaleHeight(14),
-                                    color: theme.colorScheme.onSurface,
-                                  ).copyWith(height: 20 / 14),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(height: scaleHeight(24)),
-              ],
               Padding(
                 padding: EdgeInsets.only(
                   left: scaleWidth(25),
@@ -1555,7 +1508,7 @@ class _AiScreenState extends State<AiScreen> {
                     ),
                     SizedBox(width: scaleWidth(20)),
                     GestureDetector(
-                      onTap: _sendMessage,
+                      onTap: _isTyping ? _stopGeneration : _sendMessage,
                       child: Container(
                         width: scaleWidth(54),
                         height: scaleHeight(54),
@@ -1565,11 +1518,25 @@ class _AiScreenState extends State<AiScreen> {
                                   BorderRadius.circular(scaleHeight(50)),
                         ),
                         child: Center(
-                          child: Image.asset('assets/icons/light/icon_teleg.png',
-                            width: scaleWidth(24),
-                            height: scaleHeight(24),
-                            fit: BoxFit.contain,
-                          ),
+                          child: _isTyping
+                              ? Container(
+                                  width: scaleWidth(18),
+                                  height: scaleWidth(18),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(
+                                      scaleWidth(2),
+                                    ),
+                                  ),
+                                )
+                              : Image.asset(
+                                  isDark
+                                      ? 'assets/icons/dark/icon_teleg_dark.png'
+                                      : 'assets/icons/light/icon_teleg.png',
+                                  width: scaleWidth(24),
+                                  height: scaleHeight(24),
+                                  fit: BoxFit.contain,
+                                ),
                         ),
                       ),
                     ),
