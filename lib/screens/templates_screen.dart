@@ -8,6 +8,7 @@ import '../models/template_model.dart';
 import '../services/template_service.dart';
 import '../widgets/custom_refresh_indicator.dart';
 import 'templates_screen_localized_title_helper.dart';
+import 'category_templates_screen.dart';
 
 class TemplatesScreen extends StatefulWidget {
   const TemplatesScreen({
@@ -597,51 +598,65 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
           .map((s) => s as double)
           .toList();
 
-      return Container(
-        width: scaleWidth(110),
-        height: scaleHeight(176),
-        padding: EdgeInsets.symmetric(vertical: scaleHeight(28)),
-        margin: EdgeInsets.only(right: isLast ? 0 : scaleWidth(17)),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: const Alignment(-1.0, -1.0),
-            end: const Alignment(1.0, 1.0),
-            colors: gradientColors,
-            stops: gradientStops,
-          ),
-          borderRadius: BorderRadius.circular(scaleHeight(13)),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x1A000000),
-              offset: Offset(0, 2),
-              blurRadius: 8,
-              spreadRadius: 0,
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            // Иконка сверху
-            _buildIcon(
-              item['icon'] as String,
-              scaleWidth(60),
-              scaleHeight(60),
-            ),
-            // Текст снизу
-            Text(
-              item['title'] as String,
-              style: TextStyle(
-                fontFamily: 'Montserrat',
-                fontWeight: FontWeight.w600,
-                fontSize: scaleHeight(14),
-                height: 22 / 14,
-                letterSpacing: 0,
-                color: Colors.black,
+      return InkWell(
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => CategoryTemplatesScreen(
+                categoryName: item['title'] as String,
+                onApplyTemplate: widget.onApplyTemplate,
+                onEditTemplate: widget.onEditTemplate,
               ),
-              textAlign: TextAlign.center,
             ),
-          ],
+          );
+        },
+        borderRadius: BorderRadius.circular(scaleHeight(13)),
+        child: Container(
+          width: scaleWidth(110),
+          height: scaleHeight(176),
+          padding: EdgeInsets.symmetric(vertical: scaleHeight(28)),
+          margin: EdgeInsets.only(right: isLast ? 0 : scaleWidth(17)),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: const Alignment(-1.0, -1.0),
+              end: const Alignment(1.0, 1.0),
+              colors: gradientColors,
+              stops: gradientStops,
+            ),
+            borderRadius: BorderRadius.circular(scaleHeight(13)),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x1A000000),
+                offset: Offset(0, 2),
+                blurRadius: 8,
+                spreadRadius: 0,
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Иконка сверху
+              _buildIcon(
+                item['icon'] as String,
+                scaleWidth(60),
+                scaleHeight(60),
+              ),
+              // Текст снизу
+              Text(
+                item['title'] as String,
+                style: TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w600,
+                  fontSize: scaleHeight(14),
+                  height: 22 / 14,
+                  letterSpacing: 0,
+                  color: Colors.black,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       );
     }).toList();
@@ -715,51 +730,65 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
           .map((s) => s as double)
           .toList();
 
-      return Container(
-        width: scaleWidth(110),
-        height: scaleHeight(176),
-        padding: EdgeInsets.symmetric(vertical: scaleHeight(28)),
-        margin: EdgeInsets.only(right: isLast ? 0 : scaleWidth(17)),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: const Alignment(-1.0, -1.0),
-            end: const Alignment(1.0, 1.0),
-            colors: gradientColors,
-            stops: gradientStops,
-          ),
-          borderRadius: BorderRadius.circular(scaleHeight(13)),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x1A000000),
-              offset: Offset(0, 2),
-              blurRadius: 8,
-              spreadRadius: 0,
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            // Иконка сверху
-            _buildIcon(
-              item['icon'] as String,
-              scaleWidth(60),
-              scaleHeight(60),
-            ),
-            // Текст снизу
-            Text(
-              item['title'] as String,
-              style: TextStyle(
-                fontFamily: 'Montserrat',
-                fontWeight: FontWeight.w600,
-                fontSize: scaleHeight(14),
-                height: 22 / 14,
-                letterSpacing: 0,
-                color: Colors.black,
+      return InkWell(
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => CategoryTemplatesScreen(
+                categoryName: item['title'] as String,
+                onApplyTemplate: widget.onApplyTemplate,
+                onEditTemplate: widget.onEditTemplate,
               ),
-              textAlign: TextAlign.center,
             ),
-          ],
+          );
+        },
+        borderRadius: BorderRadius.circular(scaleHeight(13)),
+        child: Container(
+          width: scaleWidth(110),
+          height: scaleHeight(176),
+          padding: EdgeInsets.symmetric(vertical: scaleHeight(28)),
+          margin: EdgeInsets.only(right: isLast ? 0 : scaleWidth(17)),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: const Alignment(-1.0, -1.0),
+              end: const Alignment(1.0, 1.0),
+              colors: gradientColors,
+              stops: gradientStops,
+            ),
+            borderRadius: BorderRadius.circular(scaleHeight(13)),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x1A000000),
+                offset: Offset(0, 2),
+                blurRadius: 8,
+                spreadRadius: 0,
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Иконка сверху
+              _buildIcon(
+                item['icon'] as String,
+                scaleWidth(60),
+                scaleHeight(60),
+              ),
+              // Текст снизу
+              Text(
+                item['title'] as String,
+                style: TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w600,
+                  fontSize: scaleHeight(14),
+                  height: 22 / 14,
+                  letterSpacing: 0,
+                  color: Colors.black,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       );
     }).toList();
