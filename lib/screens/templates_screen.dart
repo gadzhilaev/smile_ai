@@ -380,169 +380,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
           child: ListView(
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: scaleWidth(32)),
-            children: [
-              // Первый контейнер - Маркетинг
-              Container(
-                width: scaleWidth(110),
-                height: scaleHeight(176),
-                padding: EdgeInsets.symmetric(vertical: scaleHeight(28)),
-                margin: EdgeInsets.only(right: scaleWidth(17)),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    // 161.45deg
-                    begin: const Alignment(-1.0, -1.0),
-                    end: const Alignment(1.0, 1.0),
-                    colors: const [
-                      Color(0xFFCDC0EF),
-                      Color(0xFFBC9FF4),
-                    ],
-                    stops: const [0.0526, 0.9049],
-                  ),
-                  borderRadius: BorderRadius.circular(scaleHeight(13)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      offset: const Offset(0, 2),
-                      blurRadius: 8,
-                      spreadRadius: 0,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Иконка сверху
-                    SvgPicture.asset(
-                      'assets/icons/templates/lights/icon_marketing.svg',
-                      width: scaleWidth(60),
-                      height: scaleHeight(60),
-                      fit: BoxFit.contain,
-                      allowDrawingOutsideViewBox: true,
-                    ),
-                    // Текст снизу
-                    Text(
-                      'Маркетинг',
-                      style: TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w600,
-                        fontSize: scaleHeight(14),
-                        height: 22 / 14,
-                        letterSpacing: 0,
-                        color: Colors.black,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-              // Второй контейнер - Стратегия
-              Container(
-                width: scaleWidth(110),
-                height: scaleHeight(176),
-                padding: EdgeInsets.symmetric(vertical: scaleHeight(28)),
-                margin: EdgeInsets.only(right: scaleWidth(17)),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    // 158.66deg
-                    begin: const Alignment(-1.0, -1.0),
-                    end: const Alignment(1.0, 1.0),
-                    colors: const [
-                      Color(0xFF62F8CB),
-                      Color(0xFF5EDCD3),
-                    ],
-                    stops: const [0.0, 1.0],
-                  ),
-                  borderRadius: BorderRadius.circular(scaleHeight(13)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      offset: const Offset(0, 2),
-                      blurRadius: 8,
-                      spreadRadius: 0,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Иконка сверху
-                    SvgPicture.asset(
-                      'assets/icons/templates/lights/icon_strategy.svg',
-                      width: scaleWidth(60),
-                      height: scaleHeight(60),
-                      fit: BoxFit.contain,
-                      allowDrawingOutsideViewBox: true,
-                    ),
-                    // Текст снизу
-                    Text(
-                      'Стратегия',
-                      style: TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w600,
-                        fontSize: scaleHeight(14),
-                        height: 22 / 14,
-                        letterSpacing: 0,
-                        color: Colors.black,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-              // Третий контейнер - Продажи
-              Container(
-                width: scaleWidth(110),
-                height: scaleHeight(176),
-                padding: EdgeInsets.symmetric(vertical: scaleHeight(28)),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    // 163.3deg
-                    begin: const Alignment(-1.0, -1.0),
-                    end: const Alignment(1.0, 1.0),
-                    colors: const [
-                      Color(0xFFF9E080),
-                      Color(0xFFFCC881),
-                    ],
-                    stops: const [0.0535, 1.0],
-                  ),
-                  borderRadius: BorderRadius.circular(scaleHeight(13)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      offset: const Offset(0, 2),
-                      blurRadius: 8,
-                      spreadRadius: 0,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Иконка сверху
-                    SvgPicture.asset(
-                      'assets/icons/templates/lights/icon_money.svg',
-                      width: scaleWidth(60),
-                      height: scaleHeight(60),
-                      fit: BoxFit.contain,
-                      allowDrawingOutsideViewBox: true,
-                    ),
-                    // Текст снизу
-                    Text(
-                      'Продажи',
-                      style: TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w600,
-                        fontSize: scaleHeight(14),
-                        height: 22 / 14,
-                        letterSpacing: 0,
-                        color: Colors.black,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            children: _buildBusinessGoalsContainers(scaleWidth, scaleHeight),
           ),
         ),
         // Отступ снизу 18
@@ -568,169 +406,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
           child: ListView(
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: scaleWidth(32)),
-            children: [
-              // Первый контейнер - Маркетинг
-              Container(
-                width: scaleWidth(110),
-                height: scaleHeight(176),
-                padding: EdgeInsets.symmetric(vertical: scaleHeight(28)),
-                margin: EdgeInsets.only(right: scaleWidth(17)),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    // 161.36deg
-                    begin: const Alignment(-1.0, -1.0),
-                    end: const Alignment(1.0, 1.0),
-                    colors: const [
-                      Color(0xFF59DEEC),
-                      Color(0xFF61B3F9),
-                    ],
-                    stops: const [0.0, 0.9656],
-                  ),
-                  borderRadius: BorderRadius.circular(scaleHeight(13)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      offset: const Offset(0, 2),
-                      blurRadius: 8,
-                      spreadRadius: 0,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Иконка сверху
-                    SvgPicture.asset(
-                      'assets/icons/templates/lights/icon_bag.svg',
-                      width: scaleWidth(60),
-                      height: scaleHeight(60),
-                      fit: BoxFit.contain,
-                      allowDrawingOutsideViewBox: true,
-                    ),
-                    // Текст снизу
-                    Text(
-                      'Маркетинг',
-                      style: TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w600,
-                        fontSize: scaleHeight(14),
-                        height: 22 / 14,
-                        letterSpacing: 0,
-                        color: Colors.black,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-              // Второй контейнер - Стратегия
-              Container(
-                width: scaleWidth(110),
-                height: scaleHeight(176),
-                padding: EdgeInsets.symmetric(vertical: scaleHeight(28)),
-                margin: EdgeInsets.only(right: scaleWidth(17)),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    // 163.96deg
-                    begin: const Alignment(-1.0, -1.0),
-                    end: const Alignment(1.0, 1.0),
-                    colors: const [
-                      Color(0xFFAFCDBF),
-                      Color(0xFF669484),
-                    ],
-                    stops: const [0.0892, 0.9553],
-                  ),
-                  borderRadius: BorderRadius.circular(scaleHeight(13)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      offset: const Offset(0, 2),
-                      blurRadius: 8,
-                      spreadRadius: 0,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Иконка сверху
-                    SvgPicture.asset(
-                      'assets/icons/templates/lights/icon_ruki.svg',
-                      width: scaleWidth(60),
-                      height: scaleHeight(60),
-                      fit: BoxFit.contain,
-                      allowDrawingOutsideViewBox: true,
-                    ),
-                    // Текст снизу
-                    Text(
-                      'Стратегия',
-                      style: TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w600,
-                        fontSize: scaleHeight(14),
-                        height: 22 / 14,
-                        letterSpacing: 0,
-                        color: Colors.black,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-              // Третий контейнер - Продажи
-              Container(
-                width: scaleWidth(110),
-                height: scaleHeight(176),
-                padding: EdgeInsets.symmetric(vertical: scaleHeight(28)),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    // 170.82deg
-                    begin: const Alignment(-1.0, -1.0),
-                    end: const Alignment(1.0, 1.0),
-                    colors: const [
-                      Color(0xFFDEC879),
-                      Color(0xFFD8AA74),
-                    ],
-                    stops: const [0.0303, 0.9488],
-                  ),
-                  borderRadius: BorderRadius.circular(scaleHeight(13)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      offset: const Offset(0, 2),
-                      blurRadius: 8,
-                      spreadRadius: 0,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Иконка сверху
-                    SvgPicture.asset(
-                      'assets/icons/templates/lights/icon_sell.svg',
-                      width: scaleWidth(60),
-                      height: scaleHeight(60),
-                      fit: BoxFit.contain,
-                      allowDrawingOutsideViewBox: true,
-                    ),
-                    // Текст снизу
-                    Text(
-                      'Продажи',
-                      style: TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w600,
-                        fontSize: scaleHeight(14),
-                        height: 22 / 14,
-                        letterSpacing: 0,
-                        color: Colors.black,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            children: _buildIndustryContainers(scaleWidth, scaleHeight),
           ),
         ),
         // Отступ снизу 18
@@ -850,6 +526,272 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  List<Widget> _buildBusinessGoalsContainers(
+    double Function(double) scaleWidth,
+    double Function(double) scaleHeight,
+  ) {
+    final List<Map<String, dynamic>> businessGoals = [
+      {
+        'title': 'Маркетинг',
+        'icon': 'assets/icons/templates/lights/icon_marketing.svg',
+        'gradient': [Color(0xFFCDC0EF), Color(0xFFBC9FF4)],
+        'stops': [0.0526, 0.9049],
+      },
+      {
+        'title': 'Стратегия',
+        'icon': 'assets/icons/templates/lights/icon_strategy.svg',
+        'gradient': [Color(0xFF62F8CB), Color(0xFF5EDCD3)],
+        'stops': [0.0, 1.0],
+      },
+      {
+        'title': 'Продажи',
+        'icon': 'assets/icons/templates/lights/icon_money.svg',
+        'gradient': [Color(0xFFF9E080), Color(0xFFFCC881)],
+        'stops': [0.0535, 1.0],
+      },
+      {
+        'title': 'Финансы',
+        'icon': 'assets/icons/templates/lights/icon_chart.svg', // Нужно добавить иконку
+        'gradient': [Color(0xFFFFB6C1), Color(0xFFFF69B4)],
+        'stops': [0.0, 1.0],
+      },
+      {
+        'title': 'HR',
+        'icon': 'assets/icons/templates/lights/icon_team.svg', // Нужно добавить иконку
+        'gradient': [Color(0xFF87CEEB), Color(0xFF4682B4)],
+        'stops': [0.0, 1.0],
+      },
+      {
+        'title': 'Операции',
+        'icon': 'assets/icons/templates/lights/icon_gear.svg', // Нужно добавить иконку
+        'gradient': [Color(0xFFDDA0DD), Color(0xFF9370DB)],
+        'stops': [0.0, 1.0],
+      },
+      {
+        'title': 'Поддержка',
+        'icon': 'assets/icons/templates/lights/icon_supp.svg', // Нужно добавить иконку
+        'gradient': [Color(0xFFF0E68C), Color(0xFFFFD700)],
+        'stops': [0.0, 1.0],
+      },
+      {
+        'title': 'Аналитика',
+        'icon': 'assets/icons/templates/lights/icon_otchet.svg', // Нужно добавить иконку
+        'gradient': [Color(0xFF98D8C8), Color(0xFF17A2B8)],
+        'stops': [0.0, 1.0],
+      },
+    ];
+
+    return businessGoals.asMap().entries.map((entry) {
+      final index = entry.key;
+      final item = entry.value;
+      final isLast = index == businessGoals.length - 1;
+      
+      // Безопасное получение градиента
+      final gradientColors = (item['gradient'] as List<dynamic>)
+          .map((c) => c as Color)
+          .toList();
+      final gradientStops = (item['stops'] as List<dynamic>)
+          .map((s) => s as double)
+          .toList();
+
+      return Container(
+        width: scaleWidth(110),
+        height: scaleHeight(176),
+        padding: EdgeInsets.symmetric(vertical: scaleHeight(28)),
+        margin: EdgeInsets.only(right: isLast ? 0 : scaleWidth(17)),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: const Alignment(-1.0, -1.0),
+            end: const Alignment(1.0, 1.0),
+            colors: gradientColors,
+            stops: gradientStops,
+          ),
+          borderRadius: BorderRadius.circular(scaleHeight(13)),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x1A000000),
+              offset: Offset(0, 2),
+              blurRadius: 8,
+              spreadRadius: 0,
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Иконка сверху
+            _buildIcon(
+              item['icon'] as String,
+              scaleWidth(60),
+              scaleHeight(60),
+            ),
+            // Текст снизу
+            Text(
+              item['title'] as String,
+              style: TextStyle(
+                fontFamily: 'Montserrat',
+                fontWeight: FontWeight.w600,
+                fontSize: scaleHeight(14),
+                height: 22 / 14,
+                letterSpacing: 0,
+                color: Colors.black,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    }).toList();
+  }
+
+  List<Widget> _buildIndustryContainers(
+    double Function(double) scaleWidth,
+    double Function(double) scaleHeight,
+  ) {
+    final List<Map<String, dynamic>> industries = [
+      {
+        'title': 'Розничная торговля',
+        'icon': 'assets/icons/templates/lights/icon_bag.svg',
+        'gradient': [Color(0xFF59DEEC), Color(0xFF61B3F9)],
+        'stops': [0.0, 0.9656],
+      },
+      {
+        'title': 'Производст-\nво',
+        'icon': 'assets/icons/templates/lights/icon_ruki.svg',
+        'gradient': [Color(0xFFAFCDBF), Color(0xFF669484)],
+        'stops': [0.0892, 0.9553],
+      },
+      {
+        'title': 'IT/Техноло-\nгии',
+        'icon': 'assets/icons/templates/lights/icon_computer.svg', // Нужно добавить иконку
+        'gradient': [Color(0xFFA8E6CF), Color(0xFF3FC1C9)],
+        'stops': [0.0, 1.0],
+      },
+      {
+        'title': 'Здравоохра-\nнение',
+        'icon': 'assets/icons/templates/lights/icon_health.svg', // Нужно добавить иконку
+        'gradient': [Color(0xFFFFB3BA), Color(0xFFFF6B6B)],
+        'stops': [0.0, 1.0],
+      },
+      {
+        'title': 'Образование',
+        'icon': 'assets/icons/templates/lights/icon_education.svg', // Нужно добавить иконку
+        'gradient': [Color(0xFFC7CEEA), Color(0xFF6C5CE7)],
+        'stops': [0.0, 1.0],
+      },
+      {
+        'title': 'Недвижи-\nмость',
+        'icon': 'assets/icons/templates/lights/icon_home.svg', // Нужно добавить иконку
+        'gradient': [Color(0xFFFFD3A5), Color(0xFFFD9853)],
+        'stops': [0.0, 1.0],
+      },
+      {
+        'title': 'Ресторанный бизнес',
+        'icon': 'assets/icons/templates/lights/icon_restaurant.svg', // Нужно добавить иконку
+        'gradient': [Color(0xFFFEC8D8), Color(0xFFFF9A9E)],
+        'stops': [0.0, 1.0],
+      },
+      {
+        'title': 'Логистика',
+        'icon': 'assets/icons/templates/lights/icon_sell.svg',
+        'gradient': [Color(0xFFDEC879), Color(0xFFD8AA74)],
+        'stops': [0.0303, 0.9488],
+      },
+    ];
+
+    return industries.asMap().entries.map((entry) {
+      final index = entry.key;
+      final item = entry.value;
+      final isLast = index == industries.length - 1;
+      
+      // Безопасное получение градиента
+      final gradientColors = (item['gradient'] as List<dynamic>)
+          .map((c) => c as Color)
+          .toList();
+      final gradientStops = (item['stops'] as List<dynamic>)
+          .map((s) => s as double)
+          .toList();
+
+      return Container(
+        width: scaleWidth(110),
+        height: scaleHeight(176),
+        padding: EdgeInsets.symmetric(vertical: scaleHeight(28)),
+        margin: EdgeInsets.only(right: isLast ? 0 : scaleWidth(17)),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: const Alignment(-1.0, -1.0),
+            end: const Alignment(1.0, 1.0),
+            colors: gradientColors,
+            stops: gradientStops,
+          ),
+          borderRadius: BorderRadius.circular(scaleHeight(13)),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x1A000000),
+              offset: Offset(0, 2),
+              blurRadius: 8,
+              spreadRadius: 0,
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Иконка сверху
+            _buildIcon(
+              item['icon'] as String,
+              scaleWidth(60),
+              scaleHeight(60),
+            ),
+            // Текст снизу
+            Text(
+              item['title'] as String,
+              style: TextStyle(
+                fontFamily: 'Montserrat',
+                fontWeight: FontWeight.w600,
+                fontSize: scaleHeight(14),
+                height: 22 / 14,
+                letterSpacing: 0,
+                color: Colors.black,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    }).toList();
+  }
+
+  Widget _buildIcon(String iconPath, double width, double height) {
+    return Builder(
+      builder: (context) {
+        try {
+          return SvgPicture.asset(
+            iconPath,
+            width: width,
+            height: height,
+            fit: BoxFit.contain,
+            allowDrawingOutsideViewBox: true,
+            // Обработка ошибок загрузки
+            errorBuilder: (context, error, stackTrace) {
+              return Icon(
+                Icons.category,
+                size: height,
+                color: Colors.black.withOpacity(0.5),
+              );
+            },
+          );
+        } catch (e) {
+          return Icon(
+            Icons.category,
+            size: height,
+            color: Colors.black.withOpacity(0.5),
+          );
+        }
+      },
     );
   }
 }
