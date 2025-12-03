@@ -21,6 +21,7 @@ import '../l10n/app_localizations.dart';
 import '../services/notification_service.dart';
 import '../services/api_service.dart';
 import '../utils/env_utils.dart';
+import '../utils/text_utils.dart';
 
 class AiScreen extends StatefulWidget {
   const AiScreen({
@@ -173,7 +174,7 @@ class _AiScreenState extends State<AiScreen> {
               }
               
               loadedMessages.add(ChatMessage(
-                text: content,
+                text: TextUtils.safeText(content),
                 isUser: isUser,
                 isThinking: false,
                 files: files,
@@ -263,7 +264,7 @@ class _AiScreenState extends State<AiScreen> {
               }
               
               loadedMessages.add(ChatMessage(
-                text: content,
+                text: TextUtils.safeText(content),
                 isUser: isUser,
                 isThinking: false,
                 files: files,
@@ -336,7 +337,7 @@ class _AiScreenState extends State<AiScreen> {
     
     // Если передан текст для редактирования, загружаем его в поле ввода
     if (widget.editText != null) {
-      _inputController.text = widget.editText!;
+      _inputController.text = TextUtils.safeText(widget.editText);
       _isEditMode = true;
     }
     // Если передан текст для автогенерации, запускаем генерацию
@@ -424,10 +425,10 @@ class _AiScreenState extends State<AiScreen> {
       }
     }
 
-    // Добавляем сообщение пользователя
+      // Добавляем сообщение пользователя
     setState(() {
       _hasConversation = true;
-      _messages.add(ChatMessage(text: message, isUser: true));
+      _messages.add(ChatMessage(text: TextUtils.safeText(message), isUser: true));
       _isTyping = false;
       _currentTypingIndex = 0;
       _messages.add(const ChatMessage(text: '', isUser: false, isThinking: true));
@@ -462,7 +463,7 @@ class _AiScreenState extends State<AiScreen> {
       }
 
       // Успешный ответ - переходим от "думает" к генерации
-      final responseText = result['response'] as String? ?? '';
+      final responseText = TextUtils.safeText(result['response'] as String? ?? '');
       final newConversationId = result['conversation_id'] as String?;
       
       // Парсим файлы из ответа
@@ -523,7 +524,7 @@ class _AiScreenState extends State<AiScreen> {
         } else {
           _currentTypingIndex += 1;
             _messages[_messages.length - 1] = ChatMessage(
-              text: responseText.substring(0, _currentTypingIndex.toInt()),
+              text: TextUtils.safeText(responseText.substring(0, _currentTypingIndex.toInt())),
             isUser: false,
             isThinking: false,
           );
@@ -994,7 +995,7 @@ class _AiScreenState extends State<AiScreen> {
   }
 
   void _sendMessage() {
-    final text = _inputController.text.trim();
+    final text = TextUtils.safeText(_inputController.text.trim());
     if (text.isEmpty || _isTyping) {
       return;
     }
@@ -1380,7 +1381,7 @@ class _AiScreenState extends State<AiScreen> {
                               accentColor: _accentColor,
                               primaryTextColor: _primaryTextColor,
                               onTap: () {
-                                _inputController.text = chip;
+                                _inputController.text = TextUtils.safeText(chip);
                                 _sendMessage();
                               },
                             ),
@@ -1850,7 +1851,7 @@ class _MessageBubble extends StatelessWidget {
       padding: EdgeInsets.all(scaleHeight(15)),
       decoration: BoxDecoration(color: bubbleColor, borderRadius: borderRadius),
       child: message.isUser
-          ? Text(message.text, style: textStyle)
+          ? Text(TextUtils.safeText(message.text), style: textStyle)
           : message.isThinking
               ? _ThinkingIndicator(
                   baseColor: isDark ? AppColors.darkPrimaryText : AppColors.textPrimary,
@@ -1878,7 +1879,7 @@ class _MessageBubble extends StatelessWidget {
                     // Текст сообщения
                     if (message.text.isNotEmpty)
                       MarkdownBody(
-              data: _removeLeadingHr(message.text),
+              data: _removeLeadingHr(TextUtils.safeText(message.text)),
               styleSheet: MarkdownStyleSheet(
                 p: textStyle,
                 strong: textStyle.copyWith(
@@ -1988,7 +1989,7 @@ class _MessageBubble extends StatelessWidget {
             SizedBox(width: scaleWidth(10)),
             GestureDetector(
               onTap: () {
-                Clipboard.setData(ClipboardData(text: message.text));
+                Clipboard.setData(ClipboardData(text: TextUtils.safeText(message.text)));
                 onCopy();
               },
               child: SvgPicture.asset(

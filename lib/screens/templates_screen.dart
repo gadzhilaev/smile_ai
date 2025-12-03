@@ -238,121 +238,149 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               // Левый контейнер
-              Container(
-                width: scaleWidth(173),
-                height: scaleHeight(158),
-                padding: EdgeInsets.only(
-                  top: scaleHeight(10),
-                  bottom: scaleHeight(10),
-                  left: scaleWidth(18),
-                  right: scaleWidth(18),
-                ),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    // 131.34deg от левого верхнего к правому нижнему
-                    begin: const Alignment(-1.0, -1.0),
-                    end: const Alignment(1.0, 1.0),
-                    colors: const [
-                      Color(0xFF73F1BF),
-                      Color(0xFF79BAEF),
-                    ],
-                    stops: const [0.1107, 1.0],
-                  ),
-                  borderRadius: BorderRadius.circular(scaleHeight(13)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      offset: const Offset(0, 2),
-                      blurRadius: 8,
-                      spreadRadius: 0,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Иконка
-                    SvgPicture.asset(
-                      'assets/icons/templates/lights/icon_otchet.svg',
-                      width: scaleWidth(70),
-                      height: scaleHeight(70),
-                      fit: BoxFit.contain,
-                      allowDrawingOutsideViewBox: true,
-                    ),
-                    // Отступ между иконкой и текстом
-                    SizedBox(height: scaleHeight(8)),
-                    // Текст
-                    Text(
-                      'Еженедельный отчет',
-                      style: TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w600,
-                        fontSize: scaleHeight(14),
-                        height: 22 / 14,
-                        letterSpacing: 0,
-                        color: Colors.black,
+              InkWell(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => CategoryTemplatesScreen(
+                        categoryName: 'Еженедельный отчет',
+                        onApplyTemplate: widget.onApplyTemplate,
+                        onEditTemplate: widget.onEditTemplate,
                       ),
                     ),
-                  ],
+                  );
+                },
+                borderRadius: BorderRadius.circular(scaleHeight(13)),
+                child: Container(
+                  width: scaleWidth(173),
+                  height: scaleHeight(158),
+                  padding: EdgeInsets.only(
+                    top: scaleHeight(10),
+                    bottom: scaleHeight(10),
+                    left: scaleWidth(18),
+                    right: scaleWidth(18),
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      // 131.34deg от левого верхнего к правому нижнему
+                      begin: const Alignment(-1.0, -1.0),
+                      end: const Alignment(1.0, 1.0),
+                      colors: const [
+                        Color(0xFF73F1BF),
+                        Color(0xFF79BAEF),
+                      ],
+                      stops: const [0.1107, 1.0],
+                    ),
+                    borderRadius: BorderRadius.circular(scaleHeight(13)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        offset: const Offset(0, 2),
+                        blurRadius: 8,
+                        spreadRadius: 0,
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Иконка
+                      SvgPicture.asset(
+                        'assets/icons/templates/lights/icon_otchet.svg',
+                        width: scaleWidth(70),
+                        height: scaleHeight(70),
+                        fit: BoxFit.contain,
+                        allowDrawingOutsideViewBox: true,
+                      ),
+                      // Отступ между иконкой и текстом
+                      SizedBox(height: scaleHeight(8)),
+                      // Текст
+                      Text(
+                        'Еженедельный отчет',
+                        style: TextStyle(
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w600,
+                          fontSize: scaleHeight(14),
+                          height: 22 / 14,
+                          letterSpacing: 0,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               // Правый контейнер
-              Container(
-                width: scaleWidth(173),
-                height: scaleHeight(158),
-                padding: EdgeInsets.only(
-                  top: scaleHeight(10),
-                  bottom: scaleHeight(10),
-                  left: scaleWidth(18),
-                  right: scaleWidth(18),
-                ),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    // 129.51deg от левого верхнего к правому нижнему
-                    begin: const Alignment(-1.0, -1.0),
-                    end: const Alignment(1.0, 1.0),
-                    colors: const [
-                      Color(0xFFF9CD84),
-                      Color(0xFFEE96A5),
-                    ],
-                    stops: const [0.0, 0.9489],
-                  ),
-                  borderRadius: BorderRadius.circular(scaleHeight(13)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      offset: const Offset(0, 2),
-                      blurRadius: 8,
-                      spreadRadius: 0,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Иконка
-                    SvgPicture.asset(
-                      'assets/icons/templates/lights/icon_rocket.svg',
-                      width: scaleWidth(70),
-                      height: scaleHeight(70),
-                      fit: BoxFit.contain,
-                      allowDrawingOutsideViewBox: true,
-                    ),
-                    // Отступ между иконкой и текстом
-                    SizedBox(height: scaleHeight(8)),
-                    // Текст
-                    Text(
-                      'Анализ рынка',
-                      style: TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w600,
-                        fontSize: scaleHeight(14),
-                        height: 22 / 14,
-                        letterSpacing: 0,
-                        color: Colors.black,
+              InkWell(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => CategoryTemplatesScreen(
+                        categoryName: 'Анализ рынка',
+                        onApplyTemplate: widget.onApplyTemplate,
+                        onEditTemplate: widget.onEditTemplate,
                       ),
                     ),
-                  ],
+                  );
+                },
+                borderRadius: BorderRadius.circular(scaleHeight(13)),
+                child: Container(
+                  width: scaleWidth(173),
+                  height: scaleHeight(158),
+                  padding: EdgeInsets.only(
+                    top: scaleHeight(10),
+                    bottom: scaleHeight(10),
+                    left: scaleWidth(18),
+                    right: scaleWidth(18),
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      // 129.51deg от левого верхнего к правому нижнему
+                      begin: const Alignment(-1.0, -1.0),
+                      end: const Alignment(1.0, 1.0),
+                      colors: const [
+                        Color(0xFFF9CD84),
+                        Color(0xFFEE96A5),
+                      ],
+                      stops: const [0.0, 0.9489],
+                    ),
+                    borderRadius: BorderRadius.circular(scaleHeight(13)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        offset: const Offset(0, 2),
+                        blurRadius: 8,
+                        spreadRadius: 0,
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Иконка
+                      SvgPicture.asset(
+                        'assets/icons/templates/lights/icon_rocket.svg',
+                        width: scaleWidth(70),
+                        height: scaleHeight(70),
+                        fit: BoxFit.contain,
+                        allowDrawingOutsideViewBox: true,
+                      ),
+                      // Отступ между иконкой и текстом
+                      SizedBox(height: scaleHeight(8)),
+                      // Текст
+                      Text(
+                        'Анализ рынка',
+                        style: TextStyle(
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w600,
+                          fontSize: scaleHeight(14),
+                          height: 22 / 14,
+                          letterSpacing: 0,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'language_service.dart';
 
 /// Сервис для работы с API
 class ApiService {
@@ -216,10 +217,15 @@ class ApiService {
       
       debugPrint('ApiService: sendMessage request body: $requestBody');
       
+      // Получаем текущую локаль из LanguageService
+      final currentLocale = LanguageService.instance.localeNotifier.value;
+      final acceptLanguage = currentLocale.languageCode == 'ru' ? 'ru' : 'en';
+      
       final response = await http.post(
         url,
         headers: {
           'Content-Type': 'application/json',
+          'Accept-Language': acceptLanguage,
         },
         body: json.encode(requestBody),
       );

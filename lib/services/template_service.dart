@@ -110,6 +110,54 @@ class TemplateService {
       categoryColor: const Color(0x80D300E6),
       title: 'Составь контент-план на неделю для бизнеса',
     ),
+    TemplateModel(
+      id: 105,
+      category: 'Маркетинг',
+      categoryColor: const Color(0x80D300E6),
+      title: 'Создай привлекательный заголовок для статьи',
+    ),
+    TemplateModel(
+      id: 106,
+      category: 'Маркетинг',
+      categoryColor: const Color(0x80D300E6),
+      title: 'Напиши описание для лендинга',
+    ),
+    TemplateModel(
+      id: 107,
+      category: 'Маркетинг',
+      categoryColor: const Color(0x80D300E6),
+      title: 'Составь план запуска продукта',
+    ),
+    TemplateModel(
+      id: 108,
+      category: 'Маркетинг',
+      categoryColor: const Color(0x80D300E6),
+      title: 'Создай текст для баннера',
+    ),
+    TemplateModel(
+      id: 109,
+      category: 'Маркетинг',
+      categoryColor: const Color(0x80D300E6),
+      title: 'Придумай слоган для бренда',
+    ),
+    TemplateModel(
+      id: 110,
+      category: 'Маркетинг',
+      categoryColor: const Color(0x80D300E6),
+      title: 'Составь план работы с инфлюенсерами',
+    ),
+    TemplateModel(
+      id: 111,
+      category: 'Маркетинг',
+      categoryColor: const Color(0x80D300E6),
+      title: 'Создай текст для push-уведомления',
+    ),
+    TemplateModel(
+      id: 112,
+      category: 'Маркетинг',
+      categoryColor: const Color(0x80D300E6),
+      title: 'Напиши описание для YouTube видео',
+    ),
 
     // ------------------ ПРОДАЖИ ------------------
     TemplateModel(
@@ -147,6 +195,54 @@ class TemplateService {
       category: 'Продажи',
       categoryColor: const Color(0x80007B0C),
       title: 'Создай короткое холодное сообщение для первого контакта',
+    ),
+    TemplateModel(
+      id: 113,
+      category: 'Продажи',
+      categoryColor: const Color(0x80007B0C),
+      title: 'Составь план работы с воронкой продаж',
+    ),
+    TemplateModel(
+      id: 114,
+      category: 'Продажи',
+      categoryColor: const Color(0x80007B0C),
+      title: 'Создай презентацию для клиента',
+    ),
+    TemplateModel(
+      id: 115,
+      category: 'Продажи',
+      categoryColor: const Color(0x80007B0C),
+      title: 'Напиши текст для follow-up письма',
+    ),
+    TemplateModel(
+      id: 116,
+      category: 'Продажи',
+      categoryColor: const Color(0x80007B0C),
+      title: 'Составь план работы с отложенными сделками',
+    ),
+    TemplateModel(
+      id: 117,
+      category: 'Продажи',
+      categoryColor: const Color(0x80007B0C),
+      title: 'Создай систему мотивации для отдела продаж',
+    ),
+    TemplateModel(
+      id: 118,
+      category: 'Продажи',
+      categoryColor: const Color(0x80007B0C),
+      title: 'Напиши текст для предложения скидки',
+    ),
+    TemplateModel(
+      id: 119,
+      category: 'Продажи',
+      categoryColor: const Color(0x80007B0C),
+      title: 'Составь план работы с постоянными клиентами',
+    ),
+    TemplateModel(
+      id: 120,
+      category: 'Продажи',
+      categoryColor: const Color(0x80007B0C),
+      title: 'Создай скрипт для работы с возражениями',
     ),
 
     // ------------------ СТРАТЕГИЯ ------------------
@@ -186,6 +282,54 @@ class TemplateService {
       categoryColor: const Color(0x806F00E6),
       title: 'Сформулируй уникальное торговое предложение',
     ),
+    TemplateModel(
+      id: 121,
+      category: 'Стратегия',
+      categoryColor: const Color(0x806F00E6),
+      title: 'Составь долгосрочную стратегию развития',
+    ),
+    TemplateModel(
+      id: 122,
+      category: 'Стратегия',
+      categoryColor: const Color(0x806F00E6),
+      title: 'Создай план выхода на новый рынок',
+    ),
+    TemplateModel(
+      id: 123,
+      category: 'Стратегия',
+      categoryColor: const Color(0x806F00E6),
+      title: 'Составь план диверсификации бизнеса',
+    ),
+    TemplateModel(
+      id: 124,
+      category: 'Стратегия',
+      categoryColor: const Color(0x806F00E6),
+      title: 'Создай стратегию позиционирования бренда',
+    ),
+    TemplateModel(
+      id: 125,
+      category: 'Стратегия',
+      categoryColor: const Color(0x806F00E6),
+      title: 'Составь план партнерства с другими компаниями',
+    ),
+    TemplateModel(
+      id: 126,
+      category: 'Стратегия',
+      categoryColor: const Color(0x806F00E6),
+      title: 'Создай план масштабирования бизнеса',
+    ),
+    TemplateModel(
+      id: 127,
+      category: 'Стратегия',
+      categoryColor: const Color(0x806F00E6),
+      title: 'Составь план работы с кризисными ситуациями',
+    ),
+    TemplateModel(
+      id: 128,
+      category: 'Стратегия',
+      categoryColor: const Color(0x806F00E6),
+      title: 'Создай стратегию работы с сезонностью',
+    ),
 
     // ------------------ КЛИЕНТСКАЯ ПОДДЕРЖКА ------------------
     TemplateModel(
@@ -224,6 +368,54 @@ class TemplateService {
       categoryColor: const Color(0x809300E6),
       title: 'Напиши профессиональный ответ на вопрос клиента',
     ),
+    TemplateModel(
+      id: 129,
+      category: 'Поддержка',
+      categoryColor: const Color(0x809300E6),
+      title: 'Создай шаблон ответа на частые вопросы',
+    ),
+    TemplateModel(
+      id: 130,
+      category: 'Поддержка',
+      categoryColor: const Color(0x809300E6),
+      title: 'Составь план работы с жалобами',
+    ),
+    TemplateModel(
+      id: 131,
+      category: 'Поддержка',
+      categoryColor: const Color(0x809300E6),
+      title: 'Напиши сообщение о решении проблемы',
+    ),
+    TemplateModel(
+      id: 132,
+      category: 'Поддержка',
+      categoryColor: const Color(0x809300E6),
+      title: 'Создай систему оценки качества поддержки',
+    ),
+    TemplateModel(
+      id: 133,
+      category: 'Поддержка',
+      categoryColor: const Color(0x809300E6),
+      title: 'Составь план обучения сотрудников поддержки',
+    ),
+    TemplateModel(
+      id: 134,
+      category: 'Поддержка',
+      categoryColor: const Color(0x809300E6),
+      title: 'Напиши текст для базы знаний',
+    ),
+    TemplateModel(
+      id: 135,
+      category: 'Поддержка',
+      categoryColor: const Color(0x809300E6),
+      title: 'Создай план работы с обратной связью клиентов',
+    ),
+    TemplateModel(
+      id: 136,
+      category: 'Поддержка',
+      categoryColor: const Color(0x809300E6),
+      title: 'Составь план работы в нерабочее время',
+    ),
 
     // ------------------ УПРАВЛЕНИЕ ПЕРСОНАЛОМ ------------------
     TemplateModel(
@@ -261,6 +453,54 @@ class TemplateService {
       category: 'Персонал',
       categoryColor: const Color(0x80E67F00),
       title: 'Создай текст привлекательной вакансии',
+    ),
+    TemplateModel(
+      id: 137,
+      category: 'Персонал',
+      categoryColor: const Color(0x80E67F00),
+      title: 'Составь план проведения собеседования',
+    ),
+    TemplateModel(
+      id: 138,
+      category: 'Персонал',
+      categoryColor: const Color(0x80E67F00),
+      title: 'Создай систему оценки сотрудников',
+    ),
+    TemplateModel(
+      id: 139,
+      category: 'Персонал',
+      categoryColor: const Color(0x80E67F00),
+      title: 'Составь план командообразования',
+    ),
+    TemplateModel(
+      id: 140,
+      category: 'Персонал',
+      categoryColor: const Color(0x80E67F00),
+      title: 'Напиши план развития карьеры сотрудника',
+    ),
+    TemplateModel(
+      id: 141,
+      category: 'Персонал',
+      categoryColor: const Color(0x80E67F00),
+      title: 'Создай план работы с конфликтами в коллективе',
+    ),
+    TemplateModel(
+      id: 142,
+      category: 'Персонал',
+      categoryColor: const Color(0x80E67F00),
+      title: 'Составь план удержания талантов',
+    ),
+    TemplateModel(
+      id: 143,
+      category: 'Персонал',
+      categoryColor: const Color(0x80E67F00),
+      title: 'Создай систему наставничества',
+    ),
+    TemplateModel(
+      id: 144,
+      category: 'Персонал',
+      categoryColor: const Color(0x80E67F00),
+      title: 'Составь план корпоративных мероприятий',
     ),
 
     // ------------------ АНАЛИТИКА ------------------
@@ -312,6 +552,42 @@ class TemplateService {
       categoryColor: const Color(0x8000AEEF),
       title: 'Проанализируй поведение клиентов',
     ),
+    TemplateModel(
+      id: 145,
+      category: 'Аналитика',
+      categoryColor: const Color(0x8000AEEF),
+      title: 'Создай дашборд ключевых метрик',
+    ),
+    TemplateModel(
+      id: 146,
+      category: 'Аналитика',
+      categoryColor: const Color(0x8000AEEF),
+      title: 'Проанализируй эффективность каналов привлечения',
+    ),
+    TemplateModel(
+      id: 147,
+      category: 'Аналитика',
+      categoryColor: const Color(0x8000AEEF),
+      title: 'Составь отчёт о ROI маркетинговых кампаний',
+    ),
+    TemplateModel(
+      id: 148,
+      category: 'Аналитика',
+      categoryColor: const Color(0x8000AEEF),
+      title: 'Создай анализ жизненного цикла клиента',
+    ),
+    TemplateModel(
+      id: 149,
+      category: 'Аналитика',
+      categoryColor: const Color(0x8000AEEF),
+      title: 'Проанализируй сезонные тренды',
+    ),
+    TemplateModel(
+      id: 150,
+      category: 'Аналитика',
+      categoryColor: const Color(0x8000AEEF),
+      title: 'Составь сравнительный анализ с конкурентами',
+    ),
 
     // ------------------ ФИНАНСЫ ------------------
     TemplateModel(
@@ -356,6 +632,48 @@ class TemplateService {
       categoryColor: const Color(0x80FF69B4),
       title: 'Создай финансовый отчёт',
     ),
+    TemplateModel(
+      id: 151,
+      category: 'Финансы',
+      categoryColor: const Color(0x80FF69B4),
+      title: 'Составь план инвестиций',
+    ),
+    TemplateModel(
+      id: 152,
+      category: 'Финансы',
+      categoryColor: const Color(0x80FF69B4),
+      title: 'Создай систему управления денежными потоками',
+    ),
+    TemplateModel(
+      id: 153,
+      category: 'Финансы',
+      categoryColor: const Color(0x80FF69B4),
+      title: 'Составь план работы с кредитами',
+    ),
+    TemplateModel(
+      id: 154,
+      category: 'Финансы',
+      categoryColor: const Color(0x80FF69B4),
+      title: 'Создай систему контроля расходов',
+    ),
+    TemplateModel(
+      id: 155,
+      category: 'Финансы',
+      categoryColor: const Color(0x80FF69B4),
+      title: 'Составь план налогового планирования',
+    ),
+    TemplateModel(
+      id: 156,
+      category: 'Финансы',
+      categoryColor: const Color(0x80FF69B4),
+      title: 'Создай прогноз финансовых показателей',
+    ),
+    TemplateModel(
+      id: 157,
+      category: 'Финансы',
+      categoryColor: const Color(0x80FF69B4),
+      title: 'Составь план работы с дебиторской задолженностью',
+    ),
 
     // ------------------ HR ------------------
     TemplateModel(
@@ -393,6 +711,54 @@ class TemplateService {
       category: 'HR',
       categoryColor: const Color(0x804682B4),
       title: 'Составь программу мотивации персонала',
+    ),
+    TemplateModel(
+      id: 158,
+      category: 'HR',
+      categoryColor: const Color(0x804682B4),
+      title: 'Создай план адаптации новых сотрудников',
+    ),
+    TemplateModel(
+      id: 159,
+      category: 'HR',
+      categoryColor: const Color(0x804682B4),
+      title: 'Составь систему компенсаций и льгот',
+    ),
+    TemplateModel(
+      id: 160,
+      category: 'HR',
+      categoryColor: const Color(0x804682B4),
+      title: 'Создай план работы с увольнениями',
+    ),
+    TemplateModel(
+      id: 161,
+      category: 'HR',
+      categoryColor: const Color(0x804682B4),
+      title: 'Составь план развития лидерских качеств',
+    ),
+    TemplateModel(
+      id: 162,
+      category: 'HR',
+      categoryColor: const Color(0x804682B4),
+      title: 'Создай систему обратной связи от сотрудников',
+    ),
+    TemplateModel(
+      id: 163,
+      category: 'HR',
+      categoryColor: const Color(0x804682B4),
+      title: 'Составь план работы с удаленными сотрудниками',
+    ),
+    TemplateModel(
+      id: 164,
+      category: 'HR',
+      categoryColor: const Color(0x804682B4),
+      title: 'Создай план работы с внутренними коммуникациями',
+    ),
+    TemplateModel(
+      id: 165,
+      category: 'HR',
+      categoryColor: const Color(0x804682B4),
+      title: 'Составь план работы с производительностью',
     ),
 
     // ------------------ ОПЕРАЦИИ ------------------
@@ -432,6 +798,54 @@ class TemplateService {
       categoryColor: const Color(0x809370DB),
       title: 'Создай стандарты работы',
     ),
+    TemplateModel(
+      id: 166,
+      category: 'Операции',
+      categoryColor: const Color(0x809370DB),
+      title: 'Составь план автоматизации процессов',
+    ),
+    TemplateModel(
+      id: 167,
+      category: 'Операции',
+      categoryColor: const Color(0x809370DB),
+      title: 'Создай систему управления рисками',
+    ),
+    TemplateModel(
+      id: 168,
+      category: 'Операции',
+      categoryColor: const Color(0x809370DB),
+      title: 'Составь план работы с поставщиками',
+    ),
+    TemplateModel(
+      id: 169,
+      category: 'Операции',
+      categoryColor: const Color(0x809370DB),
+      title: 'Создай план работы с инвентаризацией',
+    ),
+    TemplateModel(
+      id: 170,
+      category: 'Операции',
+      categoryColor: const Color(0x809370DB),
+      title: 'Составь план работы с документацией',
+    ),
+    TemplateModel(
+      id: 171,
+      category: 'Операции',
+      categoryColor: const Color(0x809370DB),
+      title: 'Создай систему мониторинга процессов',
+    ),
+    TemplateModel(
+      id: 172,
+      category: 'Операции',
+      categoryColor: const Color(0x809370DB),
+      title: 'Составь план работы с инцидентами',
+    ),
+    TemplateModel(
+      id: 173,
+      category: 'Операции',
+      categoryColor: const Color(0x809370DB),
+      title: 'Создай план непрерывного улучшения',
+    ),
 
     // ------------------ РОЗНИЧНАЯ ТОРГОВЛЯ ------------------
     TemplateModel(
@@ -469,6 +883,54 @@ class TemplateService {
       category: 'Розничная торговля',
       categoryColor: const Color(0x8061B3F9),
       title: 'Создай систему управления запасами',
+    ),
+    TemplateModel(
+      id: 174,
+      category: 'Розничная торговля',
+      categoryColor: const Color(0x8061B3F9),
+      title: 'Составь план работы с покупателями',
+    ),
+    TemplateModel(
+      id: 175,
+      category: 'Розничная торговля',
+      categoryColor: const Color(0x8061B3F9),
+      title: 'Создай план работы с возвратами',
+    ),
+    TemplateModel(
+      id: 176,
+      category: 'Розничная торговля',
+      categoryColor: const Color(0x8061B3F9),
+      title: 'Составь план работы с сезонными товарами',
+    ),
+    TemplateModel(
+      id: 177,
+      category: 'Розничная торговля',
+      categoryColor: const Color(0x8061B3F9),
+      title: 'Создай систему работы с промокодами',
+    ),
+    TemplateModel(
+      id: 178,
+      category: 'Розничная торговля',
+      categoryColor: const Color(0x8061B3F9),
+      title: 'Составь план работы с онлайн-продажами',
+    ),
+    TemplateModel(
+      id: 179,
+      category: 'Розничная торговля',
+      categoryColor: const Color(0x8061B3F9),
+      title: 'Создай план работы с программами лояльности',
+    ),
+    TemplateModel(
+      id: 180,
+      category: 'Розничная торговля',
+      categoryColor: const Color(0x8061B3F9),
+      title: 'Составь план работы с витриной',
+    ),
+    TemplateModel(
+      id: 181,
+      category: 'Розничная торговля',
+      categoryColor: const Color(0x8061B3F9),
+      title: 'Создай план работы с персоналом магазина',
     ),
 
     // ------------------ ПРОИЗВОДСТВО ------------------
@@ -508,6 +970,54 @@ class TemplateService {
       categoryColor: const Color(0x80669484),
       title: 'Создай план безопасности на производстве',
     ),
+    TemplateModel(
+      id: 182,
+      category: 'Производство',
+      categoryColor: const Color(0x80669484),
+      title: 'Составь план работы с оборудованием',
+    ),
+    TemplateModel(
+      id: 183,
+      category: 'Производство',
+      categoryColor: const Color(0x80669484),
+      title: 'Создай систему управления производственным планом',
+    ),
+    TemplateModel(
+      id: 184,
+      category: 'Производство',
+      categoryColor: const Color(0x80669484),
+      title: 'Составь план работы с браком',
+    ),
+    TemplateModel(
+      id: 185,
+      category: 'Производство',
+      categoryColor: const Color(0x80669484),
+      title: 'Создай план работы с энергоэффективностью',
+    ),
+    TemplateModel(
+      id: 186,
+      category: 'Производство',
+      categoryColor: const Color(0x80669484),
+      title: 'Составь план работы с экологией',
+    ),
+    TemplateModel(
+      id: 187,
+      category: 'Производство',
+      categoryColor: const Color(0x80669484),
+      title: 'Создай план работы с инновациями',
+    ),
+    TemplateModel(
+      id: 188,
+      category: 'Производство',
+      categoryColor: const Color(0x80669484),
+      title: 'Составь план работы с сертификацией',
+    ),
+    TemplateModel(
+      id: 189,
+      category: 'Производство',
+      categoryColor: const Color(0x80669484),
+      title: 'Создай план работы с упаковкой',
+    ),
 
     // ------------------ IT/ТЕХНОЛОГИИ ------------------
     TemplateModel(
@@ -545,6 +1055,54 @@ class TemplateService {
       category: 'IT/Технологии',
       categoryColor: const Color(0x803FC1C9),
       title: 'Создай план технической поддержки',
+    ),
+    TemplateModel(
+      id: 190,
+      category: 'IT/Технологии',
+      categoryColor: const Color(0x803FC1C9),
+      title: 'Составь план работы с безопасностью данных',
+    ),
+    TemplateModel(
+      id: 191,
+      category: 'IT/Технологии',
+      categoryColor: const Color(0x803FC1C9),
+      title: 'Создай план работы с облачными сервисами',
+    ),
+    TemplateModel(
+      id: 192,
+      category: 'IT/Технологии',
+      categoryColor: const Color(0x803FC1C9),
+      title: 'Составь план работы с API',
+    ),
+    TemplateModel(
+      id: 193,
+      category: 'IT/Технологии',
+      categoryColor: const Color(0x803FC1C9),
+      title: 'Создай план работы с DevOps',
+    ),
+    TemplateModel(
+      id: 194,
+      category: 'IT/Технологии',
+      categoryColor: const Color(0x803FC1C9),
+      title: 'Составь план работы с мобильными приложениями',
+    ),
+    TemplateModel(
+      id: 195,
+      category: 'IT/Технологии',
+      categoryColor: const Color(0x803FC1C9),
+      title: 'Создай план работы с искусственным интеллектом',
+    ),
+    TemplateModel(
+      id: 196,
+      category: 'IT/Технологии',
+      categoryColor: const Color(0x803FC1C9),
+      title: 'Составь план работы с кибербезопасностью',
+    ),
+    TemplateModel(
+      id: 197,
+      category: 'IT/Технологии',
+      categoryColor: const Color(0x803FC1C9),
+      title: 'Создай план работы с автоматизацией',
     ),
 
     // ------------------ ЗДРАВООХРАНЕНИЕ ------------------
@@ -584,6 +1142,54 @@ class TemplateService {
       categoryColor: const Color(0x80FF6B6B),
       title: 'Создай план повышения качества услуг',
     ),
+    TemplateModel(
+      id: 198,
+      category: 'Здравоохранение',
+      categoryColor: const Color(0x80FF6B6B),
+      title: 'Составь план работы с пациентами',
+    ),
+    TemplateModel(
+      id: 199,
+      category: 'Здравоохранение',
+      categoryColor: const Color(0x80FF6B6B),
+      title: 'Создай план работы с медицинским оборудованием',
+    ),
+    TemplateModel(
+      id: 200,
+      category: 'Здравоохранение',
+      categoryColor: const Color(0x80FF6B6B),
+      title: 'Составь план работы с лекарствами',
+    ),
+    TemplateModel(
+      id: 201,
+      category: 'Здравоохранение',
+      categoryColor: const Color(0x80FF6B6B),
+      title: 'Создай план работы с медицинским персоналом',
+    ),
+    TemplateModel(
+      id: 202,
+      category: 'Здравоохранение',
+      categoryColor: const Color(0x80FF6B6B),
+      title: 'Составь план работы с санитарными нормами',
+    ),
+    TemplateModel(
+      id: 203,
+      category: 'Здравоохранение',
+      categoryColor: const Color(0x80FF6B6B),
+      title: 'Создай план работы с экстренными ситуациями',
+    ),
+    TemplateModel(
+      id: 204,
+      category: 'Здравоохранение',
+      categoryColor: const Color(0x80FF6B6B),
+      title: 'Составь план работы с медицинской документацией',
+    ),
+    TemplateModel(
+      id: 205,
+      category: 'Здравоохранение',
+      categoryColor: const Color(0x80FF6B6B),
+      title: 'Создай план работы с профилактикой',
+    ),
 
     // ------------------ ОБРАЗОВАНИЕ ------------------
     TemplateModel(
@@ -621,6 +1227,54 @@ class TemplateService {
       category: 'Образование',
       categoryColor: const Color(0x806C5CE7),
       title: 'Создай план развития образовательного учреждения',
+    ),
+    TemplateModel(
+      id: 206,
+      category: 'Образование',
+      categoryColor: const Color(0x806C5CE7),
+      title: 'Составь план работы с учениками',
+    ),
+    TemplateModel(
+      id: 207,
+      category: 'Образование',
+      categoryColor: const Color(0x806C5CE7),
+      title: 'Создай план работы с родителями',
+    ),
+    TemplateModel(
+      id: 208,
+      category: 'Образование',
+      categoryColor: const Color(0x806C5CE7),
+      title: 'Составь план работы с учебными материалами',
+    ),
+    TemplateModel(
+      id: 209,
+      category: 'Образование',
+      categoryColor: const Color(0x806C5CE7),
+      title: 'Создай план работы с внеклассными мероприятиями',
+    ),
+    TemplateModel(
+      id: 210,
+      category: 'Образование',
+      categoryColor: const Color(0x806C5CE7),
+      title: 'Составь план работы с профессиональным развитием',
+    ),
+    TemplateModel(
+      id: 211,
+      category: 'Образование',
+      categoryColor: const Color(0x806C5CE7),
+      title: 'Создай план работы с инклюзивным образованием',
+    ),
+    TemplateModel(
+      id: 212,
+      category: 'Образование',
+      categoryColor: const Color(0x806C5CE7),
+      title: 'Составь план работы с цифровыми технологиями',
+    ),
+    TemplateModel(
+      id: 213,
+      category: 'Образование',
+      categoryColor: const Color(0x806C5CE7),
+      title: 'Создай план работы с оценкой качества образования',
     ),
 
     // ------------------ НЕДВИЖИМОСТЬ ------------------
@@ -660,6 +1314,54 @@ class TemplateService {
       categoryColor: const Color(0x80FD9853),
       title: 'Создай план оценки недвижимости',
     ),
+    TemplateModel(
+      id: 214,
+      category: 'Недвижимость',
+      categoryColor: const Color(0x80FD9853),
+      title: 'Составь план работы с арендаторами',
+    ),
+    TemplateModel(
+      id: 215,
+      category: 'Недвижимость',
+      categoryColor: const Color(0x80FD9853),
+      title: 'Создай план работы с техническим обслуживанием',
+    ),
+    TemplateModel(
+      id: 216,
+      category: 'Недвижимость',
+      categoryColor: const Color(0x80FD9853),
+      title: 'Составь план работы с юридическими вопросами',
+    ),
+    TemplateModel(
+      id: 217,
+      category: 'Недвижимость',
+      categoryColor: const Color(0x80FD9853),
+      title: 'Создай план работы с инвестициями в недвижимость',
+    ),
+    TemplateModel(
+      id: 218,
+      category: 'Недвижимость',
+      categoryColor: const Color(0x80FD9853),
+      title: 'Составь план работы с ремонтом',
+    ),
+    TemplateModel(
+      id: 219,
+      category: 'Недвижимость',
+      categoryColor: const Color(0x80FD9853),
+      title: 'Создай план работы с коммунальными услугами',
+    ),
+    TemplateModel(
+      id: 220,
+      category: 'Недвижимость',
+      categoryColor: const Color(0x80FD9853),
+      title: 'Составь план работы с безопасностью',
+    ),
+    TemplateModel(
+      id: 221,
+      category: 'Недвижимость',
+      categoryColor: const Color(0x80FD9853),
+      title: 'Создай план работы с управлением объектами',
+    ),
 
     // ------------------ РЕСТОРАННЫЙ БИЗНЕС ------------------
     TemplateModel(
@@ -698,6 +1400,54 @@ class TemplateService {
       categoryColor: const Color(0x80FF9A9E),
       title: 'Создай план работы с поставщиками',
     ),
+    TemplateModel(
+      id: 222,
+      category: 'Ресторанный бизнес',
+      categoryColor: const Color(0x80FF9A9E),
+      title: 'Составь план работы с персоналом ресторана',
+    ),
+    TemplateModel(
+      id: 223,
+      category: 'Ресторанный бизнес',
+      categoryColor: const Color(0x80FF9A9E),
+      title: 'Создай план работы с санитарными нормами',
+    ),
+    TemplateModel(
+      id: 224,
+      category: 'Ресторанный бизнес',
+      categoryColor: const Color(0x80FF9A9E),
+      title: 'Составь план работы с напитками',
+    ),
+    TemplateModel(
+      id: 225,
+      category: 'Ресторанный бизнес',
+      categoryColor: const Color(0x80FF9A9E),
+      title: 'Создай план работы с мероприятиями',
+    ),
+    TemplateModel(
+      id: 226,
+      category: 'Ресторанный бизнес',
+      categoryColor: const Color(0x80FF9A9E),
+      title: 'Составь план работы с доставкой',
+    ),
+    TemplateModel(
+      id: 227,
+      category: 'Ресторанный бизнес',
+      categoryColor: const Color(0x80FF9A9E),
+      title: 'Создай план работы с рекламой',
+    ),
+    TemplateModel(
+      id: 228,
+      category: 'Ресторанный бизнес',
+      categoryColor: const Color(0x80FF9A9E),
+      title: 'Составь план работы с отзывами',
+    ),
+    TemplateModel(
+      id: 229,
+      category: 'Ресторанный бизнес',
+      categoryColor: const Color(0x80FF9A9E),
+      title: 'Создай план работы с сезонным меню',
+    ),
 
     // ------------------ ЛОГИСТИКА ------------------
     TemplateModel(
@@ -735,6 +1485,208 @@ class TemplateService {
       category: 'Логистика',
       categoryColor: const Color(0x80D8AA74),
       title: 'Оптимизируй цепочку поставок',
+    ),
+    TemplateModel(
+      id: 230,
+      category: 'Логистика',
+      categoryColor: const Color(0x80D8AA74),
+      title: 'Составь план работы с транспортом',
+    ),
+    TemplateModel(
+      id: 231,
+      category: 'Логистика',
+      categoryColor: const Color(0x80D8AA74),
+      title: 'Создай план работы с таможней',
+    ),
+    TemplateModel(
+      id: 232,
+      category: 'Логистика',
+      categoryColor: const Color(0x80D8AA74),
+      title: 'Составь план работы с упаковкой и маркировкой',
+    ),
+    TemplateModel(
+      id: 233,
+      category: 'Логистика',
+      categoryColor: const Color(0x80D8AA74),
+      title: 'Создай план работы с возвратами',
+    ),
+    TemplateModel(
+      id: 234,
+      category: 'Логистика',
+      categoryColor: const Color(0x80D8AA74),
+      title: 'Составь план работы с международной логистикой',
+    ),
+    TemplateModel(
+      id: 235,
+      category: 'Логистика',
+      categoryColor: const Color(0x80D8AA74),
+      title: 'Создай план работы с курьерскими службами',
+    ),
+    TemplateModel(
+      id: 236,
+      category: 'Логистика',
+      categoryColor: const Color(0x80D8AA74),
+      title: 'Составь план работы с отслеживанием грузов',
+    ),
+    TemplateModel(
+      id: 237,
+      category: 'Логистика',
+      categoryColor: const Color(0x80D8AA74),
+      title: 'Создай план работы с логистическими партнерами',
+    ),
+
+    // ------------------ ЕЖЕНЕДЕЛЬНЫЙ ОТЧЕТ ------------------
+    TemplateModel(
+      id: 238,
+      category: 'Еженедельный отчет',
+      categoryColor: const Color(0x8079BAEF),
+      title: 'Создай еженедельный отчет о работе',
+    ),
+    TemplateModel(
+      id: 253,
+      category: 'Еженедельный отчет',
+      categoryColor: const Color(0x8079BAEF),
+      title: 'Составь отчет о выполненных задачах',
+    ),
+    TemplateModel(
+      id: 254,
+      category: 'Еженедельный отчет',
+      categoryColor: const Color(0x8079BAEF),
+      title: 'Создай отчет о продажах за неделю',
+    ),
+    TemplateModel(
+      id: 255,
+      category: 'Еженедельный отчет',
+      categoryColor: const Color(0x8079BAEF),
+      title: 'Составь отчет о работе команды',
+    ),
+    TemplateModel(
+      id: 256,
+      category: 'Еженедельный отчет',
+      categoryColor: const Color(0x8079BAEF),
+      title: 'Создай отчет о достижениях за неделю',
+    ),
+    TemplateModel(
+      id: 257,
+      category: 'Еженедельный отчет',
+      categoryColor: const Color(0x8079BAEF),
+      title: 'Составь отчет о маркетинговых активностях',
+    ),
+    TemplateModel(
+      id: 258,
+      category: 'Еженедельный отчет',
+      categoryColor: const Color(0x8079BAEF),
+      title: 'Создай отчет о финансовых показателях',
+    ),
+    TemplateModel(
+      id: 259,
+      category: 'Еженедельный отчет',
+      categoryColor: const Color(0x8079BAEF),
+      title: 'Составь отчет о работе с клиентами',
+    ),
+    TemplateModel(
+      id: 260,
+      category: 'Еженедельный отчет',
+      categoryColor: const Color(0x8079BAEF),
+      title: 'Создай отчет о проектах за неделю',
+    ),
+    TemplateModel(
+      id: 261,
+      category: 'Еженедельный отчет',
+      categoryColor: const Color(0x8079BAEF),
+      title: 'Составь отчет о производительности',
+    ),
+    TemplateModel(
+      id: 262,
+      category: 'Еженедельный отчет',
+      categoryColor: const Color(0x8079BAEF),
+      title: 'Создай отчет о проблемах и решениях',
+    ),
+    TemplateModel(
+      id: 263,
+      category: 'Еженедельный отчет',
+      categoryColor: const Color(0x8079BAEF),
+      title: 'Составь отчет о планах на следующую неделю',
+    ),
+
+    // ------------------ АНАЛИЗ РЫНКА ------------------
+    TemplateModel(
+      id: 239,
+      category: 'Анализ рынка',
+      categoryColor: const Color(0x80EE96A5),
+      title: 'Проведи анализ рынка',
+    ),
+    TemplateModel(
+      id: 264,
+      category: 'Анализ рынка',
+      categoryColor: const Color(0x80EE96A5),
+      title: 'Создай анализ конкурентов',
+    ),
+    TemplateModel(
+      id: 265,
+      category: 'Анализ рынка',
+      categoryColor: const Color(0x80EE96A5),
+      title: 'Составь анализ целевой аудитории',
+    ),
+    TemplateModel(
+      id: 266,
+      category: 'Анализ рынка',
+      categoryColor: const Color(0x80EE96A5),
+      title: 'Проведи анализ трендов в отрасли',
+    ),
+    TemplateModel(
+      id: 267,
+      category: 'Анализ рынка',
+      categoryColor: const Color(0x80EE96A5),
+      title: 'Создай анализ ценовой политики',
+    ),
+    TemplateModel(
+      id: 268,
+      category: 'Анализ рынка',
+      categoryColor: const Color(0x80EE96A5),
+      title: 'Составь анализ маркетинговых каналов',
+    ),
+    TemplateModel(
+      id: 269,
+      category: 'Анализ рынка',
+      categoryColor: const Color(0x80EE96A5),
+      title: 'Проведи анализ сегментации рынка',
+    ),
+    TemplateModel(
+      id: 270,
+      category: 'Анализ рынка',
+      categoryColor: const Color(0x80EE96A5),
+      title: 'Создай анализ продуктового портфеля',
+    ),
+    TemplateModel(
+      id: 271,
+      category: 'Анализ рынка',
+      categoryColor: const Color(0x80EE96A5),
+      title: 'Составь анализ географического рынка',
+    ),
+    TemplateModel(
+      id: 272,
+      category: 'Анализ рынка',
+      categoryColor: const Color(0x80EE96A5),
+      title: 'Проведи анализ потребительского поведения',
+    ),
+    TemplateModel(
+      id: 273,
+      category: 'Анализ рынка',
+      categoryColor: const Color(0x80EE96A5),
+      title: 'Создай анализ рыночных возможностей',
+    ),
+    TemplateModel(
+      id: 274,
+      category: 'Анализ рынка',
+      categoryColor: const Color(0x80EE96A5),
+      title: 'Составь анализ барьеров входа на рынок',
+    ),
+    TemplateModel(
+      id: 275,
+      category: 'Анализ рынка',
+      categoryColor: const Color(0x80EE96A5),
+      title: 'Проведи анализ динамики рынка',
     ),
   ];
 

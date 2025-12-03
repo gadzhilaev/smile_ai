@@ -295,6 +295,9 @@ class _TemplateCard extends StatelessWidget {
               InkWell(
                 onTap: () {
                   if (onApplyTemplate != null) {
+                    // Закрываем экран категории
+                    Navigator.of(context).pop();
+                    // Вызываем callback для переключения на AI экран
                     onApplyTemplate!(template.title, template.category);
                   }
                 },
@@ -338,6 +341,9 @@ class _TemplateCard extends StatelessWidget {
               InkWell(
                 onTap: () {
                   if (onEditTemplate != null) {
+                    // Закрываем экран категории
+                    Navigator.of(context).pop();
+                    // Вызываем callback для переключения на AI экран
                     onEditTemplate!(template.title, (editedText) {
                       // Callback будет вызван из AiScreen после сохранения
                     });
