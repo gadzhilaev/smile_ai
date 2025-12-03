@@ -141,6 +141,21 @@ class _AiScreenState extends State<AiScreen> {
             final responseConversationId = historyResult['conversation_id'] as String?;
             final actualConversationId = responseConversationId ?? chat.conversationId!;
 
+            // Парсим attachments (файлы привязанные к сообщениям по message_id)
+            final attachmentsList = historyResult['attachments'] as List<dynamic>? ?? [];
+            final Map<String, List<Map<String, dynamic>>> filesByMessageId = {};
+            
+            for (final attachment in attachmentsList) {
+              final messageId = attachment['message_id'] as String?;
+              final files = attachment['files'] as List<dynamic>?;
+              
+              if (messageId != null && files != null && files.isNotEmpty) {
+                filesByMessageId[messageId] = List<Map<String, dynamic>>.from(
+                  files.map((file) => file as Map<String, dynamic>)
+                );
+              }
+            }
+
             // Преобразуем сообщения из API в ChatMessage
             final messagesList = historyResult['messages'] as List<dynamic>? ?? [];
             final List<ChatMessage> loadedMessages = [];
@@ -149,15 +164,12 @@ class _AiScreenState extends State<AiScreen> {
               final content = msg['content'] as String? ?? '';
               final role = msg['role'] as String? ?? '';
               final isUser = role == 'user';
+              final messageId = msg['id'] as String?;
               
-              // Парсим файлы из сообщения
+              // Получаем файлы из attachments по message_id
               List<Map<String, dynamic>>? files;
-              if (msg['files'] != null && msg['files'] != 'null') {
-                if (msg['files'] is List) {
-                  files = List<Map<String, dynamic>>.from(
-                    (msg['files'] as List).map((file) => file as Map<String, dynamic>)
-                  );
-                }
+              if (messageId != null && filesByMessageId.containsKey(messageId)) {
+                files = filesByMessageId[messageId];
               }
               
               loadedMessages.add(ChatMessage(
@@ -220,6 +232,21 @@ class _AiScreenState extends State<AiScreen> {
           if (!mounted) return;
 
           if (!historyResult.containsKey('error')) {
+            // Парсим attachments (файлы привязанные к сообщениям по message_id)
+            final attachmentsList = historyResult['attachments'] as List<dynamic>? ?? [];
+            final Map<String, List<Map<String, dynamic>>> filesByMessageId = {};
+            
+            for (final attachment in attachmentsList) {
+              final messageId = attachment['message_id'] as String?;
+              final files = attachment['files'] as List<dynamic>?;
+              
+              if (messageId != null && files != null && files.isNotEmpty) {
+                filesByMessageId[messageId] = List<Map<String, dynamic>>.from(
+                  files.map((file) => file as Map<String, dynamic>)
+                );
+              }
+            }
+
             final messagesList = historyResult['messages'] as List<dynamic>? ?? [];
             final List<ChatMessage> loadedMessages = [];
             
@@ -227,14 +254,12 @@ class _AiScreenState extends State<AiScreen> {
               final content = msg['content'] as String? ?? '';
               final role = msg['role'] as String? ?? '';
               final isUser = role == 'user';
+              final messageId = msg['id'] as String?;
               
+              // Получаем файлы из attachments по message_id
               List<Map<String, dynamic>>? files;
-              if (msg['files'] != null && msg['files'] != 'null') {
-                if (msg['files'] is List) {
-                  files = List<Map<String, dynamic>>.from(
-                    (msg['files'] as List).map((file) => file as Map<String, dynamic>)
-                  );
-                }
+              if (messageId != null && filesByMessageId.containsKey(messageId)) {
+                files = filesByMessageId[messageId];
               }
               
               loadedMessages.add(ChatMessage(
@@ -707,6 +732,21 @@ class _AiScreenState extends State<AiScreen> {
           final responseConversationId = historyResult['conversation_id'] as String?;
           final actualConversationId = responseConversationId ?? chat.conversationId!;
 
+          // Парсим attachments (файлы привязанные к сообщениям по message_id)
+          final attachmentsList = historyResult['attachments'] as List<dynamic>? ?? [];
+          final Map<String, List<Map<String, dynamic>>> filesByMessageId = {};
+          
+          for (final attachment in attachmentsList) {
+            final messageId = attachment['message_id'] as String?;
+            final files = attachment['files'] as List<dynamic>?;
+            
+            if (messageId != null && files != null && files.isNotEmpty) {
+              filesByMessageId[messageId] = List<Map<String, dynamic>>.from(
+                files.map((file) => file as Map<String, dynamic>)
+              );
+            }
+          }
+
           // Преобразуем сообщения из API в ChatMessage
           final messagesList = historyResult['messages'] as List<dynamic>? ?? [];
           final List<ChatMessage> loadedMessages = [];
@@ -715,15 +755,12 @@ class _AiScreenState extends State<AiScreen> {
             final content = msg['content'] as String? ?? '';
             final role = msg['role'] as String? ?? '';
             final isUser = role == 'user';
+            final messageId = msg['id'] as String?;
             
-            // Парсим файлы из сообщения
+            // Получаем файлы из attachments по message_id
             List<Map<String, dynamic>>? files;
-            if (msg['files'] != null && msg['files'] != 'null') {
-              if (msg['files'] is List) {
-                files = List<Map<String, dynamic>>.from(
-                  (msg['files'] as List).map((file) => file as Map<String, dynamic>)
-                );
-              }
+            if (messageId != null && filesByMessageId.containsKey(messageId)) {
+              files = filesByMessageId[messageId];
             }
             
             loadedMessages.add(ChatMessage(

@@ -100,24 +100,25 @@ class _SupportScreenState extends State<SupportScreen> {
       bool foundLocalMessage = false;
       for (int i = 0; i < _messages.length; i++) {
         final existingMsg = _messages[i];
-        // Если это локальное сообщение пользователя с таким же текстом и изображениями
+        // Если это локальное сообщение пользователя (с tempId) и время совпадает
         if (existingMsg.tempId != null &&
             !existingMsg.fromSupport &&
-            existingMsg.text == messageText &&
             existingMsg.createdAt != null &&
             existingMsg.createdAt!.difference(createdAt).abs().inSeconds < 10) {
-          // Проверяем изображения
-          bool imagesMatch = true;
-          if (imagePaths != null && imagePaths.isNotEmpty) {
-            final localImages = existingMsg.imagePaths ?? [];
-            if (localImages.length != imagePaths.length) {
-              imagesMatch = false;
-            }
-          } else if (existingMsg.imagePaths != null && existingMsg.imagePaths!.isNotEmpty) {
-            imagesMatch = false;
-          }
+          // Проверяем текст (с учетом пробелов)
+          final existingText = existingMsg.text.trim();
+          final newText = messageText.trim();
+          final textMatches = existingText == newText || 
+              (existingText.isEmpty && newText.isEmpty);
           
-          if (imagesMatch) {
+          // Проверяем изображения: для локальных сообщений проверяем только количество
+          // (локальные пути и URL - это разные строки, но это одно и то же сообщение)
+          final localImages = existingMsg.imagePaths ?? [];
+          final serverImages = imagePaths ?? [];
+          final imagesMatch = localImages.length == serverImages.length;
+          
+          // Если текст и количество изображений совпадают, это одно и то же сообщение
+          if (textMatches && imagesMatch) {
             // Заменяем локальное сообщение на сообщение с сервера (убираем tempId)
             setState(() {
               _messages[i] = _SupportMessage(
@@ -169,19 +170,19 @@ class _SupportScreenState extends State<SupportScreen> {
         }
         
         if (!isDuplicate) {
-          setState(() {
-            _messages.add(
-              _SupportMessage(
+      setState(() {
+        _messages.add(
+          _SupportMessage(
                 fromSupport: isFromSupport,
                 text: messageText,
                 imagePaths: imagePaths,
                 isLocalFiles: false,
                 createdAt: createdAt,
                 tempId: null, // Сообщение с сервера не имеет tempId
-              ),
-            );
-          });
-          _scrollToBottom();
+          ),
+        );
+      });
+      _scrollToBottom();
         }
       } else {
         _scrollToBottom();
@@ -404,23 +405,25 @@ class _SupportScreenState extends State<SupportScreen> {
             bool foundLocalMessage = false;
             for (int i = 0; i < _messages.length; i++) {
               final existingMsg = _messages[i];
+              // Если это локальное сообщение пользователя (с tempId) и время совпадает
               if (existingMsg.tempId != null &&
                   !existingMsg.fromSupport &&
-                  existingMsg.text == messageText &&
                   existingMsg.createdAt != null &&
                   existingMsg.createdAt!.difference(createdAt).abs().inSeconds < 10) {
-                // Проверяем изображения
-                bool imagesMatch = true;
-                if (imagePaths != null && imagePaths.isNotEmpty) {
-                  final localImages = existingMsg.imagePaths ?? [];
-                  if (localImages.length != imagePaths.length) {
-                    imagesMatch = false;
-                  }
-                } else if (existingMsg.imagePaths != null && existingMsg.imagePaths!.isNotEmpty) {
-                  imagesMatch = false;
-                }
+                // Проверяем текст (с учетом пробелов)
+                final existingText = existingMsg.text.trim();
+                final newText = messageText.trim();
+                final textMatches = existingText == newText || 
+                    (existingText.isEmpty && newText.isEmpty);
                 
-                if (imagesMatch) {
+                // Проверяем изображения: для локальных сообщений проверяем только количество
+                // (локальные пути и URL - это разные строки, но это одно и то же сообщение)
+                final localImages = existingMsg.imagePaths ?? [];
+                final serverImages = imagePaths ?? [];
+                final imagesMatch = localImages.length == serverImages.length;
+                
+                // Если текст и количество изображений совпадают, это одно и то же сообщение
+                if (textMatches && imagesMatch) {
                   // Заменяем локальное сообщение на сообщение из истории
                   _messages[i] = _SupportMessage(
                     fromSupport: isFromSupport,
@@ -753,26 +756,12 @@ class _SupportScreenState extends State<SupportScreen> {
     final messageText = text;
     final imagesToSend = List<XFile>.from(_attachedImages);
     
-    // Генерируем временный ID для локального сообщения
-    final tempId = DateTime.now().millisecondsSinceEpoch.toString();
-    
-    // Добавляем сообщение в UI сразу для лучшего UX
-    // Помечаем как локальные файлы, чтобы показывать их локально
+    // Очищаем поле ввода и прикрепленные изображения сразу
+    // Сообщение появится только когда придет с сервера через WebSocket
     setState(() {
-      _messages.add(
-        _SupportMessage(
-          fromSupport: false,
-          text: messageText,
-          imagePaths: imagesToSend.map((img) => img.path).toList(),
-          isLocalFiles: true, // Это локальные файлы, показываем их локально
-          createdAt: DateTime.now(),
-          tempId: tempId, // Временный ID для отслеживания
-        ),
-      );
       _inputController.clear();
       _attachedImages.clear();
     });
-    _scrollToBottom();
 
     try {
       // Преобразуем XFile в File и проверяем существование
@@ -798,14 +787,21 @@ class _SupportScreenState extends State<SupportScreen> {
         photos: photoFiles, // Отправляем все фото одним запросом
       );
       
-      // После успешной отправки НЕ перезагружаем историю сразу
-      // Сообщение уже добавлено локально, оно будет заменено при получении с сервера через WebSocket
-      // НЕ вызываем _loadMessageHistory() здесь, чтобы избежать дублирования
+      // После успешной отправки загружаем историю, чтобы получить сообщение с сервера
+      // с правильными URL картинок
+      if (mounted) {
+        // Небольшая задержка, чтобы сервер успел сохранить сообщение
+        await Future.delayed(const Duration(milliseconds: 800));
+        await _loadMessageHistory();
+        // Прокручиваем вниз после загрузки истории
+        _scrollToBottom();
+      }
     } catch (e) {
       if (mounted) {
-        // Удаляем локальное сообщение из списка при ошибке
+        // При ошибке возвращаем текст и изображения обратно в поле ввода
         setState(() {
-          _messages.removeWhere((msg) => msg.tempId == tempId);
+          _inputController.text = messageText;
+          _attachedImages.addAll(imagesToSend);
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Ошибка отправки: $e')),
