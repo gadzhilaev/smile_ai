@@ -733,6 +733,122 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
             ],
           ),
         ),
+        // Отступ снизу 18
+        SizedBox(height: scaleHeight(18)),
+        // Текст "Персональные"
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: scaleWidth(32)),
+          child: Text(
+            'Персональные',
+            style: TextStyle(
+              fontFamily: 'Montserrat',
+              fontWeight: FontWeight.w600,
+              fontSize: scaleHeight(18),
+              color: const Color(0xFF201D2F),
+            ),
+          ),
+        ),
+        // Отступ снизу 14
+        SizedBox(height: scaleHeight(14)),
+        // Два контейнера в ряд
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: scaleWidth(32)),
+          child: Row(
+            children: [
+              // Первый контейнер - Ваши шаблоны
+              Container(
+                width: scaleWidth(110),
+                height: scaleHeight(176),
+                padding: EdgeInsets.symmetric(vertical: scaleHeight(28)),
+                margin: EdgeInsets.only(right: scaleWidth(17)),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    // 160.29deg
+                    begin: const Alignment(-1.0, -1.0),
+                    end: const Alignment(1.0, 1.0),
+                    colors: const [
+                      Color(0xFFEB91D4),
+                      Color(0xFFDD41B6),
+                    ],
+                    stops: const [0.0886, 1.0],
+                  ),
+                  borderRadius: BorderRadius.circular(scaleHeight(13)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      offset: const Offset(0, 2),
+                      blurRadius: 8,
+                      spreadRadius: 0,
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: Text(
+                    'Ваши шаблоны',
+                    style: TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontWeight: FontWeight.w600,
+                      fontSize: scaleHeight(14),
+                      height: 22 / 14,
+                      letterSpacing: 0,
+                      color: Colors.black,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+              // Второй контейнер - Добавить папку
+              Container(
+                width: scaleWidth(110),
+                height: scaleHeight(176),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(scaleHeight(13)),
+                ),
+                child: Stack(
+                  children: [
+                    // Пунктирная обводка
+                    CustomPaint(
+                      size: Size(scaleWidth(110), scaleHeight(176)),
+                      painter: _DashedBorderPainter(
+                        color: const Color(0xFF9E9E9E),
+                        strokeWidth: 1,
+                        borderRadius: scaleHeight(13),
+                      ),
+                    ),
+                    // Контент по центру
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Иконка плюсик
+                          Icon(
+                            Icons.add,
+                            size: scaleHeight(24),
+                            color: const Color(0xFF9E9E9E),
+                          ),
+                          // Текст без отступа
+                          Text(
+                            'Добавить папку',
+                            style: TextStyle(
+                              fontFamily: 'Montserrat',
+                              fontWeight: FontWeight.w600,
+                              fontSize: scaleHeight(8),
+                              height: 1.0,
+                              letterSpacing: 0,
+                              color: const Color(0xFF9E9E9E),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -1074,4 +1190,50 @@ class _TemplateCard extends StatelessWidget {
       ),
     );
   }
+}
+
+class _DashedBorderPainter extends CustomPainter {
+  final Color color;
+  final double strokeWidth;
+  final double borderRadius;
+
+  _DashedBorderPainter({
+    required this.color,
+    required this.strokeWidth,
+    required this.borderRadius,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke;
+
+    final path = Path()
+      ..addRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(0, 0, size.width, size.height),
+          Radius.circular(borderRadius),
+        ),
+      );
+
+    // Рисуем пунктирную линию (dashes: 16, 16)
+    const dashWidth = 16.0;
+    const dashSpace = 16.0;
+    final pathMetrics = path.computeMetrics();
+
+    for (final pathMetric in pathMetrics) {
+      double start = 0.0;
+      while (start < pathMetric.length) {
+        final end = (start + dashWidth).clamp(0.0, pathMetric.length);
+        final extractPath = pathMetric.extractPath(start, end);
+        canvas.drawPath(extractPath, paint);
+        start += dashWidth + dashSpace;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
