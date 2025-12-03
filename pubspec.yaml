@@ -140,6 +140,9 @@ flutter:
     - assets/icons/
     - assets/icons/dark/
     - assets/icons/light/
+    - assets/icons/templates/
+    - assets/icons/templates/dark/
+    - assets/icons/templates/lights/
     - assets/nav_bar/select/
     - assets/nav_bar/unselect/dark/
     - assets/nav_bar/unselect/light/

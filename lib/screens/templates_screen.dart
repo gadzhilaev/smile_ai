@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../settings/style.dart';
 import '../settings/colors.dart';
 import '../l10n/app_localizations.dart';
@@ -139,32 +140,17 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                   // Фиксированный заголовок
                   SizedBox(height: scaleHeight(16)),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: scaleWidth(24)),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                  Center(
-                    child: Text(
-                      l.templatesTitle,
-                      style: AppTextStyle.screenTitleMedium(
-                        scaleHeight(20),
-                        color: isDark
-                            ? AppColors.white
-                            : theme.colorScheme.onSurface,
+                    padding: EdgeInsets.symmetric(horizontal: scaleWidth(32)),
+                    child: Center(
+                      child: Text(
+                        l.templatesTitle,
+                        style: AppTextStyle.screenTitleMedium(
+                          scaleHeight(20),
+                          color: isDark
+                              ? AppColors.white
+                              : theme.colorScheme.onSurface,
+                        ),
                       ),
-                          ),
-                        ),
-                        Positioned(
-                          right: 0,
-                          child: Icon(
-                            Icons.edit,
-                            size: scaleHeight(24),
-                            color: isDark
-                                ? AppColors.white
-                                : theme.colorScheme.onSurface,
-                          ),
-                        ),
-                      ],
                     ),
                   ),
                   SizedBox(height: scaleHeight(34)),
@@ -199,23 +185,17 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                             child: SingleChildScrollView(
                               controller: _scrollController,
                               physics: const AlwaysScrollableScrollPhysics(),
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: scaleWidth(24),
-                                ),
-                                child: Column(
-                                  children: [
-                                    ..._buildTemplateGroups(
-                                      scaleWidth,
-                                      scaleHeight,
-                                      theme,
-                                      isDark,
-                                      l,
-                                      ),
-                                    // Отступ после последнего контейнера для нав бара
-                                    SizedBox(height: scaleHeight(20)),
-                                  ],
-                                ),
+                              child: Column(
+                                children: [
+                                  _buildPopularSection(
+                                    scaleWidth,
+                                    scaleHeight,
+                                    theme,
+                                    isDark,
+                                  ),
+                                  // Отступ после последнего контейнера для нав бара
+                                  SizedBox(height: scaleHeight(20)),
+                                ],
                               ),
                             ),
                           ),
@@ -226,88 +206,159 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
     );
   }
 
-  List<Widget> _buildTemplateGroups(
+  Widget _buildPopularSection(
     double Function(double) scaleWidth,
     double Function(double) scaleHeight,
     ThemeData theme,
     bool isDark,
-    AppLocalizations l,
   ) {
-    final grouped = _groupTemplatesByCategory();
-    final List<Widget> widgets = [];
-    final categories = grouped.keys.toList();
-    
-    // Сортируем категории в определенном порядке
-    final categoryOrder = [
-      'Маркетинг',
-      'Продажи',
-      'Стратегия',
-      'Поддержка',
-      'Персонал',
-      'Аналитика',
-    ];
-    categories.sort((a, b) {
-      final indexA = categoryOrder.indexOf(a);
-      final indexB = categoryOrder.indexOf(b);
-      if (indexA == -1 && indexB == -1) return a.compareTo(b);
-      if (indexA == -1) return 1;
-      if (indexB == -1) return -1;
-      return indexA.compareTo(indexB);
-    });
-
-    for (int i = 0; i < categories.length; i++) {
-      final category = categories[i];
-      final templates = grouped[category]!;
-      final isExpanded = _expandedCategories.contains(category);
-      
-      widgets.add(
-        _TemplateGroup(
-          category: category,
-          templates: templates,
-          isExpanded: isExpanded,
-          onToggle: () => _toggleCategory(category),
-          designWidth: _designWidth,
-          designHeight: _designHeight,
-          onApplyTemplate: widget.onApplyTemplate,
-          onEditTemplate: (templateText, onSaved) {
-            if (widget.onEditTemplate != null) {
-              // Находим шаблон по тексту
-              TemplateModel? templateModel;
-              for (final t in templates) {
-                final title = t.isCustom
-                    ? t.title
-                    : localizedTemplateTitle(l, t.id);
-                if (title == templateText) {
-                  templateModel = t;
-                  break;
-                }
-              }
-              
-              if (templateModel != null) {
-                widget.onEditTemplate!(
-                  templateText,
-                  (editedText) {
-                    _updateTemplate(templateModel!.id, editedText);
-                    onSaved(editedText);
-                  },
-                );
-              }
-            }
-          },
-          scaleWidth: scaleWidth,
-          scaleHeight: scaleHeight,
-          theme: theme,
-          isDark: isDark,
-          l: l,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Текст "Популярные" с отступами 32 по бокам
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: scaleWidth(32)),
+          child: Text(
+            'Популярные',
+            style: TextStyle(
+              fontFamily: 'Montserrat',
+              fontWeight: FontWeight.w600,
+              fontSize: scaleHeight(18),
+              color: const Color(0xFF201D2F),
+            ),
+          ),
         ),
-      );
-      
-      if (i < categories.length - 1) {
-        widgets.add(SizedBox(height: scaleHeight(20)));
-      }
-    }
-    
-    return widgets;
+        // Отступ снизу 14
+        SizedBox(height: scaleHeight(14)),
+        // Два контейнера в ряд
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: scaleWidth(32)),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Левый контейнер
+              Container(
+                width: scaleWidth(173),
+                height: scaleHeight(158),
+                padding: EdgeInsets.only(
+                  top: scaleHeight(10),
+                  bottom: scaleHeight(10),
+                  left: scaleWidth(18),
+                  right: scaleWidth(18),
+                ),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    // 131.34deg от левого верхнего к правому нижнему
+                    begin: const Alignment(-1.0, -1.0),
+                    end: const Alignment(1.0, 1.0),
+                    colors: const [
+                      Color(0xFF73F1BF),
+                      Color(0xFF79BAEF),
+                    ],
+                    stops: const [0.1107, 1.0],
+                  ),
+                  borderRadius: BorderRadius.circular(scaleHeight(13)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      offset: const Offset(0, 2),
+                      blurRadius: 8,
+                      spreadRadius: 0,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Иконка
+                    SvgPicture.asset(
+                      'assets/icons/templates/lights/icon_otchet.svg',
+                      width: scaleWidth(70),
+                      height: scaleHeight(70),
+                      fit: BoxFit.contain,
+                      allowDrawingOutsideViewBox: true,
+                    ),
+                    // Отступ между иконкой и текстом
+                    SizedBox(height: scaleHeight(8)),
+                    // Текст
+                    Text(
+                      'Еженедельный отчет',
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w600,
+                        fontSize: scaleHeight(14),
+                        height: 22 / 14,
+                        letterSpacing: 0,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Правый контейнер
+              Container(
+                width: scaleWidth(173),
+                height: scaleHeight(158),
+                padding: EdgeInsets.only(
+                  top: scaleHeight(10),
+                  bottom: scaleHeight(10),
+                  left: scaleWidth(18),
+                  right: scaleWidth(18),
+                ),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    // 129.51deg от левого верхнего к правому нижнему
+                    begin: const Alignment(-1.0, -1.0),
+                    end: const Alignment(1.0, 1.0),
+                    colors: const [
+                      Color(0xFFF9CD84),
+                      Color(0xFFEE96A5),
+                    ],
+                    stops: const [0.0, 0.9489],
+                  ),
+                  borderRadius: BorderRadius.circular(scaleHeight(13)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      offset: const Offset(0, 2),
+                      blurRadius: 8,
+                      spreadRadius: 0,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Иконка
+                    SvgPicture.asset(
+                      'assets/icons/templates/lights/icon_rocket.svg',
+                      width: scaleWidth(70),
+                      height: scaleHeight(70),
+                      fit: BoxFit.contain,
+                      allowDrawingOutsideViewBox: true,
+                    ),
+                    // Отступ между иконкой и текстом
+                    SizedBox(height: scaleHeight(8)),
+                    // Текст
+                    Text(
+                      'Анализ рынка',
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w600,
+                        fontSize: scaleHeight(14),
+                        height: 22 / 14,
+                        letterSpacing: 0,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }
 

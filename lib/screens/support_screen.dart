@@ -794,7 +794,7 @@ class _SupportScreenState extends State<SupportScreen> {
         await Future.delayed(const Duration(milliseconds: 800));
         await _loadMessageHistory();
         // Прокручиваем вниз после загрузки истории
-        _scrollToBottom();
+    _scrollToBottom();
       }
     } catch (e) {
       if (mounted) {
