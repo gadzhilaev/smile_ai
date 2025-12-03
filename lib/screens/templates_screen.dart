@@ -357,6 +357,382 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
             ],
           ),
         ),
+        // Отступ снизу 18
+        SizedBox(height: scaleHeight(18)),
+        // Текст "Бизнес-цели"
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: scaleWidth(32)),
+          child: Text(
+            'Бизнес-цели',
+            style: TextStyle(
+              fontFamily: 'Montserrat',
+              fontWeight: FontWeight.w600,
+              fontSize: scaleHeight(18),
+              color: const Color(0xFF201D2F),
+            ),
+          ),
+        ),
+        // Отступ снизу 14
+        SizedBox(height: scaleHeight(14)),
+        // Горизонтальный скролл с контейнерами
+        SizedBox(
+          height: scaleHeight(176),
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.symmetric(horizontal: scaleWidth(32)),
+            children: [
+              // Первый контейнер - Маркетинг
+              Container(
+                width: scaleWidth(110),
+                height: scaleHeight(176),
+                padding: EdgeInsets.symmetric(vertical: scaleHeight(28)),
+                margin: EdgeInsets.only(right: scaleWidth(17)),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    // 161.45deg
+                    begin: const Alignment(-1.0, -1.0),
+                    end: const Alignment(1.0, 1.0),
+                    colors: const [
+                      Color(0xFFCDC0EF),
+                      Color(0xFFBC9FF4),
+                    ],
+                    stops: const [0.0526, 0.9049],
+                  ),
+                  borderRadius: BorderRadius.circular(scaleHeight(13)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      offset: const Offset(0, 2),
+                      blurRadius: 8,
+                      spreadRadius: 0,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Иконка сверху
+                    SvgPicture.asset(
+                      'assets/icons/templates/lights/icon_marketing.svg',
+                      width: scaleWidth(60),
+                      height: scaleHeight(60),
+                      fit: BoxFit.contain,
+                      allowDrawingOutsideViewBox: true,
+                    ),
+                    // Текст снизу
+                    Text(
+                      'Маркетинг',
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w600,
+                        fontSize: scaleHeight(14),
+                        height: 22 / 14,
+                        letterSpacing: 0,
+                        color: Colors.black,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+              // Второй контейнер - Стратегия
+              Container(
+                width: scaleWidth(110),
+                height: scaleHeight(176),
+                padding: EdgeInsets.symmetric(vertical: scaleHeight(28)),
+                margin: EdgeInsets.only(right: scaleWidth(17)),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    // 158.66deg
+                    begin: const Alignment(-1.0, -1.0),
+                    end: const Alignment(1.0, 1.0),
+                    colors: const [
+                      Color(0xFF62F8CB),
+                      Color(0xFF5EDCD3),
+                    ],
+                    stops: const [0.0, 1.0],
+                  ),
+                  borderRadius: BorderRadius.circular(scaleHeight(13)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      offset: const Offset(0, 2),
+                      blurRadius: 8,
+                      spreadRadius: 0,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Иконка сверху
+                    SvgPicture.asset(
+                      'assets/icons/templates/lights/icon_strategy.svg',
+                      width: scaleWidth(60),
+                      height: scaleHeight(60),
+                      fit: BoxFit.contain,
+                      allowDrawingOutsideViewBox: true,
+                    ),
+                    // Текст снизу
+                    Text(
+                      'Стратегия',
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w600,
+                        fontSize: scaleHeight(14),
+                        height: 22 / 14,
+                        letterSpacing: 0,
+                        color: Colors.black,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+              // Третий контейнер - Продажи
+              Container(
+                width: scaleWidth(110),
+                height: scaleHeight(176),
+                padding: EdgeInsets.symmetric(vertical: scaleHeight(28)),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    // 163.3deg
+                    begin: const Alignment(-1.0, -1.0),
+                    end: const Alignment(1.0, 1.0),
+                    colors: const [
+                      Color(0xFFF9E080),
+                      Color(0xFFFCC881),
+                    ],
+                    stops: const [0.0535, 1.0],
+                  ),
+                  borderRadius: BorderRadius.circular(scaleHeight(13)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      offset: const Offset(0, 2),
+                      blurRadius: 8,
+                      spreadRadius: 0,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Иконка сверху
+                    SvgPicture.asset(
+                      'assets/icons/templates/lights/icon_money.svg',
+                      width: scaleWidth(60),
+                      height: scaleHeight(60),
+                      fit: BoxFit.contain,
+                      allowDrawingOutsideViewBox: true,
+                    ),
+                    // Текст снизу
+                    Text(
+                      'Продажи',
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w600,
+                        fontSize: scaleHeight(14),
+                        height: 22 / 14,
+                        letterSpacing: 0,
+                        color: Colors.black,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        // Отступ снизу 18
+        SizedBox(height: scaleHeight(18)),
+        // Текст "Отраслевые"
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: scaleWidth(32)),
+          child: Text(
+            'Отраслевые',
+            style: TextStyle(
+              fontFamily: 'Montserrat',
+              fontWeight: FontWeight.w600,
+              fontSize: scaleHeight(18),
+              color: const Color(0xFF201D2F),
+            ),
+          ),
+        ),
+        // Отступ снизу 14
+        SizedBox(height: scaleHeight(14)),
+        // Горизонтальный скролл с контейнерами
+        SizedBox(
+          height: scaleHeight(176),
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.symmetric(horizontal: scaleWidth(32)),
+            children: [
+              // Первый контейнер - Маркетинг
+              Container(
+                width: scaleWidth(110),
+                height: scaleHeight(176),
+                padding: EdgeInsets.symmetric(vertical: scaleHeight(28)),
+                margin: EdgeInsets.only(right: scaleWidth(17)),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    // 161.36deg
+                    begin: const Alignment(-1.0, -1.0),
+                    end: const Alignment(1.0, 1.0),
+                    colors: const [
+                      Color(0xFF59DEEC),
+                      Color(0xFF61B3F9),
+                    ],
+                    stops: const [0.0, 0.9656],
+                  ),
+                  borderRadius: BorderRadius.circular(scaleHeight(13)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      offset: const Offset(0, 2),
+                      blurRadius: 8,
+                      spreadRadius: 0,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Иконка сверху
+                    SvgPicture.asset(
+                      'assets/icons/templates/lights/icon_bag.svg',
+                      width: scaleWidth(60),
+                      height: scaleHeight(60),
+                      fit: BoxFit.contain,
+                      allowDrawingOutsideViewBox: true,
+                    ),
+                    // Текст снизу
+                    Text(
+                      'Маркетинг',
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w600,
+                        fontSize: scaleHeight(14),
+                        height: 22 / 14,
+                        letterSpacing: 0,
+                        color: Colors.black,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+              // Второй контейнер - Стратегия
+              Container(
+                width: scaleWidth(110),
+                height: scaleHeight(176),
+                padding: EdgeInsets.symmetric(vertical: scaleHeight(28)),
+                margin: EdgeInsets.only(right: scaleWidth(17)),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    // 163.96deg
+                    begin: const Alignment(-1.0, -1.0),
+                    end: const Alignment(1.0, 1.0),
+                    colors: const [
+                      Color(0xFFAFCDBF),
+                      Color(0xFF669484),
+                    ],
+                    stops: const [0.0892, 0.9553],
+                  ),
+                  borderRadius: BorderRadius.circular(scaleHeight(13)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      offset: const Offset(0, 2),
+                      blurRadius: 8,
+                      spreadRadius: 0,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Иконка сверху
+                    SvgPicture.asset(
+                      'assets/icons/templates/lights/icon_ruki.svg',
+                      width: scaleWidth(60),
+                      height: scaleHeight(60),
+                      fit: BoxFit.contain,
+                      allowDrawingOutsideViewBox: true,
+                    ),
+                    // Текст снизу
+                    Text(
+                      'Стратегия',
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w600,
+                        fontSize: scaleHeight(14),
+                        height: 22 / 14,
+                        letterSpacing: 0,
+                        color: Colors.black,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+              // Третий контейнер - Продажи
+              Container(
+                width: scaleWidth(110),
+                height: scaleHeight(176),
+                padding: EdgeInsets.symmetric(vertical: scaleHeight(28)),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    // 170.82deg
+                    begin: const Alignment(-1.0, -1.0),
+                    end: const Alignment(1.0, 1.0),
+                    colors: const [
+                      Color(0xFFDEC879),
+                      Color(0xFFD8AA74),
+                    ],
+                    stops: const [0.0303, 0.9488],
+                  ),
+                  borderRadius: BorderRadius.circular(scaleHeight(13)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      offset: const Offset(0, 2),
+                      blurRadius: 8,
+                      spreadRadius: 0,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Иконка сверху
+                    SvgPicture.asset(
+                      'assets/icons/templates/lights/icon_sell.svg',
+                      width: scaleWidth(60),
+                      height: scaleHeight(60),
+                      fit: BoxFit.contain,
+                      allowDrawingOutsideViewBox: true,
+                    ),
+                    // Текст снизу
+                    Text(
+                      'Продажи',
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w600,
+                        fontSize: scaleHeight(14),
+                        height: 22 / 14,
+                        letterSpacing: 0,
+                        color: Colors.black,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
