@@ -20,7 +20,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   static const double _designWidth = 428;
   static const double _designHeight = 926;
 
-  AnalyticsModel? _analytics;
+  WeeklyTrendsModel? _weeklyTrends;
+  AiAnalyticsModel? _aiAnalytics;
+  NichesMonthModel? _nichesMonth;
   bool _isLoading = true;
   final ScrollController _scrollController = ScrollController();
 
@@ -37,12 +39,25 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   }
 
   Future<void> _loadAnalytics() async {
-    final analytics = await AnalyticsService.getAnalytics();
-    if (mounted) {
-      setState(() {
-        _analytics = analytics;
-        _isLoading = false;
-      });
+    try {
+      final weeklyTrends = await AnalyticsService.getWeeklyTrends();
+      final aiAnalytics = await AnalyticsService.getAiAnalytics();
+      final nichesMonth = await AnalyticsService.getNichesMonth();
+      
+      if (mounted) {
+        setState(() {
+          _weeklyTrends = weeklyTrends;
+          _aiAnalytics = aiAnalytics;
+          _nichesMonth = nichesMonth;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -51,7 +66,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     if (mounted) {
       setState(() {
         _isLoading = true;
-        _analytics = null;
+        _weeklyTrends = null;
+        _aiAnalytics = null;
+        _nichesMonth = null;
       });
       // Сбрасываем позицию прокрутки
       _scrollController.jumpTo(0);
@@ -82,7 +99,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         bottom: false,
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
-            : _analytics == null
+            : _weeklyTrends == null && _aiAnalytics == null && _nichesMonth == null
                 ? CustomRefreshIndicator(
                     onRefresh: _refreshAnalytics,
                     designWidth: _designWidth,
@@ -139,25 +156,23 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                             ),
                             SizedBox(height: scaleHeight(10)),
                             // Контейнеры
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
+                          if (_weeklyTrends != null)
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 // Левый контейнер (прижат слева)
                                 _FirstPlaceContainer(
-                                  analytics: _analytics!,
+                                  weeklyTrends: _weeklyTrends!,
                                   designWidth: _designWidth,
                                   designHeight: _designHeight,
                                 ),
                                 SizedBox(width: scaleWidth(14)),
                                 // Правый контейнер (прижат справа)
-                                if (_analytics!.growingTrends.length > 1)
-                                  _SecondPlaceContainer(
-                                    trendItem: _analytics!.growingTrends[1],
-                                    designWidth: _designWidth,
-                                    designHeight: _designHeight,
-                                  ),
-                                if (_analytics!.growingTrends.length <= 1)
-                                  const Spacer(),
+                                _SecondPlaceContainer(
+                                  secondPlace: _weeklyTrends!.secondPlace,
+                                  designWidth: _designWidth,
+                                  designHeight: _designHeight,
+                                ),
                               ],
                             ),
                             SizedBox(height: scaleHeight(16)),
@@ -183,11 +198,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                             ),
                             SizedBox(height: scaleHeight(14)),
                             // Контейнер с аналитикой
-                            _AiAnalyticsContainer(
-                              analytics: _analytics!,
-                            designWidth: _designWidth,
-                            designHeight: _designHeight,
-                          ),
+                            if (_aiAnalytics != null)
+                              _AiAnalyticsContainer(
+                                aiAnalytics: _aiAnalytics!,
+                                designWidth: _designWidth,
+                                designHeight: _designHeight,
+                              ),
                           SizedBox(height: scaleHeight(16)),
                           // Блок "Ниши месяца"
                           Row(
@@ -211,10 +227,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           ),
                           SizedBox(height: scaleHeight(14)),
                           // Контейнер с нишами
-                          _MonthNichesContainer(
-                            designWidth: _designWidth,
-                            designHeight: _designHeight,
-                          ),
+                          if (_nichesMonth != null)
+                            _MonthNichesContainer(
+                              nichesMonth: _nichesMonth!,
+                              designWidth: _designWidth,
+                              designHeight: _designHeight,
+                            ),
                           SizedBox(height: scaleHeight(20)),
                           ],
                         ),
@@ -229,12 +247,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 // Контейнер первого места
 class _FirstPlaceContainer extends StatelessWidget {
   const _FirstPlaceContainer({
-    required this.analytics,
+    required this.weeklyTrends,
     required this.designWidth,
     required this.designHeight,
   });
 
-  final AnalyticsModel analytics;
+  final WeeklyTrendsModel weeklyTrends;
   final double designWidth;
   final double designHeight;
 
@@ -251,29 +269,10 @@ class _FirstPlaceContainer extends StatelessWidget {
     double scaleWidth(double value) => value * widthFactor;
     double scaleHeight(double value) => value * heightFactor;
 
-    // Берем первый элемент из растущих трендов
-    final firstTrend = analytics.growingTrends.isNotEmpty
-        ? analytics.growingTrends[0]
-        : null;
-
-    if (firstTrend == null) {
-      return const SizedBox.shrink();
-    }
-
-    final percentChange = firstTrend.percentChange;
-    final percentText = percentChange >= 0
-        ? '+${percentChange.toStringAsFixed(0)}%'
-        : '${percentChange.toStringAsFixed(0)}%';
-    final percentValue = percentChange.toStringAsFixed(0);
-
-    // Извлекаем процент из notes, если есть (например, "18%")
-    double categoryPercentage = 18.0; // По умолчанию
-    if (firstTrend.notes.isNotEmpty) {
-      final match = RegExp(r'(\d+(?:\.\d+)?)%').firstMatch(firstTrend.notes);
-      if (match != null) {
-        categoryPercentage = double.tryParse(match.group(1) ?? '') ?? 18.0;
-      }
-    }
+    final currentTop = weeklyTrends.currentTop;
+    final percentText = '+${currentTop.increase.toStringAsFixed(0)}%';
+    final percentValue = currentTop.increase.toStringAsFixed(0);
+    final categoryPercentage = currentTop.requestPercent ?? 18.0;
 
     return Container(
       width: scaleWidth(255),
@@ -322,7 +321,7 @@ class _FirstPlaceContainer extends StatelessWidget {
               children: [
                 // Название категории
                 Text(
-                  firstTrend.name,
+                  currentTop.title,
                   style: AppTextStyle.screenTitle(
                     scaleHeight(12),
                     color: const Color(0xFF201D2F),
@@ -369,12 +368,12 @@ class _FirstPlaceContainer extends StatelessWidget {
 // Контейнер второго места
 class _SecondPlaceContainer extends StatelessWidget {
   const _SecondPlaceContainer({
-    required this.trendItem,
+    required this.secondPlace,
     required this.designWidth,
     required this.designHeight,
   });
 
-  final TrendItem trendItem;
+  final TopTrendItem secondPlace;
   final double designWidth;
   final double designHeight;
 
@@ -391,13 +390,10 @@ class _SecondPlaceContainer extends StatelessWidget {
     double scaleWidth(double value) => value * widthFactor;
     double scaleHeight(double value) => value * heightFactor;
 
-    final percentChange = trendItem.percentChange;
-    final percentText = percentChange >= 0
-        ? '+${percentChange.toStringAsFixed(0)}%'
-        : '${percentChange.toStringAsFixed(0)}%';
+    final percentText = '+${secondPlace.increase.toStringAsFixed(0)}%';
 
     // Разбиваем название на две строки, если есть дефис
-    final nameParts = trendItem.name.split('-');
+    final nameParts = secondPlace.title.split('-');
     final nameLine1 = nameParts[0];
     final nameLine2 = nameParts.length > 1 ? nameParts[1] : '';
 
@@ -470,12 +466,12 @@ class _SecondPlaceContainer extends StatelessWidget {
 // Контейнер с ИИ-аналитикой
 class _AiAnalyticsContainer extends StatelessWidget {
   const _AiAnalyticsContainer({
-    required this.analytics,
+    required this.aiAnalytics,
     required this.designWidth,
     required this.designHeight,
   });
 
-  final AnalyticsModel analytics;
+  final AiAnalyticsModel aiAnalytics;
   final double designWidth;
   final double designHeight;
 
@@ -492,24 +488,11 @@ class _AiAnalyticsContainer extends StatelessWidget {
     double scaleWidth(double value) => value * widthFactor;
     double scaleHeight(double value) => value * heightFactor;
 
-    // Берем первый элемент из растущих трендов для данных
-    final firstTrend = analytics.growingTrends.isNotEmpty
-        ? analytics.growingTrends[0]
-        : null;
-
-    if (firstTrend == null) {
-      return const SizedBox.shrink();
-    }
-
-    // Извлекаем процент из percentChange (округляем до целого)
-    final percentValue = firstTrend.percentChange.toStringAsFixed(0);
+    // Извлекаем процент из increase (округляем до целого)
+    final percentValue = aiAnalytics.increase.toStringAsFixed(0);
     
-    // Используем trendDescription или notes для описания
-    final description = analytics.trendDescription.isNotEmpty
-        ? analytics.trendDescription
-        : firstTrend.notes.isNotEmpty
-            ? firstTrend.notes
-            : 'Тренд "${firstTrend.name}" можно использовать, чтобы укрепить бренд как источник пользы.';
+    // Используем description из AI аналитики
+    final description = aiAnalytics.description;
 
     return Container(
       width: scaleWidth(361),
@@ -586,7 +569,7 @@ class _AiAnalyticsContainer extends StatelessWidget {
                             ).copyWith(
                               height: 1.0,
                             ),
-                            maxLines: 3,
+                            maxLines: 6,
                         overflow: TextOverflow.ellipsis,
                           ),
                         ],
@@ -632,6 +615,7 @@ class _AiAnalyticsContainer extends StatelessWidget {
                     child: Padding(
                       padding: EdgeInsets.only(bottom: scaleHeight(10)),
                       child: _MetricsChart(
+                        competitivenessData: aiAnalytics.levelOfCompetitiveness,
                         designWidth: designWidth,
                         designHeight: designHeight,
                       ),
@@ -667,10 +651,12 @@ class _AiAnalyticsContainer extends StatelessWidget {
 // Диаграмма метрики за последние 6 месяцев
 class _MetricsChart extends StatelessWidget {
   const _MetricsChart({
+    required this.competitivenessData,
     required this.designWidth,
     required this.designHeight,
   });
 
+  final List<double> competitivenessData;
   final double designWidth;
   final double designHeight;
 
@@ -690,38 +676,40 @@ class _MetricsChart extends StatelessWidget {
     final chartAvailableWidth = size.width - scaleWidth(231) - scaleWidth(33) - scaleWidth(11) - scaleWidth(11);
     final chartAvailableHeight = size.height * 0.15; // Примерно 15% от высоты экрана
 
-    // Данные метрик за последние 5 месяцев (Август - Декабрь)
-    final metricsData = [
-      {'month': 8, 'value': 5},  // Август
-      {'month': 9, 'value': 3},  // Сентябрь
-      {'month': 10, 'value': 10}, // Октябрь
-      {'month': 11, 'value': 12}, // Ноябрь
-      {'month': 12, 'value': 7},  // Декабрь
-    ];
+    // Используем данные из level_of_competitiveness
+    // Берем последние 5-6 значений для отображения
+    final dataPoints = competitivenessData.length >= 5 
+        ? competitivenessData.sublist(competitivenessData.length - 5)
+        : competitivenessData;
+    
+    // Получаем текущий месяц и вычисляем месяцы назад
+    final now = DateTime.now();
+    final months = List.generate(dataPoints.length, (index) {
+      final monthsBack = dataPoints.length - 1 - index;
+      return DateTime(now.year, now.month - monthsBack, 1);
+    });
 
     // Получаем сокращенные названия месяцев
-    final monthNames = metricsData.map((data) {
-      final month = data['month'] as int;
+    final monthNames = months.map((date) {
       if (locale.languageCode == 'ru') {
         // Русские сокращения месяцев (3-4 символа)
         final monthNamesRu = [
           'Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн',
           'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'
         ];
-        return monthNamesRu[month - 1];
+        return monthNamesRu[date.month - 1];
       } else {
         // Английские сокращения месяцев (3-4 символа)
-        final date = DateTime(2024, month, 1);
         return DateFormat('MMM', locale.toString()).format(date);
       }
     }).toList();
 
-    // Получаем значения метрик
-    final metricsValues = metricsData.map((data) => data['value'] as int).toList();
+    // Используем значения из competitivenessData
+    final metricsValues = dataPoints.map((value) => value.toInt()).toList();
 
     // Находим минимальное и максимальное значение для масштабирования
-    final minValue = metricsValues.reduce((a, b) => a < b ? a : b);
-    final maxValue = metricsValues.reduce((a, b) => a > b ? a : b);
+    final minValue = metricsValues.isEmpty ? 0 : metricsValues.reduce((a, b) => a < b ? a : b);
+    final maxValue = metricsValues.isEmpty ? 0 : metricsValues.reduce((a, b) => a > b ? a : b);
     final valueRange = maxValue - minValue;
 
     // Высота и ширина диаграммы адаптивные, зависят от размеров экрана
@@ -733,8 +721,11 @@ class _MetricsChart extends StatelessWidget {
     // Добавляем отступы по краям, чтобы точки не обрезались
     final horizontalPadding = scaleWidth(4);
     final availableWidthForPoints = chartWidth - (horizontalPadding * 2);
-    final pointPositions = List.generate(5, (index) {
-      final xPosition = horizontalPadding + (index / 4) * availableWidthForPoints;
+    final pointCount = metricsValues.length;
+    final pointPositions = List.generate(pointCount, (index) {
+      final xPosition = pointCount > 1 
+          ? horizontalPadding + (index / (pointCount - 1)) * availableWidthForPoints
+          : horizontalPadding + availableWidthForPoints / 2;
       final value = metricsValues[index];
       
       // Вычисляем позицию точки по вертикали (чем больше значение, тем выше точка)
@@ -766,7 +757,7 @@ class _MetricsChart extends StatelessWidget {
             ),
           ),
           // Точки и вертикальные линии
-          ...List.generate(5, (index) {
+          ...List.generate(pointCount, (index) {
             final position = pointPositions[index];
             final xPosition = position['x'] as double;
             final yPosition = position['y'] as double;
@@ -861,10 +852,12 @@ class _WaveLinePainter extends CustomPainter {
 // Контейнер с нишами месяца
 class _MonthNichesContainer extends StatelessWidget {
   const _MonthNichesContainer({
+    required this.nichesMonth,
     required this.designWidth,
     required this.designHeight,
   });
 
+  final NichesMonthModel nichesMonth;
   final double designWidth;
   final double designHeight;
 
@@ -880,13 +873,8 @@ class _MonthNichesContainer extends StatelessWidget {
     double scaleWidth(double value) => value * widthFactor;
     double scaleHeight(double value) => value * heightFactor;
 
-    // Данные ниш (примерные данные, можно заменить на реальные)
-    final niches = [
-      {'name': 'Электроника', 'percent': 34, 'isUp': true},
-      {'name': 'Одежда', 'percent': 12, 'isUp': false},
-      {'name': 'Продукты', 'percent': 8, 'isUp': true},
-      {'name': 'Книги', 'percent': 5, 'isUp': false},
-    ];
+    // Используем данные ниш из модели
+    final niches = nichesMonth.niches;
 
     // Ширина контейнера зависит от экрана
     final containerWidth = size.width - scaleWidth(33) - scaleWidth(33); // Минус боковые отступы
@@ -917,6 +905,8 @@ class _MonthNichesContainer extends StatelessWidget {
           ...List.generate(niches.length, (index) {
             final niche = niches[index];
             final isLast = index == niches.length - 1;
+            final isUp = niche.change >= 0;
+            final changeValue = niche.change.abs();
             
             return Column(
               mainAxisSize: MainAxisSize.min,
@@ -941,7 +931,7 @@ class _MonthNichesContainer extends StatelessWidget {
                     // Название ниши
                     Expanded(
                       child: Text(
-                        niche['name'] as String,
+                        niche.title,
                         style: AppTextStyle.bodyTextMedium(
                           scaleHeight(14),
                           color: const Color(0xFF000000),
@@ -954,7 +944,7 @@ class _MonthNichesContainer extends StatelessWidget {
                     Padding(
                       padding: EdgeInsets.only(right: scaleWidth(4)),
                       child: Text(
-                        '${niche['isUp'] as bool ? '+' : ''}${niche['percent']}%',
+                        '${isUp ? '+' : '-'}${changeValue.toStringAsFixed(0)}%',
                         style: AppTextStyle.bodyTextMedium(
                           scaleHeight(13),
                           color: const Color(0xFF000000),
@@ -965,7 +955,7 @@ class _MonthNichesContainer extends StatelessWidget {
                     ),
                     // Иконка треугольника справа
                     SvgPicture.asset(
-                      niche['isUp'] as bool
+                      isUp
                           ? 'assets/icons/icon_tr_up.svg'
                           : 'assets/icons/icon_tr_down.svg',
                       width: scaleWidth(28),

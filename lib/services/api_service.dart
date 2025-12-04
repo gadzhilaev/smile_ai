@@ -309,6 +309,95 @@ class ApiService {
     }
   }
 
+  /// Получить тренды недели
+  /// Возвращает Map с ключами 'current_top', 'second_place', 'geo_trends', 'week_start'
+  /// Или пустой Map если данных нет
+  Future<Map<String, dynamic>> getWeeklyTrends() async {
+    try {
+      final url = Uri.parse('$_baseUrl/api/analytics/weekly-trends');
+      debugPrint('ApiService: getWeeklyTrends at URL: $url');
+      
+      final response = await http.get(url);
+      
+      debugPrint('ApiService: getWeeklyTrends response status code: ${response.statusCode}');
+      debugPrint('ApiService: getWeeklyTrends response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body) as Map<String, dynamic>;
+        debugPrint('ApiService: getWeeklyTrends decoded response: $decoded');
+        // Если ответ пустой, возвращаем пустой Map
+        if (decoded.isEmpty) {
+          return {};
+        }
+        return decoded;
+      } else {
+        debugPrint('ApiService: getWeeklyTrends error response');
+        return {};
+      }
+    } catch (e) {
+      debugPrint('ApiService: error during getWeeklyTrends: $e');
+      return {};
+    }
+  }
+
+  /// Получить AI аналитику
+  /// Возвращает Map с ключами 'increase', 'description', 'level_of_competitiveness', 'created_at'
+  /// Или пустой Map если данных нет
+  Future<Map<String, dynamic>> getAiAnalytics() async {
+    try {
+      final url = Uri.parse('$_baseUrl/api/analytics/ai-analytics');
+      debugPrint('ApiService: getAiAnalytics at URL: $url');
+      
+      final response = await http.get(url);
+      
+      debugPrint('ApiService: getAiAnalytics response status code: ${response.statusCode}');
+      debugPrint('ApiService: getAiAnalytics response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body) as Map<String, dynamic>;
+        debugPrint('ApiService: getAiAnalytics decoded response: $decoded');
+        // Если ответ пустой, возвращаем пустой Map
+        if (decoded.isEmpty) {
+          return {};
+        }
+        return decoded;
+      } else {
+        debugPrint('ApiService: getAiAnalytics error response');
+        return {};
+      }
+    } catch (e) {
+      debugPrint('ApiService: error during getAiAnalytics: $e');
+      return {};
+    }
+  }
+
+  /// Получить ниши месяца
+  /// Возвращает Map с ключами 'niches' (List), 'month_start'
+  /// Или пустой Map если данных нет
+  Future<Map<String, dynamic>> getNichesMonth() async {
+    try {
+      final url = Uri.parse('$_baseUrl/api/analytics/niches-month');
+      debugPrint('ApiService: getNichesMonth at URL: $url');
+      
+      final response = await http.get(url);
+      
+      debugPrint('ApiService: getNichesMonth response status code: ${response.statusCode}');
+      debugPrint('ApiService: getNichesMonth response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body) as Map<String, dynamic>;
+        debugPrint('ApiService: getNichesMonth decoded response: $decoded');
+        return decoded;
+      } else {
+        debugPrint('ApiService: getNichesMonth error response');
+        return {'niches': []};
+      }
+    } catch (e) {
+      debugPrint('ApiService: error during getNichesMonth: $e');
+      return {'niches': []};
+    }
+  }
+
   /// Получить историю чата по conversation_id
   /// Возвращает Map с ключами 'conversation_id', 'count', 'messages' (List)
   Future<Map<String, dynamic>> getChatHistory(String conversationId) async {
