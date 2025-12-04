@@ -188,6 +188,33 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                             designWidth: _designWidth,
                             designHeight: _designHeight,
                           ),
+                          SizedBox(height: scaleHeight(16)),
+                          // Блок "Ниши месяца"
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              SvgPicture.asset(
+                                'assets/icons/icon_lamp.svg',
+                                width: scaleWidth(24),
+                                height: scaleHeight(24),
+                                fit: BoxFit.contain,
+                              ),
+                              SizedBox(width: scaleWidth(6)),
+                              Text(
+                                l.analyticsMonthNiches,
+                                style: AppTextStyle.screenTitle(
+                                  scaleHeight(20),
+                                  color: theme.colorScheme.onSurface,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: scaleHeight(14)),
+                          // Контейнер с нишами
+                          _MonthNichesContainer(
+                            designWidth: _designWidth,
+                            designHeight: _designHeight,
+                          ),
                           SizedBox(height: scaleHeight(20)),
                           ],
                         ),
@@ -544,7 +571,7 @@ class _AiAnalyticsContainer extends StatelessWidget {
                                 height: 1.0,
                               ),
                               children: [
-                                const TextSpan(text: 'Было прибавлено\n'),
+                                const TextSpan(text: 'Было прибавлено '),
                                 TextSpan(text: '$percentValue%'),
                               ],
                             ),
@@ -576,17 +603,15 @@ class _AiAnalyticsContainer extends StatelessWidget {
             top: 0,
             right: 0,
             bottom: 0,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: scaleWidth(11)),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkBackgroundCard : const Color(0xFFF1F3F2),
-                  borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(scaleHeight(11)),
-                    bottomRight: Radius.circular(scaleHeight(11)),
-                  ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.darkBackgroundCard : const Color(0xFFF1F3F2),
+                borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(scaleHeight(11)),
+                  bottomRight: Radius.circular(scaleHeight(11)),
                 ),
-                child: Column(
+              ),
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -601,12 +626,15 @@ class _AiAnalyticsContainer extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   const Spacer(),
-                  // Диаграмма метрики
+                  // Диаграмма метрики с отступами по бокам
                   Padding(
-                    padding: EdgeInsets.only(bottom: scaleHeight(10)),
-                    child: _MetricsChart(
-                      designWidth: designWidth,
-                      designHeight: designHeight,
+                    padding: EdgeInsets.symmetric(horizontal: scaleWidth(11)),
+                    child: Padding(
+                      padding: EdgeInsets.only(bottom: scaleHeight(10)),
+                      child: _MetricsChart(
+                        designWidth: designWidth,
+                        designHeight: designHeight,
+                      ),
                     ),
                   ),
                   // "Основано на ИИ" справа снизу
@@ -628,7 +656,6 @@ class _AiAnalyticsContainer extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
             ),
           ),
         ],
@@ -828,5 +855,131 @@ class _WaveLinePainter extends CustomPainter {
     return oldDelegate.points != points ||
         oldDelegate.lineColor != lineColor ||
         oldDelegate.lineWidth != lineWidth;
+  }
+}
+
+// Контейнер с нишами месяца
+class _MonthNichesContainer extends StatelessWidget {
+  const _MonthNichesContainer({
+    required this.designWidth,
+    required this.designHeight,
+  });
+
+  final double designWidth;
+  final double designHeight;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
+    final size = MediaQuery.of(context).size;
+    final double widthFactor = size.width / designWidth;
+    final double heightFactor = size.height / designHeight;
+
+    double scaleWidth(double value) => value * widthFactor;
+    double scaleHeight(double value) => value * heightFactor;
+
+    // Данные ниш (примерные данные, можно заменить на реальные)
+    final niches = [
+      {'name': 'Электроника', 'percent': 34, 'isUp': true},
+      {'name': 'Одежда', 'percent': 12, 'isUp': false},
+      {'name': 'Продукты', 'percent': 8, 'isUp': true},
+      {'name': 'Книги', 'percent': 5, 'isUp': false},
+    ];
+
+    // Ширина контейнера зависит от экрана
+    final containerWidth = size.width - scaleWidth(33) - scaleWidth(33); // Минус боковые отступы
+
+    return Container(
+      width: containerWidth,
+      constraints: BoxConstraints(
+        maxWidth: scaleWidth(361),
+      ),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkBackgroundCard : Colors.white,
+        borderRadius: BorderRadius.circular(scaleHeight(11)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      padding: EdgeInsets.symmetric(
+        horizontal: scaleWidth(9),
+        vertical: scaleHeight(13),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ...List.generate(niches.length, (index) {
+            final niche = niches[index];
+            final isLast = index == niches.length - 1;
+            
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    // Иконка слева
+                    SvgPicture.asset(
+                      'assets/icons/icon_fire.svg',
+                      width: scaleWidth(24),
+                      height: scaleHeight(24),
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(
+                          Icons.category,
+                          size: scaleWidth(24),
+                          color: isDark ? AppColors.darkSecondaryText : Colors.grey,
+                        );
+                      },
+                    ),
+                    SizedBox(width: scaleWidth(15)),
+                    // Название ниши
+                    Expanded(
+                      child: Text(
+                        niche['name'] as String,
+                        style: AppTextStyle.bodyTextMedium(
+                          scaleHeight(14),
+                          color: const Color(0xFF000000),
+                        ).copyWith(
+                          height: 1.0,
+                        ),
+                      ),
+                    ),
+                    // Процент слева от треугольника
+                    Padding(
+                      padding: EdgeInsets.only(right: scaleWidth(4)),
+                      child: Text(
+                        '${niche['isUp'] as bool ? '+' : ''}${niche['percent']}%',
+                        style: AppTextStyle.bodyTextMedium(
+                          scaleHeight(13),
+                          color: const Color(0xFF000000),
+                        ).copyWith(
+                          height: 1.0,
+                        ),
+                      ),
+                    ),
+                    // Иконка треугольника справа
+                    SvgPicture.asset(
+                      niche['isUp'] as bool
+                          ? 'assets/icons/icon_tr_up.svg'
+                          : 'assets/icons/icon_tr_down.svg',
+                      width: scaleWidth(28),
+                      height: scaleHeight(28),
+                      fit: BoxFit.contain,
+                    ),
+                  ],
+                ),
+                if (!isLast) SizedBox(height: scaleHeight(19)),
+              ],
+            );
+          }),
+        ],
+      ),
+    );
   }
 }

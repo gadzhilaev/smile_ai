@@ -76,6 +76,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get analyticsBasedOnAi => 'Based on AI';
 
   @override
+  String get analyticsMonthNiches => 'Month Niches';
+
+  @override
   String get profileTitle => 'Profile';
 
   @override

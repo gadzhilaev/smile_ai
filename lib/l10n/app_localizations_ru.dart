@@ -76,6 +76,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get analyticsBasedOnAi => 'Основано на ИИ';
 
   @override
+  String get analyticsMonthNiches => 'Ниши месяца';
+
+  @override
   String get profileTitle => 'Профиль';
 
   @override

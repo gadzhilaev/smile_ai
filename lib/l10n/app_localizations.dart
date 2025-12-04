@@ -221,6 +221,12 @@ abstract class AppLocalizations {
   /// **'Based on AI'**
   String get analyticsBasedOnAi;
 
+  /// No description provided for @analyticsMonthNiches.
+  ///
+  /// In en, this message translates to:
+  /// **'Month Niches'**
+  String get analyticsMonthNiches;
+
   /// No description provided for @profileTitle.
   ///
   /// In en, this message translates to:
