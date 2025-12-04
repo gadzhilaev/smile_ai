@@ -203,14 +203,14 @@ class _RegistrationPasswordScreenState
             borderRadius: BorderRadius.circular(scaleHeight(12)),
           ),
           title: Text(
-            'Ваш пароль слишком легкий',
+            AppLocalizations.of(context)!.authPasswordWeakTitle,
             style: AppTextStyle.bodyTextBold(
               scaleHeight(18),
               color: theme.colorScheme.onSurface,
             ),
           ),
           content: Text(
-            'Вы уверены, что хотите его использовать?',
+            AppLocalizations.of(context)!.authPasswordWeakMessage,
             style: AppTextStyle.bodyText(
               scaleHeight(16),
               color: theme.colorScheme.onSurface,
@@ -222,7 +222,7 @@ class _RegistrationPasswordScreenState
                 Navigator.of(context).pop();
               },
               child: Text(
-                'Изменить',
+                AppLocalizations.of(context)!.authPasswordWeakChange,
                 style: AppTextStyle.bodyText(
                   scaleHeight(16),
                   color: AppColors.primaryBlue,
@@ -235,7 +235,7 @@ class _RegistrationPasswordScreenState
                 _proceedWithPassword();
               },
               child: Text(
-                'Продолжить',
+                AppLocalizations.of(context)!.authPasswordWeakContinue,
                 style: AppTextStyle.bodyText(
                   scaleHeight(16),
                   color: AppColors.primaryBlue,

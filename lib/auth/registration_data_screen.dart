@@ -82,27 +82,29 @@ class _RegistrationDataScreenState extends State<RegistrationDataScreen> {
         _selectedGender != null;
   }
 
-  String _getCountryName(String? countryCode) {
+  String _getCountryName(String? countryCode, BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     switch (countryCode) {
       case 'russia':
-        return 'Россия';
+        return l.authCountryRussia;
       case 'kazakhstan':
-        return 'Казахстан';
+        return l.authCountryKazakhstan;
       case 'belarus':
-        return 'Беларусь';
+        return l.authCountryBelarus;
       default:
-        return 'Россия';
+        return l.authCountryRussia;
     }
   }
 
-  String _getGenderName(String? genderCode) {
+  String _getGenderName(String? genderCode, BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     switch (genderCode) {
       case 'male':
-        return 'Мужской';
+        return l.authGenderMale;
       case 'female':
-        return 'Женский';
+        return l.authGenderFemale;
       default:
-        return 'Мужской';
+        return l.authGenderMale;
     }
   }
 
@@ -118,8 +120,8 @@ class _RegistrationDataScreenState extends State<RegistrationDataScreen> {
       final nickname = _usernameController.text.trim();
       final email = _emailController.text.trim();
       final phone = _phoneController.text.trim();
-      final country = _getCountryName(_selectedCountry);
-      final gender = _getGenderName(_selectedGender);
+      final country = _getCountryName(_selectedCountry, context);
+      final gender = _getGenderName(_selectedGender, context);
 
       // Отправляем POST запрос на регистрацию
       final result = await ApiService.instance.register(
@@ -346,7 +348,7 @@ class _RegistrationDataScreenState extends State<RegistrationDataScreen> {
                       _AccountInputField(
                         controller: _fullNameController,
                         focusNode: _fullNameFocus,
-                        hintText: 'Полное имя',
+                        hintText: l.authFieldFullName,
                         designWidth: _designWidth,
                         designHeight: _designHeight,
                       ),
@@ -354,7 +356,7 @@ class _RegistrationDataScreenState extends State<RegistrationDataScreen> {
                       _AccountInputField(
                         controller: _usernameController,
                         focusNode: _usernameFocus,
-                        hintText: 'Ник',
+                        hintText: l.authFieldNickname,
                         designWidth: _designWidth,
                         designHeight: _designHeight,
                         validator: (value) {
@@ -362,7 +364,7 @@ class _RegistrationDataScreenState extends State<RegistrationDataScreen> {
                           // Разрешаем только английские буквы, цифры и спецсимволы
                           final validPattern = RegExp(r'^[a-zA-Z0-9_\-\.]+$');
                           if (!validPattern.hasMatch(value)) {
-                            return 'Только английские буквы, цифры и спецсимволы';
+                            return l.authNicknameError;
                           }
                           return null;
                         },
@@ -371,7 +373,7 @@ class _RegistrationDataScreenState extends State<RegistrationDataScreen> {
                       _AccountInputField(
                         controller: _emailController,
                         focusNode: _emailFocus,
-                        hintText: 'Электронная почта',
+                        hintText: l.authFieldEmail,
                         keyboardType: TextInputType.emailAddress,
                         designWidth: _designWidth,
                         designHeight: _designHeight,
@@ -381,7 +383,7 @@ class _RegistrationDataScreenState extends State<RegistrationDataScreen> {
                       _PhoneInputField(
                         controller: _phoneController,
                         focusNode: _phoneFocus,
-                        hintText: 'Номер телефона',
+                        hintText: l.authFieldPhone,
                         designWidth: _designWidth,
                         designHeight: _designHeight,
                       ),
@@ -397,7 +399,7 @@ class _RegistrationDataScreenState extends State<RegistrationDataScreen> {
                                 _selectedCountry = value;
                               });
                             },
-                            hintText: 'Страна',
+                            hintText: l.authFieldCountry,
                             designWidth: _designWidth,
                             designHeight: _designHeight,
                           ),
@@ -410,7 +412,7 @@ class _RegistrationDataScreenState extends State<RegistrationDataScreen> {
                                 _selectedGender = value;
                               });
                             },
-                            hintText: 'Пол',
+                            hintText: l.authFieldGender,
                             designWidth: _designWidth,
                             designHeight: _designHeight,
                           ),
@@ -447,7 +449,7 @@ class _RegistrationDataScreenState extends State<RegistrationDataScreen> {
                               ),
                             )
                           : Text(
-                              'Сохранить',
+                              l.authSaveButton,
                               style: AppTextStyle.screenTitle(
                                 scaleHeight(16),
                                 color: Colors.white,
@@ -884,6 +886,7 @@ class _DropdownFieldState extends State<_DropdownField> {
 
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l = AppLocalizations.of(context)!;
 
     final bool hasValue = widget.value != null;
     final bool showLabel = _isFocused || hasValue;
@@ -912,7 +915,7 @@ class _DropdownFieldState extends State<_DropdownField> {
             PopupMenuItem(
               value: 'russia',
               child: Text(
-                'Россия',
+                l.authCountryRussia,
                 style: AppTextStyle.dropdownMenuItem(
                   scaleHeight(14),
                 ).copyWith(
@@ -923,7 +926,7 @@ class _DropdownFieldState extends State<_DropdownField> {
             PopupMenuItem(
               value: 'kazakhstan',
               child: Text(
-                'Казахстан',
+                l.authCountryKazakhstan,
                 style: AppTextStyle.dropdownMenuItem(
                   scaleHeight(14),
                 ).copyWith(
@@ -934,7 +937,7 @@ class _DropdownFieldState extends State<_DropdownField> {
             PopupMenuItem(
               value: 'belarus',
               child: Text(
-                'Беларусь',
+                l.authCountryBelarus,
                 style: AppTextStyle.dropdownMenuItem(
                   scaleHeight(14),
                 ).copyWith(
@@ -996,10 +999,10 @@ class _DropdownFieldState extends State<_DropdownField> {
                     child: widget.value != null
                         ? Text(
                             widget.value == 'russia'
-                                ? 'Россия'
+                                ? l.authCountryRussia
                                 : widget.value == 'kazakhstan'
-                                    ? 'Казахстан'
-                                    : 'Беларусь',
+                                    ? l.authCountryKazakhstan
+                                    : l.authCountryBelarus,
                             style: AppTextStyle.fieldText(
                               scaleHeight(14),
                             ).copyWith(
@@ -1078,6 +1081,7 @@ class _GenderDropdownFieldState extends State<_GenderDropdownField> {
 
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l = AppLocalizations.of(context)!;
 
     final bool hasValue = widget.value != null;
     final bool showLabel = _isFocused || hasValue;
@@ -1106,7 +1110,7 @@ class _GenderDropdownFieldState extends State<_GenderDropdownField> {
             PopupMenuItem(
               value: 'male',
               child: Text(
-                'Мужской',
+                l.authGenderMale,
                 style: AppTextStyle.dropdownMenuItem(
                   scaleHeight(14),
                 ).copyWith(
@@ -1117,7 +1121,7 @@ class _GenderDropdownFieldState extends State<_GenderDropdownField> {
             PopupMenuItem(
               value: 'female',
               child: Text(
-                'Женский',
+                l.authGenderFemale,
                 style: AppTextStyle.dropdownMenuItem(
                   scaleHeight(14),
                 ).copyWith(
@@ -1178,7 +1182,9 @@ class _GenderDropdownFieldState extends State<_GenderDropdownField> {
                     alignment: Alignment.centerLeft,
                     child: widget.value != null
                         ? Text(
-                            widget.value == 'male' ? 'Мужской' : 'Женский',
+                            widget.value == 'male' 
+                                ? l.authGenderMale 
+                                : l.authGenderFemale,
                             style: AppTextStyle.fieldText(
                               scaleHeight(14),
                             ).copyWith(

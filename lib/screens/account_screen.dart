@@ -7,6 +7,7 @@ import '../settings/colors.dart';
 import '../services/profile_service.dart';
 import '../services/api_service.dart';
 import '../utils/env_utils.dart';
+import '../l10n/app_localizations.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
@@ -33,27 +34,29 @@ class _AccountScreenState extends State<AccountScreen> {
   String? _selectedGender = 'male';
   bool _isLoading = false;
 
-  String _getCountryName(String? countryCode) {
+  String _getCountryName(String? countryCode, BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     switch (countryCode) {
       case 'russia':
-        return 'Россия';
+        return l.authCountryRussia;
       case 'kazakhstan':
-        return 'Казахстан';
+        return l.authCountryKazakhstan;
       case 'belarus':
-        return 'Беларусь';
+        return l.authCountryBelarus;
       default:
-        return 'Россия';
+        return l.authCountryRussia;
     }
   }
 
-  String _getGenderName(String? genderCode) {
+  String _getGenderName(String? genderCode, BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     switch (genderCode) {
       case 'male':
-        return 'Мужской';
+        return l.authGenderMale;
       case 'female':
-        return 'Женский';
+        return l.authGenderFemale;
       default:
-        return 'Мужской';
+        return l.authGenderMale;
     }
   }
 
@@ -89,8 +92,8 @@ class _AccountScreenState extends State<AccountScreen> {
       final nickname = _usernameController.text.trim();
       final email = _emailController.text.trim();
       final phone = _phoneController.text.trim();
-      final country = _getCountryName(_selectedCountry);
-      final gender = _getGenderName(_selectedGender);
+      final country = _getCountryName(_selectedCountry, context);
+      final gender = _getGenderName(_selectedGender, context);
 
       // Отправляем PUT запрос на обновление профиля
       final result = await ApiService.instance.updateProfile(
@@ -213,6 +216,7 @@ class _AccountScreenState extends State<AccountScreen> {
 
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor:
@@ -253,7 +257,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       Expanded(
                         child: Center(
                           child: Text(
-                            'Редактировать профиль',
+                            l.accountEditProfileTitle,
                             style: AppTextStyle.screenTitle(
                               scaleHeight(20),
                               color: isDark
@@ -277,7 +281,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       _AccountInputField(
                         controller: _fullNameController,
                         focusNode: _fullNameFocus,
-                        hintText: 'Полное имя',
+                        hintText: l.authFieldFullName,
                         designWidth: _designWidth,
                         designHeight: _designHeight,
                       ),
@@ -285,7 +289,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       _AccountInputField(
                         controller: _usernameController,
                         focusNode: _usernameFocus,
-                        hintText: 'Ник',
+                        hintText: l.authFieldNickname,
                         designWidth: _designWidth,
                         designHeight: _designHeight,
                       ),
@@ -293,7 +297,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       _AccountInputField(
                         controller: _emailController,
                         focusNode: _emailFocus,
-                        hintText: 'Электронная почта',
+                        hintText: l.authFieldEmail,
                         keyboardType: TextInputType.emailAddress,
                         designWidth: _designWidth,
                         designHeight: _designHeight,
@@ -303,7 +307,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       _PhoneInputField(
                         controller: _phoneController,
                         focusNode: _phoneFocus,
-                        hintText: 'Номер телефона',
+                        hintText: l.authFieldPhone,
                         designWidth: _designWidth,
                         designHeight: _designHeight,
                       ),
@@ -319,7 +323,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                 _selectedCountry = value;
                               });
                             },
-                            hintText: 'Страна',
+                            hintText: l.authFieldCountry,
                             designWidth: _designWidth,
                             designHeight: _designHeight,
                           ),
@@ -332,7 +336,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                 _selectedGender = value;
                               });
                             },
-                            hintText: 'Пол',
+                            hintText: l.authFieldGender,
                             designWidth: _designWidth,
                             designHeight: _designHeight,
                           ),
@@ -369,7 +373,7 @@ class _AccountScreenState extends State<AccountScreen> {
                               ),
                             )
                           : Text(
-                              'Сохранить',
+                              l.authSaveButton,
                               style: AppTextStyle.screenTitle(scaleHeight(16),
                                   color: Colors.white),
                             ),
@@ -756,6 +760,7 @@ class _DropdownFieldState extends State<_DropdownField> {
 
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l = AppLocalizations.of(context)!;
 
     final bool hasValue = widget.value != null;
     final bool showLabel = _isFocused || hasValue;
@@ -784,7 +789,7 @@ class _DropdownFieldState extends State<_DropdownField> {
             PopupMenuItem(
               value: 'russia',
               child: Text(
-                'Россия',
+                l.authCountryRussia,
                 style: AppTextStyle.dropdownMenuItem(
                   scaleHeight(14),
                 ).copyWith(
@@ -795,7 +800,7 @@ class _DropdownFieldState extends State<_DropdownField> {
             PopupMenuItem(
               value: 'kazakhstan',
               child: Text(
-                'Казахстан',
+                l.authCountryKazakhstan,
                 style: AppTextStyle.dropdownMenuItem(
                   scaleHeight(14),
                 ).copyWith(
@@ -806,7 +811,7 @@ class _DropdownFieldState extends State<_DropdownField> {
             PopupMenuItem(
               value: 'belarus',
               child: Text(
-                'Беларусь',
+                l.authCountryBelarus,
                 style: AppTextStyle.dropdownMenuItem(
                   scaleHeight(14),
                 ).copyWith(
@@ -868,10 +873,10 @@ class _DropdownFieldState extends State<_DropdownField> {
                     child: widget.value != null
                         ? Text(
                             widget.value == 'russia'
-                                ? 'Россия'
+                                ? AppLocalizations.of(context)!.authCountryRussia
                                 : widget.value == 'kazakhstan'
-                                    ? 'Казахстан'
-                                    : 'Беларусь',
+                                    ? AppLocalizations.of(context)!.authCountryKazakhstan
+                                    : AppLocalizations.of(context)!.authCountryBelarus,
                             style: AppTextStyle.fieldText(
                               scaleHeight(14),
                             ).copyWith(
@@ -950,6 +955,7 @@ class _GenderDropdownFieldState extends State<_GenderDropdownField> {
 
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l = AppLocalizations.of(context)!;
 
     final bool hasValue = widget.value != null;
     final bool showLabel = _isFocused || hasValue;
@@ -978,7 +984,7 @@ class _GenderDropdownFieldState extends State<_GenderDropdownField> {
             PopupMenuItem(
               value: 'male',
               child: Text(
-                'Мужской',
+                l.authGenderMale,
                 style: AppTextStyle.dropdownMenuItem(
                   scaleHeight(14),
                 ).copyWith(
@@ -989,7 +995,7 @@ class _GenderDropdownFieldState extends State<_GenderDropdownField> {
             PopupMenuItem(
               value: 'female',
               child: Text(
-                'Женский',
+                l.authGenderFemale,
                 style: AppTextStyle.dropdownMenuItem(
                   scaleHeight(14),
                 ).copyWith(
@@ -1050,7 +1056,9 @@ class _GenderDropdownFieldState extends State<_GenderDropdownField> {
                     alignment: Alignment.centerLeft,
                     child: widget.value != null
                         ? Text(
-                            widget.value == 'male' ? 'Мужской' : 'Женский',
+                            widget.value == 'male' 
+                                ? AppLocalizations.of(context)!.authGenderMale 
+                                : AppLocalizations.of(context)!.authGenderFemale,
                             style: AppTextStyle.fieldText(
                               scaleHeight(14),
                             ).copyWith(

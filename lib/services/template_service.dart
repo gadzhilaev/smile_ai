@@ -45,6 +45,7 @@ class TemplateService {
             categoryColor: template.categoryColor,
             title: overrideTitle ?? template.title,
             isCustom: overrideTitle != null,
+            categoryId: template.categoryId,
           );
         }).toList();
 
@@ -1692,14 +1693,71 @@ class TemplateService {
     ),
   ];
 
-  // Метод для получения шаблонов по категории
-  static Future<List<TemplateModel>> getTemplatesByCategory(String category) async {
+  // Маппинг категорий: локализованное название -> ID категории
+  static const Map<String, String> _categoryIdMap = {
+    // Бизнес-цели
+    'marketing': 'Маркетинг',
+    'strategy': 'Стратегия',
+    'sales': 'Продажи',
+    'finance': 'Финансы',
+    'hr': 'HR',
+    'operations': 'Операции',
+    'support': 'Поддержка',
+    'analytics': 'Аналитика',
+    // Отраслевые
+    'retail': 'Розничная торговля',
+    'manufacturing': 'Производство',
+    'it': 'IT/Технологии',
+    'healthcare': 'Здравоохранение',
+    'education': 'Образование',
+    'realestate': 'Недвижимость',
+    'restaurant': 'Ресторанный бизнес',
+    'logistics': 'Логистика',
+    // Популярные
+    'weekly_report': 'Еженедельный отчет',
+    'market_analysis': 'Анализ рынка',
+  };
+
+  // Метод для получения ID категории по локализованному названию
+  static String? _getCategoryIdFromLocalizedName(String localizedName) {
+    // Проверяем прямые совпадения с русскими названиями
+    if (_categoryIdMap.containsValue(localizedName)) {
+      return _categoryIdMap.entries
+          .firstWhere((e) => e.value == localizedName)
+          .key;
+    }
+    // Если не найдено, возвращаем null
+    return null;
+  }
+
+  // Метод для получения шаблонов по категории (принимает ID категории или локализованное название)
+  static Future<List<TemplateModel>> getTemplatesByCategory(String categoryIdOrName) async {
     await Future.delayed(const Duration(milliseconds: 300));
     
     final prefs = await SharedPreferences.getInstance();
     
+    // Определяем русское название категории
+    String? categoryName;
+    if (_categoryIdMap.containsKey(categoryIdOrName)) {
+      // Если передан ID категории
+      categoryName = _categoryIdMap[categoryIdOrName];
+    } else {
+      // Если передано локализованное название, пытаемся найти ID
+      final categoryId = _getCategoryIdFromLocalizedName(categoryIdOrName);
+      if (categoryId != null) {
+        categoryName = _categoryIdMap[categoryId];
+      } else {
+        // Если не найдено, используем переданное значение как есть (для обратной совместимости)
+        categoryName = categoryIdOrName;
+      }
+    }
+    
+    if (categoryName == null) {
+      return [];
+    }
+    
     return _templates
-        .where((template) => template.category == category)
+        .where((template) => template.category == categoryName)
         .map((template) {
           final overrideTitle =
               prefs.getString('$_titlePrefKeyPrefix${template.id}');
@@ -1709,6 +1767,7 @@ class TemplateService {
             categoryColor: template.categoryColor,
             title: overrideTitle ?? template.title,
             isCustom: overrideTitle != null,
+            categoryId: _getCategoryIdFromLocalizedName(template.category),
           );
         })
         .toList();

@@ -5,16 +5,19 @@ import '../l10n/app_localizations.dart';
 import '../models/template_model.dart';
 import '../services/template_service.dart';
 import '../widgets/custom_refresh_indicator.dart';
+import '../utils/template_localization_helper.dart';
 
 class CategoryTemplatesScreen extends StatefulWidget {
   const CategoryTemplatesScreen({
     super.key,
     required this.categoryName,
+    this.categoryId,
     this.onApplyTemplate,
     this.onEditTemplate,
   });
 
   final String categoryName;
+  final String? categoryId; // ID категории для поиска шаблонов независимо от языка
   final void Function(String, String)? onApplyTemplate;
   final void Function(String, ValueChanged<String>)? onEditTemplate;
 
@@ -37,7 +40,9 @@ class _CategoryTemplatesScreenState extends State<CategoryTemplatesScreen> {
   }
 
   Future<void> _loadTemplates() async {
-    final templates = await TemplateService.getTemplatesByCategory(widget.categoryName);
+    // Используем categoryId, если он передан, иначе используем локализованное название
+    final categoryKey = widget.categoryId ?? widget.categoryName;
+    final templates = await TemplateService.getTemplatesByCategory(categoryKey);
     
     if (mounted) {
       setState(() {
@@ -58,7 +63,9 @@ class _CategoryTemplatesScreenState extends State<CategoryTemplatesScreen> {
     
     await Future.delayed(const Duration(milliseconds: 100));
     
-    final templates = await TemplateService.getTemplatesByCategory(widget.categoryName);
+    // Используем categoryId, если он передан, иначе используем локализованное название
+    final categoryKey = widget.categoryId ?? widget.categoryName;
+    final templates = await TemplateService.getTemplatesByCategory(categoryKey);
     
     if (mounted) {
       setState(() {
@@ -278,7 +285,7 @@ class _TemplateCard extends StatelessWidget {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              template.title,
+              getLocalizedTemplateTitle(l, template),
               textAlign: TextAlign.left,
               style: AppTextStyle.templateTitle(
                 scaleHeight(16),
@@ -298,7 +305,7 @@ class _TemplateCard extends StatelessWidget {
                     // Закрываем экран категории
                     Navigator.of(context).pop();
                     // Вызываем callback для переключения на AI экран
-                    onApplyTemplate!(template.title, template.category);
+                    onApplyTemplate!(getLocalizedTemplateTitle(l, template), template.category);
                   }
                 },
                 borderRadius: BorderRadius.circular(scaleHeight(16)),
@@ -344,7 +351,7 @@ class _TemplateCard extends StatelessWidget {
                     // Закрываем экран категории
                     Navigator.of(context).pop();
                     // Вызываем callback для переключения на AI экран
-                    onEditTemplate!(template.title, (editedText) {
+                    onEditTemplate!(getLocalizedTemplateTitle(l, template), (editedText) {
                       // Callback будет вызван из AiScreen после сохранения
                     });
                   }

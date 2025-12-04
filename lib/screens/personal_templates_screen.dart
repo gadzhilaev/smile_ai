@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../models/template_model.dart';
 import '../services/template_service.dart';
 import '../widgets/custom_refresh_indicator.dart';
+import '../utils/template_localization_helper.dart';
 
 class PersonalTemplatesScreen extends StatefulWidget {
   const PersonalTemplatesScreen({
@@ -461,7 +462,7 @@ class _PersonalTemplatesScreenState extends State<PersonalTemplatesScreen> {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              template.title,
+              getLocalizedTemplateTitle(l, template),
               textAlign: TextAlign.left,
               style: AppTextStyle.templateTitle(
                 scaleHeight(16),
@@ -479,7 +480,7 @@ class _PersonalTemplatesScreenState extends State<PersonalTemplatesScreen> {
                 onTap: () {
                   Navigator.of(context).pop();
                   if (widget.onApplyTemplate != null) {
-                    widget.onApplyTemplate!(template.title, template.category);
+                    widget.onApplyTemplate!(getLocalizedTemplateTitle(l, template), template.category);
                   }
                 },
                 borderRadius: BorderRadius.circular(scaleHeight(16)),
@@ -522,7 +523,7 @@ class _PersonalTemplatesScreenState extends State<PersonalTemplatesScreen> {
                 onTap: () {
                   Navigator.of(context).pop();
                   if (widget.onEditTemplate != null) {
-                    widget.onEditTemplate!(template.title, (editedText) async {
+                    widget.onEditTemplate!(getLocalizedTemplateTitle(l, template), (editedText) async {
                       // Обновляем шаблон с новым текстом
                       await TemplateService.updatePersonalTemplate(template.id, editedText);
                       await _refreshTemplates();

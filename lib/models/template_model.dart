@@ -7,6 +7,7 @@ class TemplateModel {
     required this.categoryColor,
     required this.title,
     this.isCustom = false,
+    this.categoryId,
   });
 
   final int id;
@@ -14,5 +15,6 @@ class TemplateModel {
   final Color categoryColor;
   final String title;
   final bool isCustom;
+  final String? categoryId; // ID категории для поиска независимо от языка
 }
 

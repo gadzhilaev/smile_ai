@@ -179,6 +179,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                                     scaleHeight,
                                     theme,
                                     isDark,
+                                    l,
                                       ),
                                     // Отступ после последнего контейнера для нав бара
                                     SizedBox(height: scaleHeight(20)),
@@ -198,6 +199,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
     double Function(double) scaleHeight,
     ThemeData theme,
     bool isDark,
+    AppLocalizations l,
   ) {
     return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -206,12 +208,12 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: scaleWidth(32)),
                 child: Text(
-            'Популярные',
+            l.templatesSectionPopular,
             style: TextStyle(
               fontFamily: 'Montserrat',
               fontWeight: FontWeight.w600,
               fontSize: scaleHeight(18),
-              color: const Color(0xFF201D2F),
+              color: isDark ? AppColors.darkPrimaryText : const Color(0xFF201D2F),
             ),
           ),
         ),
@@ -229,7 +231,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => CategoryTemplatesScreen(
-                        categoryName: 'Еженедельный отчет',
+                        categoryName: l.templatesWeeklyReport,
+                        categoryId: 'weekly_report',
                         onApplyTemplate: widget.onApplyTemplate,
                         onEditTemplate: widget.onEditTemplate,
                       ),
@@ -251,10 +254,15 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                       // 131.34deg от левого верхнего к правому нижнему
                       begin: const Alignment(-1.0, -1.0),
                       end: const Alignment(1.0, 1.0),
-                      colors: const [
-                        Color(0xFF73F1BF),
-                        Color(0xFF79BAEF),
-                      ],
+                      colors: isDark
+                          ? const [
+                              Color(0xFF2A5D4A),
+                              Color(0xFF2A4A6B),
+                            ]
+                          : const [
+                              Color(0xFF73F1BF),
+                              Color(0xFF79BAEF),
+                            ],
                       stops: const [0.1107, 1.0],
                     ),
                     borderRadius: BorderRadius.circular(scaleHeight(13)),
@@ -271,12 +279,15 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Иконка
-                      SvgPicture.asset(
-                        'assets/icons/templates/lights/icon_otchet.svg',
-                        width: scaleWidth(70),
-                        height: scaleHeight(70),
-                        fit: BoxFit.contain,
-                        allowDrawingOutsideViewBox: true,
+                      _buildIcon(
+                        _getIconPath(
+                          'assets/icons/templates/lights/icon_otchet.svg',
+                          darkIconPath: 'assets/icons/templates/dark/icon_otchet.svg',
+                          isDark: isDark,
+                        ),
+                        scaleWidth(70),
+                        scaleHeight(70),
+                        isDark: isDark,
                       ),
                       // Отступ между иконкой и текстом
                       SizedBox(height: scaleHeight(8)),
@@ -285,16 +296,16 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                         child: Padding(
                           padding: EdgeInsets.symmetric(horizontal: scaleWidth(5)),
                           child: SyllableText(
-                            text: 'Еженедельный отчет',
+                            text: l.templatesWeeklyReport,
                             style: TextStyle(
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w600,
                               fontSize: scaleHeight(14),
                               height: 22 / 14,
                               letterSpacing: 0,
-                              color: Colors.black,
+                              color: isDark ? AppColors.darkPrimaryText : Colors.black,
                             ),
-                            textAlign: TextAlign.center,
+                            textAlign: TextAlign.left,
                             maxLines: 3,
                           ),
                         ),
@@ -309,7 +320,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => CategoryTemplatesScreen(
-                        categoryName: 'Анализ рынка',
+                        categoryName: l.templatesMarketAnalysis,
+                        categoryId: 'market_analysis',
                         onApplyTemplate: widget.onApplyTemplate,
                         onEditTemplate: widget.onEditTemplate,
                       ),
@@ -331,10 +343,15 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                       // 129.51deg от левого верхнего к правому нижнему
                       begin: const Alignment(-1.0, -1.0),
                       end: const Alignment(1.0, 1.0),
-                      colors: const [
-                        Color(0xFFF9CD84),
-                        Color(0xFFEE96A5),
-                      ],
+                      colors: isDark
+                          ? const [
+                              Color(0xFFC99D63),
+                              Color(0xFFBE7685),
+                            ]
+                          : const [
+                              Color(0xFFF9CD84),
+                              Color(0xFFEE96A5),
+                            ],
                       stops: const [0.0, 0.9489],
                     ),
                     borderRadius: BorderRadius.circular(scaleHeight(13)),
@@ -351,12 +368,15 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
                       // Иконка
-                      SvgPicture.asset(
-                        'assets/icons/templates/lights/icon_rocket.svg',
-                        width: scaleWidth(70),
-                        height: scaleHeight(70),
-                        fit: BoxFit.contain,
-                        allowDrawingOutsideViewBox: true,
+                      _buildIcon(
+                        _getIconPath(
+                          'assets/icons/templates/lights/icon_rocket.svg',
+                          darkIconPath: 'assets/icons/templates/dark/icon_rocket.svg',
+                          isDark: isDark,
+                        ),
+                        scaleWidth(70),
+                        scaleHeight(70),
+                        isDark: isDark,
                       ),
                       // Отступ между иконкой и текстом
                       SizedBox(height: scaleHeight(8)),
@@ -365,16 +385,16 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                         child: Padding(
                           padding: EdgeInsets.symmetric(horizontal: scaleWidth(5)),
                           child: SyllableText(
-                            text: 'Анализ рынка',
+                            text: l.templatesMarketAnalysis,
                             style: TextStyle(
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w600,
                               fontSize: scaleHeight(14),
                               height: 22 / 14,
                               letterSpacing: 0,
-                              color: Colors.black,
+                              color: isDark ? AppColors.darkPrimaryText : Colors.black,
                             ),
-                            textAlign: TextAlign.center,
+                            textAlign: TextAlign.left,
                             maxLines: 3,
                           ),
                         ),
@@ -392,12 +412,12 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: scaleWidth(32)),
           child: Text(
-            'Бизнес-цели',
+            l.templatesSectionBusinessGoals,
             style: TextStyle(
               fontFamily: 'Montserrat',
               fontWeight: FontWeight.w600,
               fontSize: scaleHeight(18),
-              color: const Color(0xFF201D2F),
+              color: isDark ? AppColors.darkPrimaryText : const Color(0xFF201D2F),
             ),
           ),
         ),
@@ -409,7 +429,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
           child: ListView(
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: scaleWidth(32)),
-            children: _buildBusinessGoalsContainers(scaleWidth, scaleHeight),
+            children: _buildBusinessGoalsContainers(scaleWidth, scaleHeight, isDark, l),
           ),
         ),
         // Отступ снизу 18
@@ -418,12 +438,12 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: scaleWidth(32)),
           child: Text(
-            'Отраслевые',
+            l.templatesSectionIndustry,
             style: TextStyle(
               fontFamily: 'Montserrat',
               fontWeight: FontWeight.w600,
               fontSize: scaleHeight(18),
-              color: const Color(0xFF201D2F),
+              color: isDark ? AppColors.darkPrimaryText : const Color(0xFF201D2F),
             ),
           ),
         ),
@@ -435,7 +455,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
           child: ListView(
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: scaleWidth(32)),
-            children: _buildIndustryContainers(scaleWidth, scaleHeight),
+            children: _buildIndustryContainers(scaleWidth, scaleHeight, isDark, l),
           ),
         ),
         // Отступ снизу 18
@@ -444,12 +464,12 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: scaleWidth(32)),
           child: Text(
-            'Персональные',
+            l.templatesSectionPersonal,
             style: TextStyle(
               fontFamily: 'Montserrat',
               fontWeight: FontWeight.w600,
               fontSize: scaleHeight(18),
-              color: const Color(0xFF201D2F),
+              color: isDark ? AppColors.darkPrimaryText : const Color(0xFF201D2F),
             ),
           ),
         ),
@@ -485,10 +505,15 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                         // 160.29deg
                         begin: const Alignment(-1.0, -1.0),
                         end: const Alignment(1.0, 1.0),
-                        colors: const [
-                          Color(0xFFEB91D4),
-                          Color(0xFFDD41B6),
-                        ],
+                        colors: isDark
+                            ? const [
+                                Color(0xFF6B4154),
+                                Color(0xFF5D1F56),
+                              ]
+                            : const [
+                                Color(0xFFEB91D4),
+                                Color(0xFFDD41B6),
+                              ],
                         stops: const [0.0886, 1.0],
                       ),
                       borderRadius: BorderRadius.circular(scaleHeight(13)),
@@ -502,17 +527,37 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                       ],
                     ),
                     child: Center(
-                      child: Text(
-                        'Ваши шаблоны',
-                        style: TextStyle(
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w600,
-                          fontSize: scaleHeight(14),
-                          height: 22 / 14,
-                          letterSpacing: 0,
-                          color: Colors.black,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: scaleWidth(5)),
+                        child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+                            Text(
+                              l.templatesYourTemplatesLine1,
+                              style: TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.w600,
+                                fontSize: scaleHeight(14),
+                                height: 22 / 14,
+                                letterSpacing: 0,
+                                color: isDark ? AppColors.darkPrimaryText : Colors.black,
+                              ),
+                              textAlign: TextAlign.left,
+                            ),
+                            Text(
+                              l.templatesYourTemplatesLine2,
+                              style: TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.w600,
+                                fontSize: scaleHeight(14),
+                                height: 22 / 14,
+                                letterSpacing: 0,
+                                color: isDark ? AppColors.darkPrimaryText : Colors.black,
+                              ),
+                              textAlign: TextAlign.left,
+                            ),
+                          ],
                         ),
-                        textAlign: TextAlign.center,
                       ),
                     ),
                   ),
@@ -537,10 +582,15 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                           // 160.29deg
                           begin: const Alignment(-1.0, -1.0),
                           end: const Alignment(1.0, 1.0),
-                          colors: const [
-                            Color(0xFFEB91D4),
-                            Color(0xFFDD41B6),
-                          ],
+                          colors: isDark
+                              ? const [
+                                  Color(0xFF6B4154),
+                                  Color(0xFF5D1F56),
+                                ]
+                              : const [
+                                  Color(0xFFEB91D4),
+                                  Color(0xFFDD41B6),
+                                ],
                           stops: const [0.0886, 1.0],
                         ),
                         borderRadius: BorderRadius.circular(scaleHeight(13)),
@@ -564,9 +614,9 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                               fontSize: scaleHeight(14),
                               height: 22 / 14,
                               letterSpacing: 0,
-                              color: Colors.black,
+                              color: isDark ? AppColors.darkPrimaryText : Colors.black,
                             ),
-                            textAlign: TextAlign.center,
+                            textAlign: TextAlign.left,
                             maxLines: 3,
                           ),
                         ),
@@ -609,7 +659,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                               ),
                               // Текст без отступа
                               Text(
-                                'Добавить папку',
+                                l.templatesAddFolder,
                                 style: TextStyle(
                                   fontFamily: 'Montserrat',
                                   fontWeight: FontWeight.w600,
@@ -618,7 +668,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                                   letterSpacing: 0,
                                   color: const Color(0xFF9E9E9E),
                                 ),
-                                textAlign: TextAlign.center,
+                                textAlign: TextAlign.left,
                               ),
                             ],
                           ),
@@ -638,54 +688,80 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
   List<Widget> _buildBusinessGoalsContainers(
     double Function(double) scaleWidth,
     double Function(double) scaleHeight,
+    bool isDark,
+    AppLocalizations l,
   ) {
     final List<Map<String, dynamic>> businessGoals = [
       {
-        'title': 'Маркетинг',
+        'title': l.templatesCategoryMarketing,
+        'categoryId': 'marketing',
         'icon': 'assets/icons/templates/lights/icon_marketing.svg',
+        'darkIcon': 'assets/icons/templates/dark/icon_marketing.svg',
         'gradient': [Color(0xFFCDC0EF), Color(0xFFBC9FF4)],
+        'darkGradient': [Color(0xFF5A4B7F), Color(0xFF4A3A6F)],
         'stops': [0.0526, 0.9049],
       },
       {
-        'title': 'Стратегия',
+        'title': l.templatesCategoryStrategy,
+        'categoryId': 'strategy',
         'icon': 'assets/icons/templates/lights/icon_strategy.svg',
+        'darkIcon': 'assets/icons/templates/dark/icon_strategy.svg',
         'gradient': [Color(0xFF62F8CB), Color(0xFF5EDCD3)],
+        'darkGradient': [Color(0xFF2A8873), Color(0xFF277269)],
         'stops': [0.0, 1.0],
       },
       {
-        'title': 'Продажи',
+        'title': l.templatesCategorySales,
+        'categoryId': 'sales',
         'icon': 'assets/icons/templates/lights/icon_money.svg',
+        'darkIcon': 'assets/icons/templates/dark/icon_money.svg',
         'gradient': [Color(0xFFF9E080), Color(0xFFFCC881)],
+        'darkGradient': [Color(0xFF897840), Color(0xFF8A7841)],
         'stops': [0.0535, 1.0],
       },
       {
-        'title': 'Финансы',
-        'icon': 'assets/icons/templates/lights/icon_chart.svg', // Нужно добавить иконку
+        'title': l.templatesCategoryFinance,
+        'categoryId': 'finance',
+        'icon': 'assets/icons/templates/lights/icon_chart.svg',
+        'darkIcon': 'assets/icons/templates/dark/icon_chart.svg',
         'gradient': [Color(0xFFFFB6C1), Color(0xFFFF69B4)],
+        'darkGradient': [Color(0xFF8C6269), Color(0xFF8C3A64)],
         'stops': [0.0, 1.0],
       },
       {
-        'title': 'HR',
-        'icon': 'assets/icons/templates/lights/icon_team.svg', // Нужно добавить иконку
+        'title': l.templatesCategoryHR,
+        'categoryId': 'hr',
+        'icon': 'assets/icons/templates/lights/icon_team.svg',
+        'darkIcon': 'assets/icons/templates/dark/icon_team.svg',
         'gradient': [Color(0xFF87CEEB), Color(0xFF4682B4)],
+        'darkGradient': [Color(0xFF3F6E8B), Color(0xFF1E3A5A)],
         'stops': [0.0, 1.0],
       },
       {
-        'title': 'Операции',
-        'icon': 'assets/icons/templates/lights/icon_gear.svg', // Нужно добавить иконку
+        'title': l.templatesCategoryOperations,
+        'categoryId': 'operations',
+        'icon': 'assets/icons/templates/lights/icon_gear.svg',
+        'darkIcon': 'assets/icons/templates/dark/icon_gear.svg',
         'gradient': [Color(0xFFDDA0DD), Color(0xFF9370DB)],
+        'darkGradient': [Color(0xFF6D507D), Color(0xFF43306B)],
         'stops': [0.0, 1.0],
       },
       {
-        'title': 'Поддержка',
-        'icon': 'assets/icons/templates/lights/icon_supp.svg', // Нужно добавить иконку
+        'title': l.templatesCategorySupport,
+        'categoryId': 'support',
+        'icon': 'assets/icons/templates/lights/icon_supp.svg',
+        'darkIcon': 'assets/icons/templates/dark/icon_supp.svg',
         'gradient': [Color(0xFFF0E68C), Color(0xFFFFD700)],
+        'darkGradient': [Color(0xFF80764C), Color(0xFF8C6D00)],
         'stops': [0.0, 1.0],
       },
       {
-        'title': 'Аналитика',
-        'icon': 'assets/icons/templates/lights/icon_otchet.svg', // Нужно добавить иконку
+        'title': l.templatesCategoryAnalytics,
+        'categoryId': 'analytics',
+        'icon': 'assets/icons/templates/lights/icon_otchet.svg',
+        'darkIcon': 'assets/icons/templates/dark/icon_otchet.svg',
         'gradient': [Color(0xFF98D8C8), Color(0xFF17A2B8)],
+        'darkGradient': [Color(0xFF387868), Color(0xFF0F4A58)],
         'stops': [0.0, 1.0],
       },
     ];
@@ -696,9 +772,16 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
       final isLast = index == businessGoals.length - 1;
       
       // Безопасное получение градиента
-      final gradientColors = (item['gradient'] as List<dynamic>)
-          .map((c) => c as Color)
-          .toList();
+      final List<Color> gradientColors;
+      if (isDark && item['darkGradient'] != null) {
+        gradientColors = (item['darkGradient'] as List<dynamic>)
+            .map((c) => c as Color)
+            .toList();
+      } else {
+        gradientColors = (item['gradient'] as List<dynamic>)
+            .map((c) => c as Color)
+            .toList();
+      }
       final gradientStops = (item['stops'] as List<dynamic>)
           .map((s) => s as double)
           .toList();
@@ -709,6 +792,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
             MaterialPageRoute(
               builder: (context) => CategoryTemplatesScreen(
                 categoryName: item['title'] as String,
+                categoryId: item['categoryId'] as String?,
                 onApplyTemplate: widget.onApplyTemplate,
                 onEditTemplate: widget.onEditTemplate,
               ),
@@ -746,9 +830,14 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
             children: [
               // Иконка сверху
               _buildIcon(
-                item['icon'] as String,
+                _getIconPath(
+                  item['icon'] as String,
+                  darkIconPath: item['darkIcon'] as String?,
+                  isDark: isDark,
+                ),
                 scaleWidth(60),
                 scaleHeight(60),
+                isDark: isDark,
               ),
               // Текст снизу
               Flexible(
@@ -762,7 +851,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                       fontSize: scaleHeight(14),
                       height: 22 / 14,
                       letterSpacing: 0,
-                      color: Colors.black,
+                      color: isDark ? AppColors.darkPrimaryText : Colors.black,
                     ),
                   textAlign: TextAlign.center,
                     maxLines: 3,
@@ -779,54 +868,80 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
   List<Widget> _buildIndustryContainers(
     double Function(double) scaleWidth,
     double Function(double) scaleHeight,
+    bool isDark,
+    AppLocalizations l,
   ) {
     final List<Map<String, dynamic>> industries = [
       {
-        'title': 'Розничная торговля',
+        'title': l.templatesCategoryRetail,
+        'categoryId': 'retail',
         'icon': 'assets/icons/templates/lights/icon_bag.svg',
+        'darkIcon': 'assets/icons/templates/dark/icon_bag.svg',
         'gradient': [Color(0xFF59DEEC), Color(0xFF61B3F9)],
+        'darkGradient': [Color(0xFF1F5E6C), Color(0xFF214379)],
         'stops': [0.0, 0.9656],
       },
       {
-        'title': 'Производство',
+        'title': l.templatesCategoryManufacturing,
+        'categoryId': 'manufacturing',
         'icon': 'assets/icons/templates/lights/icon_ruki.svg',
+        'darkIcon': 'assets/icons/templates/dark/icon_ruki.svg',
         'gradient': [Color(0xFFAFCDBF), Color(0xFF669484)],
+        'darkGradient': [Color(0xFF3F5D4F), Color(0xFF22433A)],
         'stops': [0.0892, 0.9553],
       },
       {
-        'title': 'IT/Технологии',
-        'icon': 'assets/icons/templates/lights/icon_computer.svg', // Нужно добавить иконку
+        'title': l.templatesCategoryIT,
+        'categoryId': 'it',
+        'icon': 'assets/icons/templates/lights/icon_computer.svg',
+        'darkIcon': 'assets/icons/templates/dark/icon_computer.svg',
         'gradient': [Color(0xFFA8E6CF), Color(0xFF3FC1C9)],
+        'darkGradient': [Color(0xFF38766F), Color(0xFF0F5159)],
         'stops': [0.0, 1.0],
       },
       {
-        'title': 'Здравоохранение',
-        'icon': 'assets/icons/templates/lights/icon_health.svg', // Нужно добавить иконку
+        'title': l.templatesCategoryHealthcare,
+        'categoryId': 'healthcare',
+        'icon': 'assets/icons/templates/lights/icon_health.svg',
+        'darkIcon': 'assets/icons/templates/dark/icon_health.svg',
         'gradient': [Color(0xFFFFB3BA), Color(0xFFFF6B6B)],
+        'darkGradient': [Color(0xFF8C6269), Color(0xFF8C3535)],
         'stops': [0.0, 1.0],
       },
       {
-        'title': 'Образование',
-        'icon': 'assets/icons/templates/lights/icon_education.svg', // Нужно добавить иконку
+        'title': l.templatesCategoryEducation,
+        'categoryId': 'education',
+        'icon': 'assets/icons/templates/lights/icon_education.svg',
+        'darkIcon': 'assets/icons/templates/dark/icon_education.svg',
         'gradient': [Color(0xFFC7CEEA), Color(0xFF6C5CE7)],
+        'darkGradient': [Color(0xFF475E7A), Color(0xFF2A1C67)],
         'stops': [0.0, 1.0],
       },
       {
-        'title': 'Недвижимость',
-        'icon': 'assets/icons/templates/lights/icon_home.svg', // Нужно добавить иконку
+        'title': l.templatesCategoryRealEstate,
+        'categoryId': 'realestate',
+        'icon': 'assets/icons/templates/lights/icon_home.svg',
+        'darkIcon': 'assets/icons/templates/dark/icon_home.svg',
         'gradient': [Color(0xFFFFD3A5), Color(0xFFFD9853)],
+        'darkGradient': [Color(0xFF8C6355), Color(0xFF8B4823)],
         'stops': [0.0, 1.0],
       },
       {
-        'title': 'Ресторанный бизнес',
-        'icon': 'assets/icons/templates/lights/icon_restaurant.svg', // Нужно добавить иконку
+        'title': l.templatesCategoryRestaurant,
+        'categoryId': 'restaurant',
+        'icon': 'assets/icons/templates/lights/icon_restaurant.svg',
+        'darkIcon': 'assets/icons/templates/dark/icon_restaurant.svg',
         'gradient': [Color(0xFFFEC8D8), Color(0xFFFF9A9E)],
+        'darkGradient': [Color(0xFF8E6068), Color(0xFF8C4A4E)],
         'stops': [0.0, 1.0],
       },
       {
-        'title': 'Логистика',
+        'title': l.templatesCategoryLogistics,
+        'categoryId': 'logistics',
         'icon': 'assets/icons/templates/lights/icon_sell.svg',
+        'darkIcon': 'assets/icons/templates/dark/icon_sell.svg',
         'gradient': [Color(0xFFDEC879), Color(0xFFD8AA74)],
+        'darkGradient': [Color(0xFF6E6839), Color(0xFF685A3C)],
         'stops': [0.0303, 0.9488],
       },
     ];
@@ -837,9 +952,16 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
       final isLast = index == industries.length - 1;
       
       // Безопасное получение градиента
-      final gradientColors = (item['gradient'] as List<dynamic>)
-          .map((c) => c as Color)
-          .toList();
+      final List<Color> gradientColors;
+      if (isDark && item['darkGradient'] != null) {
+        gradientColors = (item['darkGradient'] as List<dynamic>)
+            .map((c) => c as Color)
+            .toList();
+      } else {
+        gradientColors = (item['gradient'] as List<dynamic>)
+            .map((c) => c as Color)
+            .toList();
+      }
       final gradientStops = (item['stops'] as List<dynamic>)
           .map((s) => s as double)
           .toList();
@@ -850,6 +972,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
             MaterialPageRoute(
               builder: (context) => CategoryTemplatesScreen(
                 categoryName: item['title'] as String,
+                categoryId: item['categoryId'] as String?,
                 onApplyTemplate: widget.onApplyTemplate,
                 onEditTemplate: widget.onEditTemplate,
               ),
@@ -887,9 +1010,14 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
             children: [
               // Иконка сверху
               _buildIcon(
-                item['icon'] as String,
+                _getIconPath(
+                  item['icon'] as String,
+                  darkIconPath: item['darkIcon'] as String?,
+                  isDark: isDark,
+                ),
                 scaleWidth(60),
                 scaleHeight(60),
+                isDark: isDark,
               ),
               // Текст снизу
               Flexible(
@@ -903,7 +1031,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                       fontSize: scaleHeight(14),
                       height: 22 / 14,
                       letterSpacing: 0,
-                      color: Colors.black,
+                      color: isDark ? AppColors.darkPrimaryText : Colors.black,
                     ),
                     textAlign: TextAlign.center,
                     maxLines: 3,
@@ -925,6 +1053,9 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
       barrierDismissible: true,
       barrierColor: Colors.black.withValues(alpha: 0.5),
       builder: (BuildContext context) {
+        final l = AppLocalizations.of(context)!;
+        final dialogTheme = Theme.of(context);
+        final dialogIsDark = dialogTheme.brightness == Brightness.dark;
         return Dialog(
           backgroundColor: Colors.transparent,
           insetPadding: EdgeInsets.symmetric(horizontal: scaleWidth(24)),
@@ -936,7 +1067,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
               vertical: scaleHeight(18),
             ),
                   decoration: BoxDecoration(
-              color: Colors.white,
+              color: dialogIsDark ? AppColors.darkBackgroundCard : Colors.white,
               borderRadius: BorderRadius.circular(scaleHeight(12)),
               boxShadow: const [
                 BoxShadow(
@@ -963,13 +1094,13 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                   children: [
                     Expanded(
                       child: Text(
-                        'Добавить новую папку',
+                        l.templatesAddNewFolder,
                         style: TextStyle(
                           fontFamily: 'Montserrat',
                           fontWeight: FontWeight.w500,
                           fontSize: scaleHeight(20),
                           height: 1.0,
-                          color: const Color(0xFF5B5B5B),
+                            color: dialogIsDark ? AppColors.darkPrimaryText : const Color(0xFF5B5B5B),
                         ),
                       ),
                     ),
@@ -983,7 +1114,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                         child: Icon(
                           Icons.close,
                           size: scaleHeight(24),
-                          color: const Color(0xFF5B5B5B),
+                            color: dialogIsDark ? AppColors.darkPrimaryText : const Color(0xFF5B5B5B),
                         ),
                       ),
                     ),
@@ -992,76 +1123,88 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                 SizedBox(height: scaleHeight(20)),
                 // Текстовое поле - занимает все доступное пространство
                 Expanded(
-                  child: Container(
-                    width: scaleWidth(352),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(scaleHeight(14)),
-                      border: Border.all(
-                        color: const Color(0x8CA3A3A3),
-                        width: 1,
-                      ),
-                    ),
-                    child: TextField(
-                      controller: textController,
-                      maxLines: null,
-                      expands: true,
-                      textAlignVertical: TextAlignVertical.top,
-                      style: TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w500,
-                        fontSize: scaleHeight(14),
-                        height: 22 / 14,
-                        letterSpacing: 0,
-                        color: Colors.black,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: 'Введите название папки',
-                        hintStyle: TextStyle(
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w500,
-                          fontSize: scaleHeight(14),
-                          height: 22 / 14,
-                          letterSpacing: 0,
-                          color: const Color(0xFFA3A3A3),
+                  child: Builder(
+                    builder: (context) {
+                      return Container(
+                        width: scaleWidth(352),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(scaleHeight(14)),
+                          border: Border.all(
+                            color: dialogIsDark 
+                                ? AppColors.darkDivider 
+                                : const Color(0x8CA3A3A3),
+                            width: 1,
+                          ),
                         ),
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.all(scaleHeight(12)),
-                      ),
-                    ),
+                        child: TextField(
+                          controller: textController,
+                          maxLines: null,
+                          expands: true,
+                          textAlignVertical: TextAlignVertical.top,
+                          style: TextStyle(
+                            fontFamily: 'Montserrat',
+                            fontWeight: FontWeight.w500,
+                            fontSize: scaleHeight(14),
+                            height: 22 / 14,
+                            letterSpacing: 0,
+                            color: dialogIsDark ? AppColors.darkPrimaryText : Colors.black,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: l.templatesEnterFolderName,
+                            hintStyle: TextStyle(
+                              fontFamily: 'Montserrat',
+                              fontWeight: FontWeight.w500,
+                              fontSize: scaleHeight(14),
+                              height: 22 / 14,
+                              letterSpacing: 0,
+                              color: dialogIsDark 
+                                  ? AppColors.darkSecondaryText 
+                                  : const Color(0xFFA3A3A3),
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.all(scaleHeight(12)),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
                 SizedBox(height: scaleHeight(20)),
                 // Кнопка
-              InkWell(
-                  onTap: () async {
-                    final text = textController.text.trim();
-                    if (text.isNotEmpty) {
-                      await TemplateService.createPersonalFolder(text);
-                      if (mounted) {
-                        Navigator.of(context).pop();
-                        await _loadPersonalFolders();
-                      }
+                Builder(
+                  builder: (context) {
+                    return InkWell(
+                      onTap: () async {
+                        final text = textController.text.trim();
+                        if (text.isNotEmpty) {
+                          await TemplateService.createPersonalFolder(text);
+                          if (mounted) {
+                            Navigator.of(context).pop();
+                            await _loadPersonalFolders();
+                          }
                   }
                 },
                 borderRadius: BorderRadius.circular(scaleHeight(16)),
                 child: Container(
-                    width: scaleWidth(352),
+                        width: scaleWidth(352),
                   height: scaleHeight(41),
                   decoration: BoxDecoration(
-                      color: Colors.black,
+                          color: dialogIsDark ? AppColors.darkPrimaryText : Colors.black,
                     borderRadius: BorderRadius.circular(scaleHeight(16)),
                   ),
                   alignment: Alignment.center,
                   child: Text(
-                      'Добавить',
-                      style: TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w500,
-                        fontSize: scaleHeight(14),
-                        color: Colors.white,
+                          l.templatesAdd,
+                          style: TextStyle(
+                            fontFamily: 'Montserrat',
+                            fontWeight: FontWeight.w500,
+                            fontSize: scaleHeight(14),
+                            color: dialogIsDark ? AppColors.darkBackgroundMain : Colors.white,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ],
               ),
@@ -1071,7 +1214,16 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
     );
   }
 
-  Widget _buildIcon(String iconPath, double width, double height) {
+  /// Получает путь к иконке в зависимости от темы
+  /// Если указана иконка для темной темы, использует её, иначе использует иконку для светлой темы
+  String _getIconPath(String lightIconPath, {String? darkIconPath, required bool isDark}) {
+    if (isDark && darkIconPath != null && darkIconPath.isNotEmpty) {
+      return darkIconPath;
+    }
+    return lightIconPath;
+  }
+
+  Widget _buildIcon(String iconPath, double width, double height, {bool isDark = false}) {
     return Builder(
       builder: (context) {
         try {
@@ -1086,15 +1238,19 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
               return Icon(
                 Icons.category,
                 size: height,
-                color: Colors.black.withValues(alpha: 0.5),
-    );
+                color: isDark 
+                    ? Colors.white.withValues(alpha: 0.5)
+                    : Colors.black.withValues(alpha: 0.5),
+              );
             },
           );
         } catch (e) {
           return Icon(
             Icons.category,
             size: height,
-            color: Colors.black.withValues(alpha: 0.5),
+            color: isDark 
+                ? Colors.white.withValues(alpha: 0.5)
+                : Colors.black.withValues(alpha: 0.5),
           );
         }
       },
