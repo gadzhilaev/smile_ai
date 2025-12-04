@@ -45,6 +45,37 @@ class AppLocalizationsRu extends AppLocalizations {
   String get analyticsWhy => 'Почему?';
 
   @override
+  String get analyticsThisWeek => 'Эта неделя';
+
+  @override
+  String analyticsCategoryTakes(Object percentage) {
+    return 'Категория занимает $percentage% всех запросов';
+  }
+
+  @override
+  String get analyticsCategoryTakesPlaceholder => 'percentage';
+
+  @override
+  String get analyticsSecondPlace => '2-е место';
+
+  @override
+  String get analyticsAiAnalytics => 'ИИ-аналитика';
+
+  @override
+  String analyticsWasAdded(Object percentage) {
+    return 'Было прибавлено $percentage%';
+  }
+
+  @override
+  String get analyticsWasAddedPlaceholder => 'percentage';
+
+  @override
+  String get analyticsCompetitivenessLevel => 'Уровень конкурентности';
+
+  @override
+  String get analyticsBasedOnAi => 'Основано на ИИ';
+
+  @override
   String get profileTitle => 'Профиль';
 
   @override

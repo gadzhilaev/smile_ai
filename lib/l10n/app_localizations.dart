@@ -167,6 +167,60 @@ abstract class AppLocalizations {
   /// **'Why?'**
   String get analyticsWhy;
 
+  /// No description provided for @analyticsThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get analyticsThisWeek;
+
+  /// No description provided for @analyticsCategoryTakes.
+  ///
+  /// In en, this message translates to:
+  /// **'Category takes {percentage}% of all requests'**
+  String analyticsCategoryTakes(Object percentage);
+
+  /// No description provided for @analyticsCategoryTakesPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'percentage'**
+  String get analyticsCategoryTakesPlaceholder;
+
+  /// No description provided for @analyticsSecondPlace.
+  ///
+  /// In en, this message translates to:
+  /// **'2nd place'**
+  String get analyticsSecondPlace;
+
+  /// No description provided for @analyticsAiAnalytics.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Analytics'**
+  String get analyticsAiAnalytics;
+
+  /// No description provided for @analyticsWasAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{percentage}% was added'**
+  String analyticsWasAdded(Object percentage);
+
+  /// No description provided for @analyticsWasAddedPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'percentage'**
+  String get analyticsWasAddedPlaceholder;
+
+  /// No description provided for @analyticsCompetitivenessLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Competitiveness Level'**
+  String get analyticsCompetitivenessLevel;
+
+  /// No description provided for @analyticsBasedOnAi.
+  ///
+  /// In en, this message translates to:
+  /// **'Based on AI'**
+  String get analyticsBasedOnAi;
+
   /// No description provided for @profileTitle.
   ///
   /// In en, this message translates to:

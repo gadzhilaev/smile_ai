@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import '../settings/style.dart';
 import '../settings/colors.dart';
 import '../l10n/app_localizations.dart';
@@ -116,139 +117,74 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                           SizedBox(height: scaleHeight(37)),
+                            // Заголовок с иконкой
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                SvgPicture.asset(
+                                  'assets/icons/icon_rocket_analitic.svg',
+                                  width: scaleWidth(18.7186336517334),
+                                  height: scaleHeight(22.103853225708008),
+                                  fit: BoxFit.contain,
+                                ),
+                                SizedBox(width: scaleWidth(9)),
                           Text(
                             l.analyticsTitle,
                             style: AppTextStyle.screenTitle(
                               scaleHeight(20),
                               color: theme.colorScheme.onSurface,
-                            ),
-                          ),
-                          SizedBox(height: scaleHeight(16)),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                l.analyticsTrend1,
-                                style: AppTextStyle.trendTitle(
-                                  scaleHeight(18),
-                                  AppColors.textSuccess,
-                                ),
-                              ),
-                              SizedBox(width: scaleWidth(11)),
-                              Expanded(
-                                child: Text(
-                                  _analytics!.trendName,
-                                  style: AppTextStyle.trendTitle(
-                                    scaleHeight(18),
-                                    theme.colorScheme.onSurface,
-                                  ),
                                 ),
                               ),
                             ],
-                          ),
-                          SizedBox(height: scaleHeight(16)),
-                          Text(
-                            _analytics!.trendPercentage,
-                            style: AppTextStyle.trendPercentage(
-                              scaleHeight(64),
-                              AppColors.textSuccess,
                             ),
-                          ),
-                          SizedBox(height: scaleHeight(3)),
+                            SizedBox(height: scaleHeight(10)),
+                            // Контейнеры
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: Text(
-                                  l.analyticsTrendDeltaDescription,
-                                  style: AppTextStyle.bodyTextLight(
-                                    scaleHeight(10),
-                                    color: isDark
-                                        ? AppColors.white
-                                        : theme.colorScheme.onSurface
-                                            .withValues(alpha: 0.7),
+                                // Левый контейнер (прижат слева)
+                                _FirstPlaceContainer(
+                                  analytics: _analytics!,
+                                  designWidth: _designWidth,
+                                  designHeight: _designHeight,
+                                ),
+                                SizedBox(width: scaleWidth(14)),
+                                // Правый контейнер (прижат справа)
+                                if (_analytics!.growingTrends.length > 1)
+                                  _SecondPlaceContainer(
+                                    trendItem: _analytics!.growingTrends[1],
+                                    designWidth: _designWidth,
+                                    designHeight: _designHeight,
                                   ),
-                                ),
-                              ),
-                              SizedBox(width: scaleWidth(8)),
-                              Text(
-                                l.analytics7Days,
-                                style: AppTextStyle.bodyTextMedium(
-                                  scaleHeight(12),
-                                  color: isDark
-                                      ? AppColors.white
-                                      : AppColors.textDarkGrey,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: scaleHeight(19)),
-                          Container(
-                            width: double.infinity,
-                            constraints: BoxConstraints(
-                              maxWidth: scaleWidth(361),
-                              minHeight: scaleHeight(239),
+                                if (_analytics!.growingTrends.length <= 1)
+                                  const Spacer(),
+                              ],
                             ),
-                            decoration: BoxDecoration(
-                              gradient: isDark
-                                  ? const LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                      colors: [
-                                        Color(0xFF1F2937), // чуть светлее фона
-                                        Color(0xFF111827),
-                                      ],
-                                    )
-                                  : const LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                      colors: [
-                                        Color(0xFFCFE8FF),
-                                        Color(0xFFDDE0FF),
-                                      ],
-                                      stops: [0.0, 0.7816],
-                                    ),
-                              borderRadius:
-                                  BorderRadius.circular(scaleHeight(15)),
-                            ),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: scaleWidth(19),
-                              vertical: scaleHeight(23),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
+                            SizedBox(height: scaleHeight(16)),
+                            // Блок "ИИ-аналитика"
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      l.analyticsWhy,
-                                      style: AppTextStyle.trendTitle(
-                                        scaleHeight(18),
-                                        theme.colorScheme.onSurface,
-                                      ),
-                                    ),
-                                  ],
+                                SvgPicture.asset(
+                                  'assets/icons/icon_stars_analitic.svg',
+                                  width: scaleWidth(24),
+                                  height: scaleHeight(24),
+                                  fit: BoxFit.contain,
                                 ),
-                                SizedBox(height: scaleHeight(19)),
+                                SizedBox(width: scaleWidth(6)),
                                 Text(
-                                  _analytics!.trendDescription,
-                                  style: AppTextStyle.trendDescription(
-                                    scaleHeight(15),
-                                  ).copyWith(
-                                    height: 1.2,
-                                    color: isDark
-                                        ? AppColors.white
-                                        : theme.colorScheme.onSurface,
+                                  l.analyticsAiAnalytics,
+                                  style: AppTextStyle.screenTitle(
+                                    scaleHeight(20),
+                                    color: theme.colorScheme.onSurface,
                                   ),
                                 ),
                               ],
                             ),
-                          ),
-                          SizedBox(height: scaleHeight(38)),
-                          _TrendContainersRow(
-                            growingTrends: _analytics!.growingTrends,
-                            fallingTrends: _analytics!.fallingTrends,
+                            SizedBox(height: scaleHeight(14)),
+                            // Контейнер с аналитикой
+                            _AiAnalyticsContainer(
+                              analytics: _analytics!,
                             designWidth: _designWidth,
                             designHeight: _designHeight,
                           ),
@@ -263,70 +199,15 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   }
 }
 
-class _TrendContainersRow extends StatelessWidget {
-  const _TrendContainersRow({
-    required this.growingTrends,
-    required this.fallingTrends,
+// Контейнер первого места
+class _FirstPlaceContainer extends StatelessWidget {
+  const _FirstPlaceContainer({
+    required this.analytics,
     required this.designWidth,
     required this.designHeight,
   });
 
-  final List<TrendItem> growingTrends;
-  final List<TrendItem> fallingTrends;
-  final double designWidth;
-  final double designHeight;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
-
-    final size = MediaQuery.of(context).size;
-    final double widthFactor = size.width / designWidth;
-
-    double scaleWidth(double value) => value * widthFactor;
-
-    return IntrinsicHeight(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _TrendContainer(
-            title: l.analyticsCategoryGrowing,
-            items: growingTrends,
-            itemColor: const Color(0xFF178751),
-            iconPath: 'assets/icons/icon_tr_up.svg',
-            designWidth: designWidth,
-            designHeight: designHeight,
-          ),
-          SizedBox(width: scaleWidth(14)),
-          _TrendContainer(
-            title: l.analyticsCategoryFalling,
-            items: fallingTrends,
-            itemColor: const Color(0xFF76090B),
-            iconPath: 'assets/icons/icon_tr_down.svg',
-            designWidth: designWidth,
-            designHeight: designHeight,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TrendContainer extends StatelessWidget {
-  const _TrendContainer({
-    required this.title,
-    required this.items,
-    required this.itemColor,
-    required this.iconPath,
-    required this.designWidth,
-    required this.designHeight,
-  });
-
-  final String title;
-  final List<TrendItem> items;
-  final Color itemColor;
-  final String iconPath;
+  final AnalyticsModel analytics;
   final double designWidth;
   final double designHeight;
 
@@ -334,6 +215,7 @@ class _TrendContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l = AppLocalizations.of(context)!;
 
     final size = MediaQuery.of(context).size;
     final double widthFactor = size.width / designWidth;
@@ -342,64 +224,609 @@ class _TrendContainer extends StatelessWidget {
     double scaleWidth(double value) => value * widthFactor;
     double scaleHeight(double value) => value * heightFactor;
 
+    // Берем первый элемент из растущих трендов
+    final firstTrend = analytics.growingTrends.isNotEmpty
+        ? analytics.growingTrends[0]
+        : null;
+
+    if (firstTrend == null) {
+      return const SizedBox.shrink();
+    }
+
+    final percentChange = firstTrend.percentChange;
+    final percentText = percentChange >= 0
+        ? '+${percentChange.toStringAsFixed(0)}%'
+        : '${percentChange.toStringAsFixed(0)}%';
+    final percentValue = percentChange.toStringAsFixed(0);
+
+    // Извлекаем процент из notes, если есть (например, "18%")
+    double categoryPercentage = 18.0; // По умолчанию
+    if (firstTrend.notes.isNotEmpty) {
+      final match = RegExp(r'(\d+(?:\.\d+)?)%').firstMatch(firstTrend.notes);
+      if (match != null) {
+        categoryPercentage = double.tryParse(match.group(1) ?? '') ?? 18.0;
+      }
+    }
+
     return Container(
-      width: scaleWidth(171),
+      width: scaleWidth(255),
+      height: scaleHeight(133),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkBackgroundCard : AppColors.white,
-        borderRadius: BorderRadius.circular(scaleHeight(15)),
+        color: isDark ? AppColors.darkBackgroundCard : Colors.white,
+        borderRadius: BorderRadius.circular(scaleHeight(11)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
-      padding: EdgeInsets.only(
-        left: scaleWidth(15),
-        top: scaleHeight(18),
-        right: scaleWidth(9),
-        bottom: scaleHeight(18),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
+      padding: EdgeInsets.symmetric(horizontal: scaleWidth(11)),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(
-            title,
-            style: AppTextStyle.screenTitle(
-              scaleHeight(16),
-              color: theme.colorScheme.onSurface,
+          // Круг с процентом
+          Container(
+            width: scaleWidth(95),
+            height: scaleHeight(95),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: const Color(0xFFAD2023),
+                width: scaleWidth(5),
+              ),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              percentText,
+              style: AppTextStyle.screenTitle(
+                scaleHeight(22),
+                color: const Color(0xFFAD2023),
+              ),
             ),
           ),
-          SizedBox(height: scaleHeight(30)),
+          SizedBox(width: scaleWidth(14)),
+          // Текстовый контент справа
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Название категории
+                Text(
+                  firstTrend.name,
+                  style: AppTextStyle.screenTitle(
+                    scaleHeight(12),
+                    color: const Color(0xFF201D2F),
+                  ),
+                ),
+                SizedBox(height: scaleHeight(10)),
+                // Процент по левому краю
+                Text(
+                  '$percentValue%',
+                  style: AppTextStyle.screenTitle(
+                    scaleHeight(20),
+                    color: const Color(0xFFAD2023),
+                  ),
+                  textAlign: TextAlign.left,
+                ),
+                // "Эта неделя" сразу под процентом
+                Text(
+                  l.analyticsThisWeek,
+                  style: AppTextStyle.screenTitleMedium(
+                    scaleHeight(6),
+                    color: const Color(0xFFB3B2B2),
+                  ),
+                ),
+                SizedBox(height: scaleHeight(11)),
+                // Описание
+                Text(
+                  l.analyticsCategoryTakes(categoryPercentage.toStringAsFixed(0)),
+                  style: AppTextStyle.screenTitleMedium(
+                    scaleHeight(10),
+                    color: const Color(0xFFB3B2B2),
+                  ).copyWith(
+                    height: 1.0,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Контейнер второго места
+class _SecondPlaceContainer extends StatelessWidget {
+  const _SecondPlaceContainer({
+    required this.trendItem,
+    required this.designWidth,
+    required this.designHeight,
+  });
+
+  final TrendItem trendItem;
+  final double designWidth;
+  final double designHeight;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final l = AppLocalizations.of(context)!;
+
+    final size = MediaQuery.of(context).size;
+    final double widthFactor = size.width / designWidth;
+    final double heightFactor = size.height / designHeight;
+
+    double scaleWidth(double value) => value * widthFactor;
+    double scaleHeight(double value) => value * heightFactor;
+
+    final percentChange = trendItem.percentChange;
+    final percentText = percentChange >= 0
+        ? '+${percentChange.toStringAsFixed(0)}%'
+        : '${percentChange.toStringAsFixed(0)}%';
+
+    // Разбиваем название на две строки, если есть дефис
+    final nameParts = trendItem.name.split('-');
+    final nameLine1 = nameParts[0];
+    final nameLine2 = nameParts.length > 1 ? nameParts[1] : '';
+
+    return Container(
+      width: scaleWidth(92),
+      height: scaleHeight(133),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkBackgroundCard : Colors.white,
+        borderRadius: BorderRadius.circular(scaleHeight(11)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      padding: EdgeInsets.symmetric(vertical: scaleHeight(20)),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // "2-е место"
+          Text(
+            l.analyticsSecondPlace,
+            style: AppTextStyle.screenTitle(
+              scaleHeight(12),
+              color: const Color(0xFF201D2F),
+            ),
+            textAlign: TextAlign.center,
+          ),
+          // Процент по центру
+          Text(
+            percentText,
+            style: AppTextStyle.screenTitle(
+              scaleHeight(22),
+              color: const Color(0xFFAD2023),
+            ),
+            textAlign: TextAlign.center,
+          ),
+          // Название снизу
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              for (int i = 0; i < items.length; i++) ...[
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        items[i].name,
-                        style: AppTextStyle.bodyTextMedium(
-                          scaleHeight(14),
-                          color: itemColor,
-                        ).copyWith(height: 1.2),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    SizedBox(width: scaleWidth(9)),
-                    SvgPicture.asset(
-                      iconPath,
-                      width: scaleWidth(20),
-                      height: scaleHeight(20),
-                      fit: BoxFit.contain,
-                    ),
-                  ],
+              Text(
+                nameLine1,
+                style: AppTextStyle.screenTitle(
+                  scaleHeight(12),
+                  color: const Color(0xFFAD2023),
                 ),
-                if (i < items.length - 1) SizedBox(height: scaleHeight(28)),
-              ],
+                textAlign: TextAlign.center,
+              ),
+              if (nameLine2.isNotEmpty)
+                Text(
+                  nameLine2,
+                  style: AppTextStyle.screenTitle(
+                    scaleHeight(12),
+                    color: const Color(0xFFAD2023),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
             ],
           ),
         ],
       ),
     );
+  }
+}
+
+// Контейнер с ИИ-аналитикой
+class _AiAnalyticsContainer extends StatelessWidget {
+  const _AiAnalyticsContainer({
+    required this.analytics,
+    required this.designWidth,
+    required this.designHeight,
+  });
+
+  final AnalyticsModel analytics;
+  final double designWidth;
+  final double designHeight;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final l = AppLocalizations.of(context)!;
+
+    final size = MediaQuery.of(context).size;
+    final double widthFactor = size.width / designWidth;
+    final double heightFactor = size.height / designHeight;
+
+    double scaleWidth(double value) => value * widthFactor;
+    double scaleHeight(double value) => value * heightFactor;
+
+    // Берем первый элемент из растущих трендов для данных
+    final firstTrend = analytics.growingTrends.isNotEmpty
+        ? analytics.growingTrends[0]
+        : null;
+
+    if (firstTrend == null) {
+      return const SizedBox.shrink();
+    }
+
+    // Извлекаем процент из percentChange (округляем до целого)
+    final percentValue = firstTrend.percentChange.toStringAsFixed(0);
+    
+    // Используем trendDescription или notes для описания
+    final description = analytics.trendDescription.isNotEmpty
+        ? analytics.trendDescription
+        : firstTrend.notes.isNotEmpty
+            ? firstTrend.notes
+            : 'Тренд "${firstTrend.name}" можно использовать, чтобы укрепить бренд как источник пользы.';
+
+    return Container(
+      width: scaleWidth(361),
+      height: scaleHeight(162),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkBackgroundCard : const Color(0xFFF1F3F2),
+        borderRadius: BorderRadius.circular(scaleHeight(11)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          // Белый контейнер слева
+          Positioned(
+            left: 0,
+            top: 0,
+            child: Container(
+              width: scaleWidth(231),
+              height: scaleHeight(162),
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.darkBackgroundCard : Colors.white,
+                borderRadius: BorderRadius.circular(scaleHeight(11)),
+              ),
+              child: Padding(
+                padding: EdgeInsets.only(
+                  top: scaleHeight(32),
+                  left: scaleWidth(10),
+                  right: scaleWidth(11),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Картинка
+                    Image.asset(
+                      'assets/images/bot_analitic.png',
+                      width: scaleWidth(65),
+                      height: scaleHeight(63),
+                      fit: BoxFit.contain,
+                    ),
+                    SizedBox(width: scaleWidth(15)),
+                    // Текстовый контент справа
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // "Было прибавлено" на одной строке, процент на следующей
+                          RichText(
+                            text: TextSpan(
+                        style: AppTextStyle.bodyTextMedium(
+                          scaleHeight(14),
+                                color: const Color(0xFF201D2F),
+                              ).copyWith(
+                                height: 1.0,
+                              ),
+                              children: [
+                                const TextSpan(text: 'Было прибавлено\n'),
+                                TextSpan(text: '$percentValue%'),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: scaleHeight(10)),
+                          // Описание
+                          Text(
+                            description,
+                            style: AppTextStyle.bodyTextLight(
+                              scaleHeight(12),
+                              color: const Color(0xFF201D2F),
+                            ).copyWith(
+                              height: 1.0,
+                            ),
+                            maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          // Серый контейнер справа (оставшееся место)
+          Positioned(
+            left: scaleWidth(231),
+            top: 0,
+            right: 0,
+            bottom: 0,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: scaleWidth(11)),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: isDark ? AppColors.darkBackgroundCard : const Color(0xFFF1F3F2),
+                  borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(scaleHeight(11)),
+                    bottomRight: Radius.circular(scaleHeight(11)),
+                  ),
+                ),
+                child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(height: scaleHeight(9)),
+                  // "Уровень конкурентности"
+                  Text(
+                    l.analyticsCompetitivenessLevel,
+                    style: AppTextStyle.bodyText(
+                      scaleHeight(8),
+                      color: const Color(0xFF9E9E9E),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const Spacer(),
+                  // Диаграмма метрики
+                  Padding(
+                    padding: EdgeInsets.only(bottom: scaleHeight(10)),
+                    child: _MetricsChart(
+                      designWidth: designWidth,
+                      designHeight: designHeight,
+                    ),
+                  ),
+                  // "Основано на ИИ" справа снизу
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        right: scaleWidth(6),
+                        bottom: scaleHeight(9),
+                      ),
+                      child: Text(
+                        l.analyticsBasedOnAi,
+                        style: AppTextStyle.bodyText(
+                          scaleHeight(4),
+                          color: const Color(0xFF9E9E9E),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Диаграмма метрики за последние 6 месяцев
+class _MetricsChart extends StatelessWidget {
+  const _MetricsChart({
+    required this.designWidth,
+    required this.designHeight,
+  });
+
+  final double designWidth;
+  final double designHeight;
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = Localizations.localeOf(context);
+    
+    final size = MediaQuery.of(context).size;
+    final double widthFactor = size.width / designWidth;
+    final double heightFactor = size.height / designHeight;
+
+    double scaleWidth(double value) => value * widthFactor;
+    double scaleHeight(double value) => value * heightFactor;
+
+    // Получаем доступную ширину для диаграммы
+    // Серый контейнер занимает оставшееся место после белого (231px) и отступов
+    final chartAvailableWidth = size.width - scaleWidth(231) - scaleWidth(33) - scaleWidth(11) - scaleWidth(11);
+    final chartAvailableHeight = size.height * 0.15; // Примерно 15% от высоты экрана
+
+    // Данные метрик за последние 5 месяцев (Август - Декабрь)
+    final metricsData = [
+      {'month': 8, 'value': 5},  // Август
+      {'month': 9, 'value': 3},  // Сентябрь
+      {'month': 10, 'value': 10}, // Октябрь
+      {'month': 11, 'value': 12}, // Ноябрь
+      {'month': 12, 'value': 7},  // Декабрь
+    ];
+
+    // Получаем сокращенные названия месяцев
+    final monthNames = metricsData.map((data) {
+      final month = data['month'] as int;
+      if (locale.languageCode == 'ru') {
+        // Русские сокращения месяцев (3-4 символа)
+        final monthNamesRu = [
+          'Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн',
+          'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'
+        ];
+        return monthNamesRu[month - 1];
+      } else {
+        // Английские сокращения месяцев (3-4 символа)
+        final date = DateTime(2024, month, 1);
+        return DateFormat('MMM', locale.toString()).format(date);
+      }
+    }).toList();
+
+    // Получаем значения метрик
+    final metricsValues = metricsData.map((data) => data['value'] as int).toList();
+
+    // Находим минимальное и максимальное значение для масштабирования
+    final minValue = metricsValues.reduce((a, b) => a < b ? a : b);
+    final maxValue = metricsValues.reduce((a, b) => a > b ? a : b);
+    final valueRange = maxValue - minValue;
+
+    // Высота и ширина диаграммы адаптивные, зависят от размеров экрана
+    final chartWidth = chartAvailableWidth.clamp(scaleWidth(80), scaleWidth(105)); // Ограничиваем минимальной и максимальной шириной
+    final chartHeight = chartAvailableHeight.clamp(scaleHeight(30), scaleHeight(70)); // Ограничиваем минимальной и максимальной высотой
+    final chartAreaHeight = chartHeight - scaleHeight(16); // Высота минус место для текста
+
+    // Вычисляем позиции всех точек
+    // Добавляем отступы по краям, чтобы точки не обрезались
+    final horizontalPadding = scaleWidth(4);
+    final availableWidthForPoints = chartWidth - (horizontalPadding * 2);
+    final pointPositions = List.generate(5, (index) {
+      final xPosition = horizontalPadding + (index / 4) * availableWidthForPoints;
+      final value = metricsValues[index];
+      
+      // Вычисляем позицию точки по вертикали (чем больше значение, тем выше точка)
+      // Инвертируем: большее значение = выше на графике
+      // Оставляем небольшой отступ сверху и снизу для визуализации
+      final padding = scaleHeight(4);
+      final availableHeight = chartAreaHeight - (padding * 2);
+      final normalizedValue = valueRange > 0 
+          ? (value - minValue) / valueRange 
+          : 0.5;
+      final yPosition = padding + (availableHeight - (normalizedValue * availableHeight));
+      
+      return {'x': xPosition, 'y': yPosition, 'value': value};
+    });
+
+    return SizedBox(
+      width: chartWidth,
+      height: chartHeight,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // Линия волны (проходит через все точки)
+          CustomPaint(
+            size: Size(chartWidth, chartHeight),
+            painter: _WaveLinePainter(
+              points: pointPositions,
+              lineColor: const Color(0xFFAD2023),
+              lineWidth: scaleHeight(1),
+            ),
+          ),
+          // Точки и вертикальные линии
+          ...List.generate(5, (index) {
+            final position = pointPositions[index];
+            final xPosition = position['x'] as double;
+            final yPosition = position['y'] as double;
+            
+            return Positioned(
+              left: xPosition - scaleWidth(4), // Центрируем точку
+              top: yPosition - scaleHeight(4), // Центрируем точку на линии
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Точка на линии
+                  Container(
+                    width: scaleWidth(8),
+                    height: scaleHeight(8),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: const Color(0xFF3B0B0C),
+                        width: scaleWidth(4),
+                      ),
+                    ),
+                  ),
+                  // Вертикальная линия к названию месяца
+                  if (chartHeight - yPosition - scaleHeight(8) - scaleHeight(16) > 0)
+                    Container(
+                      width: scaleWidth(0.5),
+                      height: chartHeight - yPosition - scaleHeight(8) - scaleHeight(16), // Высота от точки до текста
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFB899EB),
+                      ),
+                    ),
+                  // Название месяца
+                  Text(
+                    monthNames[index],
+                    style: AppTextStyle.bodyText(
+                      scaleHeight(6),
+                      color: const Color(0xFF9E9E9E),
+                    ).copyWith(
+                      height: 16 / 6, // line-height: 16px / font-size: 6px
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+}
+
+// CustomPainter для рисования линии волны
+class _WaveLinePainter extends CustomPainter {
+  _WaveLinePainter({
+    required this.points,
+    required this.lineColor,
+    required this.lineWidth,
+  });
+
+  final List<Map<String, dynamic>> points;
+  final Color lineColor;
+  final double lineWidth;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = lineColor
+      ..strokeWidth = lineWidth
+      ..style = PaintingStyle.stroke;
+
+    if (points.length < 2) return;
+
+    final path = Path();
+    path.moveTo(points[0]['x'] as double, points[0]['y'] as double);
+    
+    for (int i = 1; i < points.length; i++) {
+      path.lineTo(points[i]['x'] as double, points[i]['y'] as double);
+    }
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(_WaveLinePainter oldDelegate) {
+    return oldDelegate.points != points ||
+        oldDelegate.lineColor != lineColor ||
+        oldDelegate.lineWidth != lineWidth;
   }
 }

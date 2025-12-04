@@ -14,6 +14,15 @@
   "analyticsTrendDeltaDescription": "на столько  увеличилась вовлеченность\nпо сравнению с прошлой неделей",
   "analytics7Days": "7 дн",
   "analyticsWhy": "Почему?",
+  "analyticsThisWeek": "Эта неделя",
+  "analyticsCategoryTakes": "Категория занимает {percentage}% всех запросов",
+  "analyticsCategoryTakesPlaceholder": "percentage",
+  "analyticsSecondPlace": "2-е место",
+  "analyticsAiAnalytics": "ИИ-аналитика",
+  "analyticsWasAdded": "Было прибавлено {percentage}%",
+  "analyticsWasAddedPlaceholder": "percentage",
+  "analyticsCompetitivenessLevel": "Уровень конкурентности",
+  "analyticsBasedOnAi": "Основано на ИИ",
 
   "profileTitle": "Профиль",
 

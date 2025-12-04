@@ -14,6 +14,15 @@
   "analyticsTrendDeltaDescription": "Engagement has increased this much compared to last week",
   "analytics7Days": "7 days",
   "analyticsWhy": "Why?",
+  "analyticsThisWeek": "This week",
+  "analyticsCategoryTakes": "Category takes {percentage}% of all requests",
+  "analyticsCategoryTakesPlaceholder": "percentage",
+  "analyticsSecondPlace": "2nd place",
+  "analyticsAiAnalytics": "AI Analytics",
+  "analyticsWasAdded": "{percentage}% was added",
+  "analyticsWasAddedPlaceholder": "percentage",
+  "analyticsCompetitivenessLevel": "Competitiveness Level",
+  "analyticsBasedOnAi": "Based on AI",
 
   "profileTitle": "Profile",
 

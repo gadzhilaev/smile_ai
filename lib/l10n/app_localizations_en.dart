@@ -45,6 +45,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get analyticsWhy => 'Why?';
 
   @override
+  String get analyticsThisWeek => 'This week';
+
+  @override
+  String analyticsCategoryTakes(Object percentage) {
+    return 'Category takes $percentage% of all requests';
+  }
+
+  @override
+  String get analyticsCategoryTakesPlaceholder => 'percentage';
+
+  @override
+  String get analyticsSecondPlace => '2nd place';
+
+  @override
+  String get analyticsAiAnalytics => 'AI Analytics';
+
+  @override
+  String analyticsWasAdded(Object percentage) {
+    return '$percentage% was added';
+  }
+
+  @override
+  String get analyticsWasAddedPlaceholder => 'percentage';
+
+  @override
+  String get analyticsCompetitivenessLevel => 'Competitiveness Level';
+
+  @override
+  String get analyticsBasedOnAi => 'Based on AI';
+
+  @override
   String get profileTitle => 'Profile';
 
   @override
