@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../settings/style.dart';
-import '../settings/colors.dart';
-import '../l10n/app_localizations.dart';
-import '../models/template_model.dart';
-import '../services/template_service.dart';
-import '../widgets/custom_refresh_indicator.dart';
-import '../utils/template_localization_helper.dart';
+import '../../settings/style.dart';
+import '../../settings/colors.dart';
+import '../../l10n/app_localizations.dart';
+import '../../models/template_model.dart';
+import '../../services/template_service.dart';
+import '../../widgets/custom_refresh_indicator.dart';
+import '../../utils/template_localization_helper.dart';
 
 class PersonalTemplatesScreen extends StatefulWidget {
   const PersonalTemplatesScreen({

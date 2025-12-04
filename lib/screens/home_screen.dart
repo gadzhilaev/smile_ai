@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'ai_screen.dart';
-import 'templates_screen.dart';
+import 'template/templates_screen.dart';
 import 'analytics_screen.dart';
 import 'profile_screen.dart';
 import '../widgets/bottom_nav_bar.dart';

@@ -7,13 +7,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-import '../settings/style.dart';
-import '../settings/colors.dart';
-import '../l10n/app_localizations.dart';
-import '../services/profile_service.dart';
-import '../services/support_service.dart';
-import '../services/fcm_service.dart';
-import '../services/websocket_service.dart';
+import '../../settings/style.dart';
+import '../../settings/colors.dart';
+import '../../l10n/app_localizations.dart';
+import '../../services/profile_service.dart';
+import '../../services/support_service.dart';
+import '../../services/fcm_service.dart';
+import '../../services/websocket_service.dart';
 
 class SupportScreen extends StatefulWidget {
   const SupportScreen({super.key});

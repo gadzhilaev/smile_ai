@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-import '../settings/style.dart';
-import '../settings/colors.dart';
-import '../services/profile_service.dart';
-import '../services/api_service.dart';
-import '../utils/env_utils.dart';
-import '../l10n/app_localizations.dart';
+import '../../settings/style.dart';
+import '../../settings/colors.dart';
+import '../../services/profile_service.dart';
+import '../../services/api_service.dart';
+import '../../utils/env_utils.dart';
+import '../../l10n/app_localizations.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});

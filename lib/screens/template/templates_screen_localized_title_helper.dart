@@ -1,4 +1,4 @@
-import '../l10n/app_localizations.dart';
+import '../../l10n/app_localizations.dart';
 
 String localizedTemplateTitle(AppLocalizations l, int id) {
   switch (id) {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../settings/style.dart';
-import '../settings/colors.dart';
-import '../l10n/app_localizations.dart';
+import '../../settings/style.dart';
+import '../../settings/colors.dart';
+import '../../l10n/app_localizations.dart';
 
 class FaqScreen extends StatefulWidget {
   const FaqScreen({super.key});

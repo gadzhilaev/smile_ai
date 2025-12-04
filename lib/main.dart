@@ -21,7 +21,7 @@ import 'utils/env_utils.dart';
 import 'settings/colors.dart';
 import 'auth/login.dart';
 import 'screens/home_screen.dart';
-import 'screens/support_screen.dart';
+import 'screens/profile/support_screen.dart';
 
 void main() async {
   final WidgetsBinding widgetsBinding =

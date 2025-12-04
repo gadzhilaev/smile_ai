@@ -13,14 +13,14 @@ import '../services/api_service.dart';
 import '../services/auth_service.dart';
 import '../utils/env_utils.dart';
 import '../l10n/app_localizations.dart';
-import 'account_screen.dart';
-import 'notifications_screen.dart';
-import 'language_screen.dart';
-import 'theme_screen.dart';
-import 'privacy_policy_screen.dart';
-import 'faq_screen.dart';
-import 'data_privacy_screen.dart';
-import 'support_screen.dart';
+import 'profile/account_screen.dart';
+import 'profile/notifications_screen.dart';
+import 'profile/language_screen.dart';
+import 'profile/theme_screen.dart';
+import 'profile/privacy_policy_screen.dart';
+import 'profile/faq_screen.dart';
+import 'profile/data_privacy_screen.dart';
+import 'profile/support_screen.dart';
 import '../auth/login.dart';
 
 class ProfileScreen extends StatefulWidget {

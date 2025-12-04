@@ -1,6 +1,6 @@
 import '../l10n/app_localizations.dart';
 import '../models/template_model.dart';
-import '../screens/templates_screen_localized_title_helper.dart';
+import '../screens/template/templates_screen_localized_title_helper.dart';
 
 /// Helper функция для получения локализованного названия шаблона
 /// Для персональных шаблонов (isCustom == true) возвращает оригинальное название

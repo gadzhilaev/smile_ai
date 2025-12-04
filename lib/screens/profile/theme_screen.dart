@@ -1,28 +1,27 @@
 import 'package:flutter/material.dart';
 
-import '../settings/style.dart';
-import '../settings/colors.dart';
-import '../l10n/app_localizations.dart';
-import '../services/language_service.dart';
+import '../../settings/style.dart';
+import '../../settings/colors.dart';
+import '../../l10n/app_localizations.dart';
+import '../../services/theme_service.dart';
 
-class LanguageScreen extends StatefulWidget {
-  const LanguageScreen({super.key});
+class ThemeScreen extends StatefulWidget {
+  const ThemeScreen({super.key});
 
   @override
-  State<LanguageScreen> createState() => _LanguageScreenState();
+  State<ThemeScreen> createState() => _ThemeScreenState();
 }
 
-class _LanguageScreenState extends State<LanguageScreen> {
+class _ThemeScreenState extends State<ThemeScreen> {
   static const double _designWidth = 428;
   static const double _designHeight = 926;
 
-  String _selectedLanguage = 'ru'; // 'ru' или 'en'
+  late ThemeMode _selectedMode;
 
   @override
   void initState() {
     super.initState();
-    final current = LanguageService.instance.localeNotifier.value;
-    _selectedLanguage = current.languageCode == 'en' ? 'en' : 'ru';
+    _selectedMode = ThemeService.instance.themeModeNotifier.value;
   }
 
   @override
@@ -34,7 +33,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
     double scaleWidth(double value) => value * widthFactor;
     double scaleHeight(double value) => value * heightFactor;
 
-    final localization = AppLocalizations.of(context)!;
+    final l = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -61,7 +60,6 @@ class _LanguageScreenState extends State<LanguageScreen> {
                   ),
                   child: Row(
                     children: [
-                      // Стрелка назад
                       InkWell(
                         onTap: () => Navigator.of(context).pop(),
                         borderRadius: BorderRadius.circular(scaleWidth(16)),
@@ -77,7 +75,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
                       Expanded(
                         child: Center(
                           child: Text(
-                            localization.languageTitle,
+                            l.themeTitle,
                             style: AppTextStyle.screenTitle(
                               scaleHeight(20),
                               color: theme.colorScheme.onSurface,
@@ -85,7 +83,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
                           ),
                         ),
                       ),
-                      SizedBox(width: scaleWidth(28)), // Для выравнивания
+                      SizedBox(width: scaleWidth(28)),
                     ],
                   ),
                 ),
@@ -96,38 +94,48 @@ class _LanguageScreenState extends State<LanguageScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Заголовок "Предложенные" / "Suggested"
                       Text(
-                        localization.languageSectionSuggested,
+                        l.themeTitle,
                         style: AppTextStyle.screenTitle(
                           scaleHeight(16),
                           color: theme.colorScheme.onSurface,
                         ),
                       ),
                       SizedBox(height: scaleHeight(14)),
-                      _LanguageRadioRow(
-                        title: localization.languageRussian,
-                        isSelected: _selectedLanguage == 'ru',
+                      _ThemeRadioRow(
+                        title: l.themeSystem,
+                        isSelected: _selectedMode == ThemeMode.system,
                         onTap: () {
                           setState(() {
-                            _selectedLanguage = 'ru';
-                            LanguageService.instance
-                                .setLocale(const Locale('ru'));
+                            _selectedMode = ThemeMode.system;
                           });
+                          ThemeService.instance.setThemeMode(ThemeMode.system);
                         },
                         scaleWidth: scaleWidth,
                         scaleHeight: scaleHeight,
                       ),
                       SizedBox(height: scaleHeight(12)),
-                      _LanguageRadioRow(
-                        title: localization.languageEnglish,
-                        isSelected: _selectedLanguage == 'en',
+                      _ThemeRadioRow(
+                        title: l.themeLight,
+                        isSelected: _selectedMode == ThemeMode.light,
                         onTap: () {
                           setState(() {
-                            _selectedLanguage = 'en';
-                            LanguageService.instance
-                                .setLocale(const Locale('en'));
+                            _selectedMode = ThemeMode.light;
                           });
+                          ThemeService.instance.setThemeMode(ThemeMode.light);
+                        },
+                        scaleWidth: scaleWidth,
+                        scaleHeight: scaleHeight,
+                      ),
+                      SizedBox(height: scaleHeight(12)),
+                      _ThemeRadioRow(
+                        title: l.themeDark,
+                        isSelected: _selectedMode == ThemeMode.dark,
+                        onTap: () {
+                          setState(() {
+                            _selectedMode = ThemeMode.dark;
+                          });
+                          ThemeService.instance.setThemeMode(ThemeMode.dark);
                         },
                         scaleWidth: scaleWidth,
                         scaleHeight: scaleHeight,
@@ -145,8 +153,8 @@ class _LanguageScreenState extends State<LanguageScreen> {
   }
 }
 
-class _LanguageRadioRow extends StatelessWidget {
-  const _LanguageRadioRow({
+class _ThemeRadioRow extends StatelessWidget {
+  const _ThemeRadioRow({
     required this.title,
     required this.isSelected,
     required this.onTap,
@@ -182,7 +190,7 @@ class _LanguageRadioRow extends StatelessWidget {
               ),
             ),
             SizedBox(width: scaleWidth(12)),
-            _LanguageRadio(
+            _ThemeRadio(
               isSelected: isSelected,
               scaleWidth: scaleWidth,
               scaleHeight: scaleHeight,
@@ -194,8 +202,8 @@ class _LanguageRadioRow extends StatelessWidget {
   }
 }
 
-class _LanguageRadio extends StatelessWidget {
-  const _LanguageRadio({
+class _ThemeRadio extends StatelessWidget {
+  const _ThemeRadio({
     required this.isSelected,
     required this.scaleWidth,
     required this.scaleHeight,
@@ -211,7 +219,6 @@ class _LanguageRadio extends StatelessWidget {
     final double innerSize = scaleWidth(12);
 
     if (isSelected) {
-      // Активное состояние: синий круг + белый круг внутри
       return Container(
         width: outerSize,
         height: outerSize,
@@ -230,7 +237,6 @@ class _LanguageRadio extends StatelessWidget {
         ),
       );
     } else {
-      // Неактивное состояние
       return Container(
         width: outerSize,
         height: outerSize,

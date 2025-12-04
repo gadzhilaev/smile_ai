@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../settings/style.dart';
-import '../settings/colors.dart';
-import '../l10n/app_localizations.dart';
+import '../../settings/style.dart';
+import '../../settings/colors.dart';
+import '../../l10n/app_localizations.dart';
 
-import '../models/template_model.dart';
-import '../services/template_service.dart';
-import '../widgets/custom_refresh_indicator.dart';
-import '../widgets/syllable_text.dart';
+import '../../models/template_model.dart';
+import '../../services/template_service.dart';
+import '../../widgets/custom_refresh_indicator.dart';
+import '../../widgets/syllable_text.dart';
 import 'category_templates_screen.dart';
 import 'personal_templates_screen.dart';
 
@@ -281,8 +281,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                       // Иконка
                       _buildIcon(
                         _getIconPath(
-                          'assets/icons/templates/lights/icon_otchet.svg',
-                          darkIconPath: 'assets/icons/templates/dark/icon_otchet.svg',
+                          'assets/icons_template/lights/icon_otchet.svg',
+                          darkIconPath: 'assets/icons_template/dark/icon_otchet.svg',
                           isDark: isDark,
                         ),
                         scaleWidth(70),
@@ -370,8 +370,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                       // Иконка
                       _buildIcon(
                         _getIconPath(
-                          'assets/icons/templates/lights/icon_rocket.svg',
-                          darkIconPath: 'assets/icons/templates/dark/icon_rocket.svg',
+                          'assets/icons_template/lights/icon_rocket.svg',
+                          darkIconPath: 'assets/icons_template/dark/icon_rocket.svg',
                           isDark: isDark,
                         ),
                         scaleWidth(70),
@@ -695,8 +695,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
       {
         'title': l.templatesCategoryMarketing,
         'categoryId': 'marketing',
-        'icon': 'assets/icons/templates/lights/icon_marketing.svg',
-        'darkIcon': 'assets/icons/templates/dark/icon_marketing.svg',
+        'icon': 'assets/icons_template/lights/icon_marketing.svg',
+        'darkIcon': 'assets/icons_template/dark/icon_marketing.svg',
         'gradient': [Color(0xFFCDC0EF), Color(0xFFBC9FF4)],
         'darkGradient': [Color(0xFF5A4B7F), Color(0xFF4A3A6F)],
         'stops': [0.0526, 0.9049],
@@ -704,8 +704,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
       {
         'title': l.templatesCategoryStrategy,
         'categoryId': 'strategy',
-        'icon': 'assets/icons/templates/lights/icon_strategy.svg',
-        'darkIcon': 'assets/icons/templates/dark/icon_strategy.svg',
+        'icon': 'assets/icons_template/lights/icon_strategy.svg',
+        'darkIcon': 'assets/icons_template/dark/icon_strategy.svg',
         'gradient': [Color(0xFF62F8CB), Color(0xFF5EDCD3)],
         'darkGradient': [Color(0xFF2A8873), Color(0xFF277269)],
         'stops': [0.0, 1.0],
@@ -713,8 +713,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
       {
         'title': l.templatesCategorySales,
         'categoryId': 'sales',
-        'icon': 'assets/icons/templates/lights/icon_money.svg',
-        'darkIcon': 'assets/icons/templates/dark/icon_money.svg',
+        'icon': 'assets/icons_template/lights/icon_money.svg',
+        'darkIcon': 'assets/icons_template/dark/icon_money.svg',
         'gradient': [Color(0xFFF9E080), Color(0xFFFCC881)],
         'darkGradient': [Color(0xFF897840), Color(0xFF8A7841)],
         'stops': [0.0535, 1.0],
@@ -722,8 +722,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
       {
         'title': l.templatesCategoryFinance,
         'categoryId': 'finance',
-        'icon': 'assets/icons/templates/lights/icon_chart.svg',
-        'darkIcon': 'assets/icons/templates/dark/icon_chart.svg',
+        'icon': 'assets/icons_template/lights/icon_chart.svg',
+        'darkIcon': 'assets/icons_template/dark/icon_chart.svg',
         'gradient': [Color(0xFFFFB6C1), Color(0xFFFF69B4)],
         'darkGradient': [Color(0xFF8C6269), Color(0xFF8C3A64)],
         'stops': [0.0, 1.0],
@@ -731,8 +731,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
       {
         'title': l.templatesCategoryHR,
         'categoryId': 'hr',
-        'icon': 'assets/icons/templates/lights/icon_team.svg',
-        'darkIcon': 'assets/icons/templates/dark/icon_team.svg',
+        'icon': 'assets/icons_template/lights/icon_team.svg',
+        'darkIcon': 'assets/icons_template/dark/icon_team.svg',
         'gradient': [Color(0xFF87CEEB), Color(0xFF4682B4)],
         'darkGradient': [Color(0xFF3F6E8B), Color(0xFF1E3A5A)],
         'stops': [0.0, 1.0],
@@ -740,8 +740,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
       {
         'title': l.templatesCategoryOperations,
         'categoryId': 'operations',
-        'icon': 'assets/icons/templates/lights/icon_gear.svg',
-        'darkIcon': 'assets/icons/templates/dark/icon_gear.svg',
+        'icon': 'assets/icons_template/lights/icon_gear.svg',
+        'darkIcon': 'assets/icons_template/dark/icon_gear.svg',
         'gradient': [Color(0xFFDDA0DD), Color(0xFF9370DB)],
         'darkGradient': [Color(0xFF6D507D), Color(0xFF43306B)],
         'stops': [0.0, 1.0],
@@ -749,8 +749,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
       {
         'title': l.templatesCategorySupport,
         'categoryId': 'support',
-        'icon': 'assets/icons/templates/lights/icon_supp.svg',
-        'darkIcon': 'assets/icons/templates/dark/icon_supp.svg',
+        'icon': 'assets/icons_template/lights/icon_supp.svg',
+        'darkIcon': 'assets/icons_template/dark/icon_supp.svg',
         'gradient': [Color(0xFFF0E68C), Color(0xFFFFD700)],
         'darkGradient': [Color(0xFF80764C), Color(0xFF8C6D00)],
         'stops': [0.0, 1.0],
@@ -758,8 +758,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
       {
         'title': l.templatesCategoryAnalytics,
         'categoryId': 'analytics',
-        'icon': 'assets/icons/templates/lights/icon_otchet.svg',
-        'darkIcon': 'assets/icons/templates/dark/icon_otchet.svg',
+        'icon': 'assets/icons_template/lights/icon_otchet.svg',
+        'darkIcon': 'assets/icons_template/dark/icon_otchet.svg',
         'gradient': [Color(0xFF98D8C8), Color(0xFF17A2B8)],
         'darkGradient': [Color(0xFF387868), Color(0xFF0F4A58)],
         'stops': [0.0, 1.0],
@@ -875,8 +875,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
       {
         'title': l.templatesCategoryRetail,
         'categoryId': 'retail',
-        'icon': 'assets/icons/templates/lights/icon_bag.svg',
-        'darkIcon': 'assets/icons/templates/dark/icon_bag.svg',
+        'icon': 'assets/icons_template/lights/icon_bag.svg',
+        'darkIcon': 'assets/icons_template/dark/icon_bag.svg',
         'gradient': [Color(0xFF59DEEC), Color(0xFF61B3F9)],
         'darkGradient': [Color(0xFF1F5E6C), Color(0xFF214379)],
         'stops': [0.0, 0.9656],
@@ -884,8 +884,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
       {
         'title': l.templatesCategoryManufacturing,
         'categoryId': 'manufacturing',
-        'icon': 'assets/icons/templates/lights/icon_ruki.svg',
-        'darkIcon': 'assets/icons/templates/dark/icon_ruki.svg',
+        'icon': 'assets/icons_template/lights/icon_ruki.svg',
+        'darkIcon': 'assets/icons_template/dark/icon_ruki.svg',
         'gradient': [Color(0xFFAFCDBF), Color(0xFF669484)],
         'darkGradient': [Color(0xFF3F5D4F), Color(0xFF22433A)],
         'stops': [0.0892, 0.9553],
@@ -893,8 +893,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
       {
         'title': l.templatesCategoryIT,
         'categoryId': 'it',
-        'icon': 'assets/icons/templates/lights/icon_computer.svg',
-        'darkIcon': 'assets/icons/templates/dark/icon_computer.svg',
+        'icon': 'assets/icons_template/lights/icon_computer.svg',
+        'darkIcon': 'assets/icons_template/dark/icon_computer.svg',
         'gradient': [Color(0xFFA8E6CF), Color(0xFF3FC1C9)],
         'darkGradient': [Color(0xFF38766F), Color(0xFF0F5159)],
         'stops': [0.0, 1.0],
@@ -902,8 +902,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
       {
         'title': l.templatesCategoryHealthcare,
         'categoryId': 'healthcare',
-        'icon': 'assets/icons/templates/lights/icon_health.svg',
-        'darkIcon': 'assets/icons/templates/dark/icon_health.svg',
+        'icon': 'assets/icons_template/lights/icon_health.svg',
+        'darkIcon': 'assets/icons_template/dark/icon_health.svg',
         'gradient': [Color(0xFFFFB3BA), Color(0xFFFF6B6B)],
         'darkGradient': [Color(0xFF8C6269), Color(0xFF8C3535)],
         'stops': [0.0, 1.0],
@@ -911,8 +911,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
       {
         'title': l.templatesCategoryEducation,
         'categoryId': 'education',
-        'icon': 'assets/icons/templates/lights/icon_education.svg',
-        'darkIcon': 'assets/icons/templates/dark/icon_education.svg',
+        'icon': 'assets/icons_template/lights/icon_education.svg',
+        'darkIcon': 'assets/icons_template/dark/icon_education.svg',
         'gradient': [Color(0xFFC7CEEA), Color(0xFF6C5CE7)],
         'darkGradient': [Color(0xFF475E7A), Color(0xFF2A1C67)],
         'stops': [0.0, 1.0],
@@ -920,8 +920,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
       {
         'title': l.templatesCategoryRealEstate,
         'categoryId': 'realestate',
-        'icon': 'assets/icons/templates/lights/icon_home.svg',
-        'darkIcon': 'assets/icons/templates/dark/icon_home.svg',
+        'icon': 'assets/icons_template/lights/icon_home.svg',
+        'darkIcon': 'assets/icons_template/dark/icon_home.svg',
         'gradient': [Color(0xFFFFD3A5), Color(0xFFFD9853)],
         'darkGradient': [Color(0xFF8C6355), Color(0xFF8B4823)],
         'stops': [0.0, 1.0],
@@ -929,8 +929,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
       {
         'title': l.templatesCategoryRestaurant,
         'categoryId': 'restaurant',
-        'icon': 'assets/icons/templates/lights/icon_restaurant.svg',
-        'darkIcon': 'assets/icons/templates/dark/icon_restaurant.svg',
+        'icon': 'assets/icons_template/lights/icon_restaurant.svg',
+        'darkIcon': 'assets/icons_template/dark/icon_restaurant.svg',
         'gradient': [Color(0xFFFEC8D8), Color(0xFFFF9A9E)],
         'darkGradient': [Color(0xFF8E6068), Color(0xFF8C4A4E)],
         'stops': [0.0, 1.0],
@@ -938,8 +938,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
       {
         'title': l.templatesCategoryLogistics,
         'categoryId': 'logistics',
-        'icon': 'assets/icons/templates/lights/icon_sell.svg',
-        'darkIcon': 'assets/icons/templates/dark/icon_sell.svg',
+        'icon': 'assets/icons_template/lights/icon_sell.svg',
+        'darkIcon': 'assets/icons_template/dark/icon_sell.svg',
         'gradient': [Color(0xFFDEC879), Color(0xFFD8AA74)],
         'darkGradient': [Color(0xFF6E6839), Color(0xFF685A3C)],
         'stops': [0.0303, 0.9488],

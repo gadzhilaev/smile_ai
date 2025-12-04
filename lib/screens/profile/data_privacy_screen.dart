@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../l10n/app_localizations.dart';
-import '../settings/colors.dart';
-import '../settings/style.dart';
+import '../../l10n/app_localizations.dart';
+import '../../settings/colors.dart';
+import '../../settings/style.dart';
 
 class DataPrivacyScreen extends StatelessWidget {
   const DataPrivacyScreen({super.key});
