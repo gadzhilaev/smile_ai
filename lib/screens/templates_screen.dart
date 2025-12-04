@@ -7,8 +7,9 @@ import '../l10n/app_localizations.dart';
 import '../models/template_model.dart';
 import '../services/template_service.dart';
 import '../widgets/custom_refresh_indicator.dart';
-import 'templates_screen_localized_title_helper.dart';
+import '../widgets/syllable_text.dart';
 import 'category_templates_screen.dart';
+import 'personal_templates_screen.dart';
 
 class TemplatesScreen extends StatefulWidget {
   const TemplatesScreen({
@@ -29,14 +30,15 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
   static const double _designHeight = 926;
 
   List<TemplateModel> _templates = [];
+  List<Map<String, dynamic>> _personalFolders = [];
   bool _isLoading = true;
   final ScrollController _scrollController = ScrollController();
-  final Set<String> _expandedCategories = <String>{};
 
   @override
   void initState() {
     super.initState();
     _loadTemplates();
+    _loadPersonalFolders();
   }
 
   Future<void> _loadTemplates() async {
@@ -54,31 +56,15 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
     }
   }
 
-  void _toggleCategory(String category) {
-    setState(() {
-      if (_expandedCategories.contains(category)) {
-        _expandedCategories.remove(category);
-      } else {
-        _expandedCategories.add(category);
-      }
-    });
+  Future<void> _loadPersonalFolders() async {
+    final folders = await TemplateService.getPersonalFolders();
+    if (mounted) {
+      setState(() {
+        _personalFolders = folders;
+      });
+  }
   }
 
-  Map<String, List<TemplateModel>> _groupTemplatesByCategory() {
-    final Map<String, List<TemplateModel>> grouped = {};
-    for (final template in _templates) {
-      if (!grouped.containsKey(template.category)) {
-        grouped[template.category] = [];
-      }
-      grouped[template.category]!.add(template);
-    }
-    return grouped;
-  }
-
-  Future<void> _updateTemplate(int id, String newTitle) async {
-    await TemplateService.updateTemplateTitle(id, newTitle);
-    await _loadTemplates();
-  }
 
   Future<void> _refreshTemplates() async {
     // Сбрасываем состояние для полной перестройки страницы
@@ -143,13 +129,13 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: scaleWidth(32)),
                     child: Center(
-                      child: Text(
-                        l.templatesTitle,
-                        style: AppTextStyle.screenTitleMedium(
-                          scaleHeight(20),
-                          color: isDark
-                              ? AppColors.white
-                              : theme.colorScheme.onSurface,
+                    child: Text(
+                      l.templatesTitle,
+                      style: AppTextStyle.screenTitleMedium(
+                        scaleHeight(20),
+                        color: isDark
+                            ? AppColors.white
+                            : theme.colorScheme.onSurface,
                         ),
                       ),
                     ),
@@ -186,17 +172,17 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                             child: SingleChildScrollView(
                               controller: _scrollController,
                               physics: const AlwaysScrollableScrollPhysics(),
-                              child: Column(
-                                children: [
+                                child: Column(
+                                  children: [
                                   _buildPopularSection(
                                     scaleWidth,
                                     scaleHeight,
                                     theme,
                                     isDark,
-                                  ),
-                                  // Отступ после последнего контейнера для нав бара
-                                  SizedBox(height: scaleHeight(20)),
-                                ],
+                                      ),
+                                    // Отступ после последнего контейнера для нав бара
+                                    SizedBox(height: scaleHeight(20)),
+                                  ],
                               ),
                             ),
                           ),
@@ -214,12 +200,12 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
     bool isDark,
   ) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
         // Текст "Популярные" с отступами 32 по бокам
         Padding(
           padding: EdgeInsets.symmetric(horizontal: scaleWidth(32)),
-          child: Text(
+                child: Text(
             'Популярные',
             style: TextStyle(
               fontFamily: 'Montserrat',
@@ -260,7 +246,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                     left: scaleWidth(18),
                     right: scaleWidth(18),
                   ),
-                  decoration: BoxDecoration(
+      decoration: BoxDecoration(
                     gradient: LinearGradient(
                       // 131.34deg от левого верхнего к правому нижнему
                       begin: const Alignment(-1.0, -1.0),
@@ -273,8 +259,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                     ),
                     borderRadius: BorderRadius.circular(scaleHeight(13)),
                     boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+          BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
                         offset: const Offset(0, 2),
                         blurRadius: 8,
                         spreadRadius: 0,
@@ -295,19 +281,26 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                       // Отступ между иконкой и текстом
                       SizedBox(height: scaleHeight(8)),
                       // Текст
-                      Text(
-                        'Еженедельный отчет',
-                        style: TextStyle(
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w600,
-                          fontSize: scaleHeight(14),
-                          height: 22 / 14,
-                          letterSpacing: 0,
-                          color: Colors.black,
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: scaleWidth(5)),
+                          child: SyllableText(
+                            text: 'Еженедельный отчет',
+                            style: TextStyle(
+                              fontFamily: 'Montserrat',
+                              fontWeight: FontWeight.w600,
+                              fontSize: scaleHeight(14),
+                              height: 22 / 14,
+                              letterSpacing: 0,
+                              color: Colors.black,
+                            ),
+                            textAlign: TextAlign.center,
+                            maxLines: 3,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
+          ),
+        ],
+      ),
                 ),
               ),
               // Правый контейнер
@@ -330,8 +323,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                   padding: EdgeInsets.only(
                     top: scaleHeight(10),
                     bottom: scaleHeight(10),
-                    left: scaleWidth(18),
-                    right: scaleWidth(18),
+                    left: scaleWidth(5),
+                    right: scaleWidth(5),
                   ),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -347,16 +340,16 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                     borderRadius: BorderRadius.circular(scaleHeight(13)),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         offset: const Offset(0, 2),
                         blurRadius: 8,
                         spreadRadius: 0,
                       ),
                     ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
                       // Иконка
                       SvgPicture.asset(
                         'assets/icons/templates/lights/icon_rocket.svg',
@@ -368,15 +361,22 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                       // Отступ между иконкой и текстом
                       SizedBox(height: scaleHeight(8)),
                       // Текст
-                      Text(
-                        'Анализ рынка',
-                        style: TextStyle(
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w600,
-                          fontSize: scaleHeight(14),
-                          height: 22 / 14,
-                          letterSpacing: 0,
-                          color: Colors.black,
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: scaleWidth(5)),
+                          child: SyllableText(
+                            text: 'Анализ рынка',
+                            style: TextStyle(
+                              fontFamily: 'Montserrat',
+                              fontWeight: FontWeight.w600,
+                              fontSize: scaleHeight(14),
+                              height: 22 / 14,
+                              letterSpacing: 0,
+                              color: Colors.black,
+                            ),
+                            textAlign: TextAlign.center,
+                            maxLines: 3,
+                          ),
                         ),
                       ),
                     ],
@@ -455,103 +455,180 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
         ),
         // Отступ снизу 14
         SizedBox(height: scaleHeight(14)),
-        // Два контейнера в ряд
+        // Контейнеры папок и кнопка "Добавить папку"
         Padding(
           padding: EdgeInsets.symmetric(horizontal: scaleWidth(32)),
-          child: Row(
-            children: [
-              // Первый контейнер - Ваши шаблоны
-              Container(
-                width: scaleWidth(110),
-                height: scaleHeight(176),
-                padding: EdgeInsets.symmetric(vertical: scaleHeight(28)),
-                margin: EdgeInsets.only(right: scaleWidth(17)),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    // 160.29deg
-                    begin: const Alignment(-1.0, -1.0),
-                    end: const Alignment(1.0, 1.0),
-                    colors: const [
-                      Color(0xFFEB91D4),
-                      Color(0xFFDD41B6),
-                    ],
-                    stops: const [0.0886, 1.0],
-                  ),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                // Первый контейнер - Ваши шаблоны
+                InkWell(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => PersonalTemplatesScreen(
+                          onApplyTemplate: widget.onApplyTemplate,
+                          onEditTemplate: widget.onEditTemplate,
+                        ),
+                      ),
+                    );
+                  },
                   borderRadius: BorderRadius.circular(scaleHeight(13)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      offset: const Offset(0, 2),
-                      blurRadius: 8,
-                      spreadRadius: 0,
+                  child: Container(
+                    width: scaleWidth(110),
+                    height: scaleHeight(176),
+                    padding: EdgeInsets.symmetric(vertical: scaleHeight(28)),
+                    margin: EdgeInsets.only(right: scaleWidth(17)),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        // 160.29deg
+                        begin: const Alignment(-1.0, -1.0),
+                        end: const Alignment(1.0, 1.0),
+                        colors: const [
+                          Color(0xFFEB91D4),
+                          Color(0xFFDD41B6),
+                        ],
+                        stops: const [0.0886, 1.0],
+                      ),
+                      borderRadius: BorderRadius.circular(scaleHeight(13)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          offset: const Offset(0, 2),
+                          blurRadius: 8,
+                          spreadRadius: 0,
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: Center(
-                  child: Text(
-                    'Ваши шаблоны',
-                    style: TextStyle(
-                      fontFamily: 'Montserrat',
-                      fontWeight: FontWeight.w600,
-                      fontSize: scaleHeight(14),
-                      height: 22 / 14,
-                      letterSpacing: 0,
-                      color: Colors.black,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-              // Второй контейнер - Добавить папку
-              Container(
-                width: scaleWidth(110),
-                height: scaleHeight(176),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(scaleHeight(13)),
-                ),
-                child: Stack(
-                  children: [
-                    // Пунктирная обводка
-                    CustomPaint(
-                      size: Size(scaleWidth(110), scaleHeight(176)),
-                      painter: _DashedBorderPainter(
-                        color: const Color(0xFF9E9E9E),
-                        strokeWidth: 1,
-                        borderRadius: scaleHeight(13),
+                    child: Center(
+                      child: Text(
+                        'Ваши шаблоны',
+                        style: TextStyle(
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w600,
+                          fontSize: scaleHeight(14),
+                          height: 22 / 14,
+                          letterSpacing: 0,
+                          color: Colors.black,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
                     ),
-                    // Контент по центру
-                    Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // Иконка плюсик
-                          Icon(
-                            Icons.add,
-                            size: scaleHeight(24),
-                            color: const Color(0xFF9E9E9E),
-                          ),
-                          // Текст без отступа
-                          Text(
-                            'Добавить папку',
-                            style: TextStyle(
-                              fontFamily: 'Montserrat',
-                              fontWeight: FontWeight.w600,
-                              fontSize: scaleHeight(8),
-                              height: 1.0,
-                              letterSpacing: 0,
-                              color: const Color(0xFF9E9E9E),
-                            ),
-                            textAlign: TextAlign.center,
+                  ),
+                ),
+                // Папки пользователя
+                ..._personalFolders.map((folder) {
+                  return InkWell(
+                    onTap: () {
+                      // TODO: Открыть экран с шаблонами папки
+                    },
+                    borderRadius: BorderRadius.circular(scaleHeight(13)),
+                    child: Container(
+                      width: scaleWidth(110),
+                      height: scaleHeight(176),
+                      padding: EdgeInsets.symmetric(
+                        vertical: scaleHeight(28),
+                        horizontal: scaleWidth(5),
+                ),
+                      margin: EdgeInsets.only(right: scaleWidth(17)),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          // 160.29deg
+                          begin: const Alignment(-1.0, -1.0),
+                          end: const Alignment(1.0, 1.0),
+                          colors: const [
+                            Color(0xFFEB91D4),
+                            Color(0xFFDD41B6),
+                          ],
+                          stops: const [0.0886, 1.0],
+                        ),
+                        borderRadius: BorderRadius.circular(scaleHeight(13)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.1),
+                            offset: const Offset(0, 2),
+                            blurRadius: 8,
+                            spreadRadius: 0,
                           ),
                         ],
                       ),
+                      child: Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: scaleWidth(5)),
+                          child: SyllableText(
+                            text: folder['name'] as String,
+                            style: TextStyle(
+                              fontFamily: 'Montserrat',
+                              fontWeight: FontWeight.w600,
+                              fontSize: scaleHeight(14),
+                              height: 22 / 14,
+                              letterSpacing: 0,
+                              color: Colors.black,
+                            ),
+                            textAlign: TextAlign.center,
+                            maxLines: 3,
+                          ),
+                        ),
+                      ),
                     ),
-                  ],
+                  );
+                }).toList(),
+                // Последний контейнер - Добавить папку
+                InkWell(
+                  onTap: () => _showAddFolderDialog(context, scaleWidth, scaleHeight),
+                  borderRadius: BorderRadius.circular(scaleHeight(13)),
+                  child: Container(
+                    width: scaleWidth(110),
+                    height: scaleHeight(176),
+                decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(scaleHeight(13)),
+                    ),
+                    child: Stack(
+                      children: [
+                        // Пунктирная обводка
+                        CustomPaint(
+                          size: Size(scaleWidth(110), scaleHeight(176)),
+                          painter: _DashedBorderPainter(
+                            color: const Color(0xFF9E9E9E),
+                            strokeWidth: 1,
+                            borderRadius: scaleHeight(13),
+                          ),
                 ),
-              ),
-            ],
+                        // Контент по центру
+                        Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Иконка плюсик
+                              Icon(
+                                Icons.add,
+                                size: scaleHeight(24),
+                                color: const Color(0xFF9E9E9E),
+                              ),
+                              // Текст без отступа
+                              Text(
+                                'Добавить папку',
+                                style: TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: scaleHeight(8),
+                                  height: 1.0,
+                                  letterSpacing: 0,
+                                  color: const Color(0xFF9E9E9E),
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ],
@@ -642,7 +719,10 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
         child: Container(
           width: scaleWidth(110),
           height: scaleHeight(176),
-          padding: EdgeInsets.symmetric(vertical: scaleHeight(28)),
+          padding: EdgeInsets.symmetric(
+            vertical: scaleHeight(28),
+            horizontal: scaleWidth(5),
+          ),
           margin: EdgeInsets.only(right: isLast ? 0 : scaleWidth(17)),
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -671,17 +751,23 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                 scaleHeight(60),
               ),
               // Текст снизу
-              Text(
-                item['title'] as String,
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontWeight: FontWeight.w600,
-                  fontSize: scaleHeight(14),
-                  height: 22 / 14,
-                  letterSpacing: 0,
-                  color: Colors.black,
+              Flexible(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: scaleWidth(5)),
+                  child: SyllableText(
+                    text: item['title'] as String,
+                    style: TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontWeight: FontWeight.w600,
+                      fontSize: scaleHeight(14),
+                      height: 22 / 14,
+                      letterSpacing: 0,
+                      color: Colors.black,
+                    ),
+                  textAlign: TextAlign.center,
+                    maxLines: 3,
+                  ),
                 ),
-                textAlign: TextAlign.center,
               ),
             ],
           ),
@@ -702,19 +788,19 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
         'stops': [0.0, 0.9656],
       },
       {
-        'title': 'Производст-\nво',
+        'title': 'Производство',
         'icon': 'assets/icons/templates/lights/icon_ruki.svg',
         'gradient': [Color(0xFFAFCDBF), Color(0xFF669484)],
         'stops': [0.0892, 0.9553],
       },
       {
-        'title': 'IT/Техноло-\nгии',
+        'title': 'IT/Технологии',
         'icon': 'assets/icons/templates/lights/icon_computer.svg', // Нужно добавить иконку
         'gradient': [Color(0xFFA8E6CF), Color(0xFF3FC1C9)],
         'stops': [0.0, 1.0],
       },
       {
-        'title': 'Здравоохра-\nнение',
+        'title': 'Здравоохранение',
         'icon': 'assets/icons/templates/lights/icon_health.svg', // Нужно добавить иконку
         'gradient': [Color(0xFFFFB3BA), Color(0xFFFF6B6B)],
         'stops': [0.0, 1.0],
@@ -726,7 +812,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
         'stops': [0.0, 1.0],
       },
       {
-        'title': 'Недвижи-\nмость',
+        'title': 'Недвижимость',
         'icon': 'assets/icons/templates/lights/icon_home.svg', // Нужно добавить иконку
         'gradient': [Color(0xFFFFD3A5), Color(0xFFFD9853)],
         'stops': [0.0, 1.0],
@@ -774,7 +860,10 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
         child: Container(
           width: scaleWidth(110),
           height: scaleHeight(176),
-          padding: EdgeInsets.symmetric(vertical: scaleHeight(28)),
+          padding: EdgeInsets.symmetric(
+            vertical: scaleHeight(28),
+            horizontal: scaleWidth(5),
+          ),
           margin: EdgeInsets.only(right: isLast ? 0 : scaleWidth(17)),
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -803,23 +892,183 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                 scaleHeight(60),
               ),
               // Текст снизу
-              Text(
-                item['title'] as String,
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontWeight: FontWeight.w600,
-                  fontSize: scaleHeight(14),
-                  height: 22 / 14,
-                  letterSpacing: 0,
-                  color: Colors.black,
+              Flexible(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: scaleWidth(5)),
+                  child: SyllableText(
+                    text: item['title'] as String,
+                    style: TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontWeight: FontWeight.w600,
+                      fontSize: scaleHeight(14),
+                      height: 22 / 14,
+                      letterSpacing: 0,
+                      color: Colors.black,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 3,
+                  ),
                 ),
-                textAlign: TextAlign.center,
               ),
             ],
           ),
         ),
       );
     }).toList();
+  }
+
+  void _showAddFolderDialog(BuildContext context, double Function(double) scaleWidth, double Function(double) scaleHeight) {
+    final TextEditingController textController = TextEditingController();
+
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierColor: Colors.black.withValues(alpha: 0.5),
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.symmetric(horizontal: scaleWidth(24)),
+                child: Container(
+            width: scaleWidth(380),
+            height: scaleHeight(260),
+            padding: EdgeInsets.symmetric(
+              horizontal: scaleWidth(15),
+              vertical: scaleHeight(18),
+            ),
+                  decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(scaleHeight(12)),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x1F18274B),
+                  offset: Offset(0, 14),
+                  blurRadius: 64,
+                  spreadRadius: -4,
+                ),
+                BoxShadow(
+                  color: Color(0x1F18274B),
+                  offset: Offset(0, 8),
+                  blurRadius: 22,
+                  spreadRadius: -6,
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Заголовок и крестик в одной строке
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Добавить новую папку',
+                        style: TextStyle(
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w500,
+                          fontSize: scaleHeight(20),
+                          height: 1.0,
+                          color: const Color(0xFF5B5B5B),
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () => Navigator.of(context).pop(),
+                      borderRadius: BorderRadius.circular(scaleHeight(12)),
+                      child: Container(
+                        width: scaleWidth(24),
+                        height: scaleHeight(24),
+                        alignment: Alignment.center,
+                        child: Icon(
+                          Icons.close,
+                          size: scaleHeight(24),
+                          color: const Color(0xFF5B5B5B),
+                        ),
+                      ),
+                    ),
+                            ],
+                ),
+                SizedBox(height: scaleHeight(20)),
+                // Текстовое поле - занимает все доступное пространство
+                Expanded(
+                  child: Container(
+                    width: scaleWidth(352),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(scaleHeight(14)),
+                      border: Border.all(
+                        color: const Color(0x8CA3A3A3),
+                        width: 1,
+                      ),
+                    ),
+                    child: TextField(
+                      controller: textController,
+                      maxLines: null,
+                      expands: true,
+                      textAlignVertical: TextAlignVertical.top,
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w500,
+                        fontSize: scaleHeight(14),
+                        height: 22 / 14,
+                        letterSpacing: 0,
+                        color: Colors.black,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'Введите название папки',
+                        hintStyle: TextStyle(
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w500,
+                          fontSize: scaleHeight(14),
+                          height: 22 / 14,
+                          letterSpacing: 0,
+                          color: const Color(0xFFA3A3A3),
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.all(scaleHeight(12)),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: scaleHeight(20)),
+                // Кнопка
+              InkWell(
+                  onTap: () async {
+                    final text = textController.text.trim();
+                    if (text.isNotEmpty) {
+                      await TemplateService.createPersonalFolder(text);
+                      if (mounted) {
+                        Navigator.of(context).pop();
+                        await _loadPersonalFolders();
+                      }
+                  }
+                },
+                borderRadius: BorderRadius.circular(scaleHeight(16)),
+                child: Container(
+                    width: scaleWidth(352),
+                  height: scaleHeight(41),
+                  decoration: BoxDecoration(
+                      color: Colors.black,
+                    borderRadius: BorderRadius.circular(scaleHeight(16)),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                      'Добавить',
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w500,
+                        fontSize: scaleHeight(14),
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+              ),
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildIcon(String iconPath, double width, double height) {
@@ -837,356 +1086,18 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
               return Icon(
                 Icons.category,
                 size: height,
-                color: Colors.black.withOpacity(0.5),
-              );
+                color: Colors.black.withValues(alpha: 0.5),
+    );
             },
           );
         } catch (e) {
           return Icon(
             Icons.category,
             size: height,
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withValues(alpha: 0.5),
           );
         }
       },
-    );
-  }
-}
-
-class _TemplateGroup extends StatelessWidget {
-  const _TemplateGroup({
-    required this.category,
-    required this.templates,
-    required this.isExpanded,
-    required this.onToggle,
-    required this.designWidth,
-    required this.designHeight,
-    required this.onApplyTemplate,
-    required this.onEditTemplate,
-    required this.scaleWidth,
-    required this.scaleHeight,
-    required this.theme,
-    required this.isDark,
-    required this.l,
-  });
-
-  final String category;
-  final List<TemplateModel> templates;
-  final bool isExpanded;
-  final VoidCallback onToggle;
-  final double designWidth;
-  final double designHeight;
-  final void Function(String, String)? onApplyTemplate;
-  final void Function(String, ValueChanged<String>)? onEditTemplate;
-  final double Function(double) scaleWidth;
-  final double Function(double) scaleHeight;
-  final ThemeData theme;
-  final bool isDark;
-  final AppLocalizations l;
-
-  String _getLocalizedCategoryName() {
-    switch (category) {
-      case 'Маркетинг':
-        return l.templateCategoryMarketing;
-      case 'Продажи':
-        return l.templateCategorySales;
-      case 'Стратегия':
-        return l.templateCategoryStrategy;
-      case 'Поддержка':
-        return l.templateCategorySupport;
-      case 'Персонал':
-        return l.templateCategoryStaff;
-      case 'Аналитика':
-        return l.templateCategoryAnalytics;
-      default:
-        return category;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Заголовок группы
-        InkWell(
-          onTap: onToggle,
-          borderRadius: BorderRadius.circular(scaleHeight(12)),
-          child: Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(
-              horizontal: scaleWidth(14),
-              vertical: scaleHeight(12),
-            ),
-            decoration: BoxDecoration(
-              color: isDark ? AppColors.darkBackgroundCard : AppColors.white,
-              borderRadius: BorderRadius.circular(scaleHeight(12)),
-              boxShadow: const [
-                BoxShadow(
-                  color: AppColors.overlayShadow,
-                  offset: Offset(0, 14),
-                  blurRadius: 64,
-                  spreadRadius: -4,
-                ),
-                BoxShadow(
-                  color: AppColors.overlayShadow,
-                  offset: Offset(0, 8),
-                  blurRadius: 22,
-                  spreadRadius: -6,
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                  size: scaleHeight(24),
-                  color: isDark
-                      ? AppColors.white
-                      : theme.colorScheme.onSurface,
-                ),
-                SizedBox(width: scaleWidth(12)),
-                Expanded(
-                  child: Text(
-                    _getLocalizedCategoryName(),
-                    style: AppTextStyle.screenTitleMedium(
-                      scaleHeight(18),
-                      color: isDark
-                          ? AppColors.white
-                          : theme.colorScheme.onSurface,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        // Шаблоны группы (показываются только если развернуто)
-        if (isExpanded) ...[
-          SizedBox(height: scaleHeight(12)),
-          ...templates.asMap().entries.map((entry) {
-            final index = entry.key;
-            final template = entry.value;
-            return Padding(
-              padding: EdgeInsets.only(
-                bottom: index < templates.length - 1
-                    ? scaleHeight(20)
-                    : 0,
-              ),
-              child: _TemplateCard(
-                template: template,
-                designWidth: designWidth,
-                designHeight: designHeight,
-                onApplyTemplate: onApplyTemplate,
-                onEditTemplate: onEditTemplate,
-              ),
-            );
-          }),
-        ],
-      ],
-    );
-  }
-}
-
-class _TemplateCard extends StatelessWidget {
-  const _TemplateCard({
-    required this.template,
-    required this.designWidth,
-    required this.designHeight,
-    this.onApplyTemplate,
-    this.onEditTemplate,
-  });
-
-  final TemplateModel template;
-  final double designWidth;
-  final double designHeight;
-  final void Function(String, String)? onApplyTemplate;
-  final void Function(String, ValueChanged<String>)? onEditTemplate;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    final size = MediaQuery.of(context).size;
-    final double widthFactor = size.width / designWidth;
-    final double heightFactor = size.height / designHeight;
-
-    double scaleWidth(double value) => value * widthFactor;
-    double scaleHeight(double value) => value * heightFactor;
-
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.darkBackgroundCard : AppColors.white,
-        borderRadius: BorderRadius.circular(scaleHeight(12)),
-        boxShadow: const [
-          BoxShadow(
-            color: AppColors.overlayShadow,
-            offset: Offset(0, 14),
-            blurRadius: 64,
-            spreadRadius: -4,
-          ),
-          BoxShadow(
-            color: AppColors.overlayShadow,
-            offset: Offset(0, 8),
-            blurRadius: 22,
-            spreadRadius: -6,
-          ),
-        ],
-      ),
-      padding: EdgeInsets.symmetric(
-        horizontal: scaleWidth(14),
-        vertical: scaleHeight(11),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: scaleWidth(14),
-                  vertical: scaleHeight(4.5),
-                ),
-                constraints: BoxConstraints(
-                  minHeight: scaleHeight(21),
-                ),
-                decoration: BoxDecoration(
-                  color: template.categoryColor,
-                  borderRadius: BorderRadius.circular(scaleHeight(64)),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  () {
-                    switch (template.category) {
-                      case 'Маркетинг':
-                        return l.templateCategoryMarketing;
-                      case 'Продажи':
-                        return l.templateCategorySales;
-                      case 'Стратегия':
-                        return l.templateCategoryStrategy;
-                      case 'Поддержка':
-                        return l.templateCategorySupport;
-                      case 'Персонал':
-                        return l.templateCategoryStaff;
-                      case 'Аналитика':
-                        return l.templateCategoryAnalytics;
-                      default:
-                        return template.category;
-                    }
-                  }(),
-                  style: AppTextStyle.templateCategory(scaleHeight(12)),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: scaleHeight(7.5)),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              template.isCustom
-                  ? template.title
-                  : localizedTemplateTitle(l, template.id),
-              textAlign: TextAlign.left,
-              style: AppTextStyle.templateTitle(
-                scaleHeight(16),
-              ).copyWith(
-                height: 18 / 16,
-                color: isDark ? AppColors.white : AppColors.textPrimary,
-              ),
-            ),
-          ),
-          SizedBox(height: scaleHeight(24)),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              InkWell(
-                onTap: () {
-                  if (onApplyTemplate != null) {
-                    // Используем локализованный title шаблона
-                    final templateText = template.isCustom
-                        ? template.title
-                        : localizedTemplateTitle(l, template.id);
-                    onApplyTemplate!(templateText, template.category);
-                  }
-                },
-                borderRadius: BorderRadius.circular(scaleHeight(16)),
-                child: Container(
-                  width: scaleWidth(187),
-                  height: scaleHeight(41),
-                  decoration: BoxDecoration(
-                    gradient: isDark
-                        ? const LinearGradient(
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                            colors: [
-                              Color(0xFF1F2937),
-                              Color(0xFF374151),
-                            ],
-                          )
-                        : const LinearGradient(
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                            colors: [
-                              Color(0xFFCBE5F8),
-                              Color(0xFFD6D7F8),
-                            ],
-                            stops: [0.0, 0.7816],
-                          ),
-                    borderRadius: BorderRadius.circular(scaleHeight(16)),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    l.templateApply,
-                    style: AppTextStyle.templateButton(
-                      scaleHeight(14),
-                    ).copyWith(
-                      color:
-                          isDark ? AppColors.white : AppColors.textPrimary,
-                    ),
-                  ),
-                ),
-              ),
-              InkWell(
-                onTap: () {
-                  if (onEditTemplate != null) {
-                    // Используем локализованный title шаблона
-                    final templateText = template.isCustom
-                        ? template.title
-                        : localizedTemplateTitle(l, template.id);
-                    onEditTemplate!(templateText, (editedText) {
-                      // Callback будет вызван из AiScreen после сохранения
-                    });
-                  }
-                },
-                borderRadius: BorderRadius.circular(scaleHeight(16)),
-                child: Container(
-                  width: scaleWidth(152),
-                  height: scaleHeight(41),
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? const Color(0xFF1E293B)
-                        : const Color(0x801E293B),
-                    borderRadius: BorderRadius.circular(scaleHeight(16)),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    l.templateEdit,
-                    style: AppTextStyle.templateButtonWhite(
-                      scaleHeight(14),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 }

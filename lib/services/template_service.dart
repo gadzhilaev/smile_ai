@@ -1,9 +1,11 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/template_model.dart';
+import '../utils/env_utils.dart';
 
 class TemplateService {
   static const String _titlePrefKeyPrefix = 'template_title_';
@@ -1732,5 +1734,188 @@ class TemplateService {
     // Сохраняем изменение в SharedPreferences, чтобы оно переживало перезапуск приложения
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('$_titlePrefKeyPrefix$id', newTitle);
+  }
+
+  // Метод для получения user_id
+  static Future<String?> _getUserId() async {
+    try {
+      await dotenv.load(fileName: ".env");
+      await EnvUtils.mergeRuntimeEnvIntoDotenv();
+      final userId = dotenv.env['USER_ID'];
+      if (userId != null && userId.isNotEmpty) {
+        return userId;
+      }
+    } catch (e) {
+      // Игнорируем ошибки
+    }
+    return null;
+  }
+
+  // Метод для получения ключа для хранения шаблонов пользователя
+  static Future<String> _getPersonalTemplatesKey() async {
+    final userId = await _getUserId();
+    if (userId != null && userId.isNotEmpty) {
+      return 'personal_templates_$userId';
+    }
+    return 'personal_templates_anonymous';
+  }
+
+  // Метод для получения пользовательских шаблонов
+  static Future<List<TemplateModel>> getPersonalTemplates() async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    
+    final prefs = await SharedPreferences.getInstance();
+    final key = await _getPersonalTemplatesKey();
+    final customTemplatesJson = prefs.getStringList(key) ?? [];
+    
+    final List<TemplateModel> personalTemplates = [];
+    for (final jsonString in customTemplatesJson) {
+      try {
+        // Используем простой подход - храним как строку "id|title"
+        final parts = jsonString.split('|');
+        if (parts.length >= 2) {
+          final id = int.tryParse(parts[0]) ?? 0;
+          final title = parts[1];
+          personalTemplates.add(TemplateModel(
+            id: id,
+            category: 'Персональные',
+            categoryColor: const Color(0x80DD41B6),
+            title: title,
+            isCustom: true,
+          ));
+        }
+      } catch (e) {
+        // Игнорируем ошибки парсинга
+      }
+    }
+    
+    return personalTemplates;
+  }
+
+  // Метод для создания нового пользовательского шаблона
+  static Future<TemplateModel> createPersonalTemplate(String title) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    
+    final prefs = await SharedPreferences.getInstance();
+    final key = await _getPersonalTemplatesKey();
+    final customTemplatesJson = prefs.getStringList(key) ?? [];
+    
+    // Генерируем новый ID (максимальный существующий + 1, или начинаем с 10000)
+    int newId = 10000;
+    for (final jsonString in customTemplatesJson) {
+      final parts = jsonString.split('|');
+      if (parts.length >= 1) {
+        final id = int.tryParse(parts[0]) ?? 0;
+        if (id >= newId) {
+          newId = id + 1;
+        }
+      }
+    }
+    
+    // Создаем новый шаблон
+    final newTemplate = TemplateModel(
+      id: newId,
+      category: 'Персональные',
+      categoryColor: const Color(0x80DD41B6),
+      title: title,
+      isCustom: true,
+    );
+    
+    // Сохраняем в SharedPreferences с привязкой к user_id
+    customTemplatesJson.add('$newId|$title');
+    await prefs.setStringList(key, customTemplatesJson);
+    
+    return newTemplate;
+  }
+
+  // Метод для обновления пользовательского шаблона
+  static Future<void> updatePersonalTemplate(int id, String newTitle) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    
+    final prefs = await SharedPreferences.getInstance();
+    final key = await _getPersonalTemplatesKey();
+    final customTemplatesJson = prefs.getStringList(key) ?? [];
+    
+    // Обновляем шаблон в списке
+    for (int i = 0; i < customTemplatesJson.length; i++) {
+      final parts = customTemplatesJson[i].split('|');
+      if (parts.length >= 1) {
+        final templateId = int.tryParse(parts[0]) ?? 0;
+        if (templateId == id) {
+          customTemplatesJson[i] = '$id|$newTitle';
+          break;
+        }
+      }
+    }
+    
+    await prefs.setStringList(key, customTemplatesJson);
+  }
+
+  // Метод для получения ключа для хранения папок пользователя
+  static Future<String> _getPersonalFoldersKey() async {
+    final userId = await _getUserId();
+    if (userId != null && userId.isNotEmpty) {
+      return 'personal_folders_$userId';
+    }
+    return 'personal_folders_anonymous';
+  }
+
+  // Метод для получения пользовательских папок
+  static Future<List<Map<String, dynamic>>> getPersonalFolders() async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    
+    final prefs = await SharedPreferences.getInstance();
+    final key = await _getPersonalFoldersKey();
+    final foldersJson = prefs.getStringList(key) ?? [];
+    
+    final List<Map<String, dynamic>> folders = [];
+    for (final jsonString in foldersJson) {
+      try {
+        // Храним как строку "id|name"
+        final parts = jsonString.split('|');
+        if (parts.length >= 2) {
+          final id = int.tryParse(parts[0]) ?? 0;
+          final name = parts[1];
+          folders.add({
+            'id': id,
+            'name': name,
+          });
+        }
+      } catch (e) {
+        // Игнорируем ошибки парсинга
+      }
+    }
+    
+    return folders;
+  }
+
+  // Метод для создания новой папки
+  static Future<Map<String, dynamic>> createPersonalFolder(String name) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    
+    final prefs = await SharedPreferences.getInstance();
+    final key = await _getPersonalFoldersKey();
+    final foldersJson = prefs.getStringList(key) ?? [];
+    
+    // Генерируем новый ID (максимальный существующий + 1, или начинаем с 20000)
+    int newId = 20000;
+    for (final jsonString in foldersJson) {
+      final parts = jsonString.split('|');
+      if (parts.length >= 1) {
+        final id = int.tryParse(parts[0]) ?? 0;
+        if (id >= newId) {
+          newId = id + 1;
+        }
+      }
+    }
+    
+    // Сохраняем в SharedPreferences с привязкой к user_id
+    foldersJson.add('$newId|$name');
+    await prefs.setStringList(key, foldersJson);
+    
+    return {
+      'id': newId,
+      'name': name,
+    };
   }
 }

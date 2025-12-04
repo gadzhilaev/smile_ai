@@ -62,5 +62,57 @@ class TextUtils {
     if (text == null || text.isEmpty) return '';
     return sanitizeUtf16(text);
   }
+
+  /// Разбивает слово на слоги для русского языка
+  /// Возвращает список слогов
+  /// Правила: слог обычно заканчивается на гласную, согласные перед гласной относятся к следующему слогу
+  static List<String> splitIntoSyllables(String word) {
+    if (word.isEmpty) return [];
+    
+    // Гласные буквы русского алфавита
+    const vowels = 'аеёиоуыэюяАЕЁИОУЫЭЮЯ';
+    final List<String> syllables = [];
+    final StringBuffer currentSyllable = StringBuffer();
+    
+    for (int i = 0; i < word.length; i++) {
+      final char = word[i];
+      final isVowel = vowels.contains(char);
+      
+      if (isVowel) {
+        // Гласная - завершаем текущий слог
+        currentSyllable.write(char);
+        syllables.add(currentSyllable.toString());
+        currentSyllable.clear();
+      } else {
+        // Согласная
+        if (syllables.isNotEmpty && currentSyllable.isEmpty) {
+          // Если уже есть слоги и текущий слог пуст, проверяем следующую букву
+          if (i + 1 < word.length && vowels.contains(word[i + 1])) {
+            // Согласная перед гласной - начинаем новый слог
+            currentSyllable.write(char);
+          } else {
+            // Согласная перед согласной или в конце - добавляем к предыдущему слогу
+            syllables[syllables.length - 1] += char;
+          }
+        } else {
+          // Накапливаем согласные в текущем слоге
+          currentSyllable.write(char);
+        }
+      }
+    }
+    
+    // Добавляем оставшиеся согласные к последнему слогу
+    if (currentSyllable.isNotEmpty) {
+      if (syllables.isNotEmpty) {
+        syllables[syllables.length - 1] += currentSyllable.toString();
+      } else {
+        // Если нет слогов (только согласные), создаем один слог
+        syllables.add(currentSyllable.toString());
+      }
+    }
+    
+    return syllables.isEmpty ? [word] : syllables;
+  }
+
 }
 

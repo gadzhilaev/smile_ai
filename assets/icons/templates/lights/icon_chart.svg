@@ -1,5 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?><!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
-<svg width="800px" height="800px" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M7 0.0618896V9H15.9381C15.446 12.9463 12.0796 16 8 16C3.58172 16 0 12.4183 0 8C0 3.92038 3.05369 0.553988 7 0.0618896Z" fill="#000000"/>
-<path d="M9 0.0618897V7H15.9381C15.4869 3.38128 12.6187 0.513137 9 0.0618897Z" fill="#000000"/>
+<svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g opacity="0.7" clip-path="url(#clip0_2001_339)">
+<path d="M26.25 0.232086V33.75H59.7679C57.9225 48.5486 45.2985 60 30 60C13.4314 60 0 46.5686 0 30C0 14.7014 11.4513 2.07746 26.25 0.232086Z" fill="black"/>
+<path d="M33.75 0.232086V26.25H59.7679C58.0759 12.6798 47.3201 1.92426 33.75 0.232086Z" fill="black"/>
+</g>
+<defs>
+<clipPath id="clip0_2001_339">
+<rect width="60" height="60" fill="white"/>
+</clipPath>
+</defs>
 </svg>
