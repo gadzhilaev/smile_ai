@@ -195,6 +195,7 @@ class ApiService {
     required String message,
     String? category,
     String? conversationId,
+    Map<String, String>? contextFilters,
   }) async {
     try {
       final url = Uri.parse('$_baseUrl/api/chat/message');
@@ -213,6 +214,11 @@ class ApiService {
         requestBody['conversation_id'] = conversationId;
       } else {
         requestBody['conversation_id'] = '';
+      }
+      
+      // Добавляем context_filters, если они переданы
+      if (contextFilters != null && contextFilters.isNotEmpty) {
+        requestBody['context_filters'] = contextFilters;
       }
       
       debugPrint('ApiService: sendMessage request body: $requestBody');
@@ -588,6 +594,7 @@ class ApiService {
 
   /// Получение списка чатов пользователя
   /// Возвращает Map с ключами 'conversations' (List) и 'user_id' (String) при успехе
+  /// Каждая беседа может содержать поле 'context' (может быть null)
   /// Или 'error' (String) при ошибке
   Future<Map<String, dynamic>> getConversations(String userId) async {
     try {
@@ -611,6 +618,107 @@ class ApiService {
       }
     } catch (e) {
       debugPrint('ApiService: error during getConversations: $e');
+      return {
+        'error': 'Network error',
+      };
+    }
+  }
+
+  /// Создание беседы с контекстом
+  /// Возвращает Map с ключами 'conversation_id' (String) и 'created_at' (String) при успехе
+  /// Или 'error' (String) при ошибке
+  Future<Map<String, dynamic>> createConversation({
+    required String userId,
+    String? title,
+    Map<String, String>? context,
+  }) async {
+    try {
+      final url = Uri.parse('$_baseUrl/api/chat/conversations');
+      debugPrint('ApiService: createConversation at URL: $url');
+      
+      final requestBody = <String, dynamic>{
+        'user_id': userId,
+      };
+      
+      if (title != null && title.isNotEmpty) {
+        requestBody['title'] = title;
+      }
+      
+      if (context != null && context.isNotEmpty) {
+        requestBody['context'] = context;
+      }
+      
+      debugPrint('ApiService: createConversation request body: $requestBody');
+      
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(requestBody),
+      );
+      
+      debugPrint('ApiService: createConversation response status code: ${response.statusCode}');
+      debugPrint('ApiService: createConversation response body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final decoded = json.decode(response.body) as Map<String, dynamic>;
+        debugPrint('ApiService: createConversation decoded response: $decoded');
+        return decoded;
+      } else {
+        final decoded = json.decode(response.body) as Map<String, dynamic>;
+        debugPrint('ApiService: createConversation error response: $decoded');
+        return decoded;
+      }
+    } catch (e) {
+      debugPrint('ApiService: error during createConversation: $e');
+      return {
+        'error': 'Network error',
+      };
+    }
+  }
+
+  /// Обновление контекста беседы
+  /// Возвращает Map с ключом 'status' (String) при успехе
+  /// Или 'error' (String) при ошибке
+  Future<Map<String, dynamic>> updateConversationContext({
+    required String conversationId,
+    Map<String, String>? context,
+  }) async {
+    try {
+      final url = Uri.parse('$_baseUrl/api/chat/conversations/$conversationId/context');
+      debugPrint('ApiService: updateConversationContext at URL: $url');
+      
+      final requestBody = <String, dynamic>{};
+      
+      if (context != null && context.isNotEmpty) {
+        requestBody.addAll(context);
+      }
+      
+      debugPrint('ApiService: updateConversationContext request body: $requestBody');
+      
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(requestBody),
+      );
+      
+      debugPrint('ApiService: updateConversationContext response status code: ${response.statusCode}');
+      debugPrint('ApiService: updateConversationContext response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body) as Map<String, dynamic>;
+        debugPrint('ApiService: updateConversationContext decoded response: $decoded');
+        return decoded;
+      } else {
+        final decoded = json.decode(response.body) as Map<String, dynamic>;
+        debugPrint('ApiService: updateConversationContext error response: $decoded');
+        return decoded;
+      }
+    } catch (e) {
+      debugPrint('ApiService: error during updateConversationContext: $e');
       return {
         'error': 'Network error',
       };
