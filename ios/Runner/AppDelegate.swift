@@ -32,7 +32,9 @@ import UserNotifications
       application.registerUserNotificationSettings(settings)
     }
     
-    application.registerForRemoteNotifications()
+    // Регистрация для remote notifications (требует платный Apple Developer аккаунт)
+    // Раскомментируйте, если у вас есть платный аккаунт
+    // application.registerForRemoteNotifications()
     
     // Устанавливаем делегат для Firebase Messaging
     Messaging.messaging().delegate = self
