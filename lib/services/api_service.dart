@@ -263,7 +263,16 @@ class ApiService {
       final url = Uri.parse('$_baseUrl/api/analytics/top-trend');
       debugPrint('ApiService: getTopTrend at URL: $url');
       
-      final response = await http.get(url);
+      // Получаем текущую локаль из LanguageService
+      final currentLocale = LanguageService.instance.localeNotifier.value;
+      final acceptLanguage = currentLocale.languageCode == 'ru' ? 'ru' : 'en';
+      
+      final response = await http.get(
+        url,
+        headers: {
+          'Accept-Language': acceptLanguage,
+        },
+      );
       
       debugPrint('ApiService: getTopTrend response status code: ${response.statusCode}');
       debugPrint('ApiService: getTopTrend response body: ${response.body}');
@@ -293,7 +302,16 @@ class ApiService {
       final url = Uri.parse('$_baseUrl/api/analytics/popularity');
       debugPrint('ApiService: getPopularity at URL: $url');
       
-      final response = await http.get(url);
+      // Получаем текущую локаль из LanguageService
+      final currentLocale = LanguageService.instance.localeNotifier.value;
+      final acceptLanguage = currentLocale.languageCode == 'ru' ? 'ru' : 'en';
+      
+      final response = await http.get(
+        url,
+        headers: {
+          'Accept-Language': acceptLanguage,
+        },
+      );
       
       debugPrint('ApiService: getPopularity response status code: ${response.statusCode}');
       debugPrint('ApiService: getPopularity response body: ${response.body}');
@@ -323,7 +341,16 @@ class ApiService {
       final url = Uri.parse('$_baseUrl/api/analytics/weekly-trends');
       debugPrint('ApiService: getWeeklyTrends at URL: $url');
       
-      final response = await http.get(url);
+      // Получаем текущую локаль из LanguageService
+      final currentLocale = LanguageService.instance.localeNotifier.value;
+      final acceptLanguage = currentLocale.languageCode == 'ru' ? 'ru' : 'en';
+      
+      final response = await http.get(
+        url,
+        headers: {
+          'Accept-Language': acceptLanguage,
+        },
+      );
       
       debugPrint('ApiService: getWeeklyTrends response status code: ${response.statusCode}');
       debugPrint('ApiService: getWeeklyTrends response body: ${response.body}');
@@ -354,7 +381,16 @@ class ApiService {
       final url = Uri.parse('$_baseUrl/api/analytics/ai-analytics');
       debugPrint('ApiService: getAiAnalytics at URL: $url');
       
-      final response = await http.get(url);
+      // Получаем текущую локаль из LanguageService
+      final currentLocale = LanguageService.instance.localeNotifier.value;
+      final acceptLanguage = currentLocale.languageCode == 'ru' ? 'ru' : 'en';
+      
+      final response = await http.get(
+        url,
+        headers: {
+          'Accept-Language': acceptLanguage,
+        },
+      );
       
       debugPrint('ApiService: getAiAnalytics response status code: ${response.statusCode}');
       debugPrint('ApiService: getAiAnalytics response body: ${response.body}');
@@ -385,7 +421,16 @@ class ApiService {
       final url = Uri.parse('$_baseUrl/api/analytics/niches-month');
       debugPrint('ApiService: getNichesMonth at URL: $url');
       
-      final response = await http.get(url);
+      // Получаем текущую локаль из LanguageService
+      final currentLocale = LanguageService.instance.localeNotifier.value;
+      final acceptLanguage = currentLocale.languageCode == 'ru' ? 'ru' : 'en';
+      
+      final response = await http.get(
+        url,
+        headers: {
+          'Accept-Language': acceptLanguage,
+        },
+      );
       
       debugPrint('ApiService: getNichesMonth response status code: ${response.statusCode}');
       debugPrint('ApiService: getNichesMonth response body: ${response.body}');
