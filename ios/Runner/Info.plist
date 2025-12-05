@@ -46,6 +46,10 @@
 		<string>Разрешите доступ к фотографиям, чтобы отправлять изображения в поддержку Smile AI.</string>
 		<key>NSCameraUsageDescription</key>
 		<string>Разрешите доступ к камере, чтобы делать фотографии и отправлять их в поддержку Smile AI.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Разрешите доступ к микрофону, чтобы использовать голосовой ввод в Smile AI.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Разрешите доступ к распознаванию речи, чтобы использовать голосовой ввод в Smile AI.</string>
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<true/>
 	<key>UIBackgroundModes</key>

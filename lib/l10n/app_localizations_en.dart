@@ -172,6 +172,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiInputPlaceholder => 'Enter your question...';
 
   @override
+  String get aiRecognizingSpeech => 'Recognizing speech...';
+
+  @override
   String get analyticsCategoryGrowing => 'Rising';
 
   @override

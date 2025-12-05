@@ -61,6 +61,7 @@
 
   "aiStopGeneration": "Остановить генерацию...",
   "aiInputPlaceholder": "Введите вопрос...",
+  "aiRecognizingSpeech": "Распознаю речь...",
 
   "analyticsCategoryGrowing": "Растущие",
   "analyticsCategoryFalling": "Падающие",

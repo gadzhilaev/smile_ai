@@ -61,6 +61,7 @@
 
   "aiStopGeneration": "Stop generation...",
   "aiInputPlaceholder": "Enter your question...",
+  "aiRecognizingSpeech": "Recognizing speech...",
  
   "analyticsCategoryGrowing": "Rising",
   "analyticsCategoryFalling": "Falling",

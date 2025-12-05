@@ -413,6 +413,12 @@ abstract class AppLocalizations {
   /// **'Enter your question...'**
   String get aiInputPlaceholder;
 
+  /// No description provided for @aiRecognizingSpeech.
+  ///
+  /// In en, this message translates to:
+  /// **'Recognizing speech...'**
+  String get aiRecognizingSpeech;
+
   /// No description provided for @analyticsCategoryGrowing.
   ///
   /// In en, this message translates to:

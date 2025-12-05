@@ -10,6 +10,9 @@
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
     
+    <!-- Разрешение для микрофона (голосовой ввод) -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    
     <application
         android:label="smile_ai"
         android:name="${applicationName}"

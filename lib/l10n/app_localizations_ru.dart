@@ -172,6 +172,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get aiInputPlaceholder => 'Введите вопрос...';
 
   @override
+  String get aiRecognizingSpeech => 'Распознаю речь...';
+
+  @override
   String get analyticsCategoryGrowing => 'Растущие';
 
   @override

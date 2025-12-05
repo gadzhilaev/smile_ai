@@ -9,7 +9,7 @@ class ApiService {
 
   static final ApiService instance = ApiService._();
 
-  static const String _baseUrl = 'https://alpha-backend-c91h.onrender.com';
+  static const String _baseUrl = 'http://84.201.149.99:8080';
   static const Duration _healthCheckTimeout = Duration(minutes: 1);
 
   /// Проверка здоровья сервера

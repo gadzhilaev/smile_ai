@@ -11,7 +11,7 @@ class SupportService {
   static final SupportService instance = SupportService._();
 
   // URL сервера поддержки
-  static const String baseUrl = 'http://192.168.42.22:5001';
+  static const String baseUrl = 'http://84.201.149.99:5000';
 
   /// Отправка сообщения с возможностью прикрепления одного или нескольких фото
   static Future<Map<String, dynamic>> sendMessage({

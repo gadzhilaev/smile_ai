@@ -53,10 +53,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         });
       }
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
       }
     }
   }
@@ -150,16 +150,16 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                             style: AppTextStyle.screenTitle(
                               scaleHeight(20),
                               color: theme.colorScheme.onSurface,
-                                ),
-                              ),
+                            ),
+                          ),
                             ],
                             ),
                             SizedBox(height: scaleHeight(10)),
                             // Контейнеры
                           if (_weeklyTrends != null)
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                                 // Левый контейнер (прижат слева)
                                 _FirstPlaceContainer(
                                   weeklyTrends: _weeklyTrends!,
@@ -203,7 +203,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                 aiAnalytics: _aiAnalytics!,
                                 designWidth: _designWidth,
                                 designHeight: _designHeight,
-                              ),
+                          ),
                           SizedBox(height: scaleHeight(16)),
                           // Блок "Ниши месяца"
                           Row(
@@ -230,9 +230,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           if (_nichesMonth != null)
                             _MonthNichesContainer(
                               nichesMonth: _nichesMonth!,
-                              designWidth: _designWidth,
-                              designHeight: _designHeight,
-                            ),
+                            designWidth: _designWidth,
+                            designHeight: _designHeight,
+                          ),
                           SizedBox(height: scaleHeight(20)),
                           ],
                         ),
@@ -616,8 +616,8 @@ class _AiAnalyticsContainer extends StatelessWidget {
                       padding: EdgeInsets.only(bottom: scaleHeight(10)),
                       child: _MetricsChart(
                         competitivenessData: aiAnalytics.levelOfCompetitiveness,
-                        designWidth: designWidth,
-                        designHeight: designHeight,
+            designWidth: designWidth,
+            designHeight: designHeight,
                       ),
                     ),
                   ),
@@ -865,7 +865,7 @@ class _MonthNichesContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
+
     final size = MediaQuery.of(context).size;
     final double widthFactor = size.width / designWidth;
     final double heightFactor = size.height / designHeight;
@@ -909,8 +909,8 @@ class _MonthNichesContainer extends StatelessWidget {
             final changeValue = niche.change.abs();
             
             return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
+            mainAxisSize: MainAxisSize.min,
+            children: [
                 Row(
                   children: [
                     // Иконка слева

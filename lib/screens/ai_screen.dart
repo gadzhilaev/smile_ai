@@ -15,6 +15,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:permission_handler/permission_handler.dart';
 import '../settings/style.dart';
 import '../settings/colors.dart';
 import '../l10n/app_localizations.dart';
@@ -73,6 +75,14 @@ class _AiScreenState extends State<AiScreen> {
   final Map<int, TextEditingController> _renameControllers = {};
   String? _currentCategory;
 
+  // Голосовой ввод
+  final stt.SpeechToText _speech = stt.SpeechToText();
+  bool _isListening = false;
+  bool _isRecognizing = false;
+  String _recognizedText = '';
+  Timer? _recordingTimer;
+  int _recordingSeconds = 0;
+
   @override
   void initState() {
     super.initState();
@@ -84,9 +94,82 @@ class _AiScreenState extends State<AiScreen> {
       // Загружаем чат асинхронно, но без видимого переключения
       _loadChatByConversationId(widget.conversationId!);
     } else {
-      _initializeScreen();
+    _initializeScreen();
     }
     _scrollController.addListener(_onScroll);
+    // НЕ инициализируем речь сразу - только при первом нажатии на микрофон
+    // Это предотвращает краши на iOS
+  }
+
+  Future<void> _initializeSpeech() async {
+    try {
+      debugPrint('🎤 [Microphone] Начало инициализации SpeechToText');
+      if (!mounted) {
+        debugPrint('🎤 [Microphone] Widget не mounted, прерываем инициализацию');
+        return;
+      }
+      
+      // Проверяем, не инициализирован ли уже
+      if (_speech.isAvailable) {
+        debugPrint('🎤 [Microphone] SpeechToText уже инициализирован, пропускаем');
+        return;
+      }
+      
+      debugPrint('🎤 [Microphone] Вызываем _speech.initialize()...');
+      debugPrint('🎤 [Microphone] Платформа: ${Platform.isIOS ? "iOS" : Platform.isAndroid ? "Android" : "Other"}');
+      
+      // Инициализируем с обработкой ошибок
+      bool? available;
+      try {
+        available = await _speech.initialize(
+          onError: (error) {
+            debugPrint('🎤 [Microphone] ОШИБКА распознавания речи в onError: $error');
+            debugPrint('🎤 [Microphone] Тип ошибки: ${error.runtimeType}');
+            if (mounted) {
+              setState(() {
+                _isListening = false;
+                _isRecognizing = false;
+              });
+              debugPrint('🎤 [Microphone] Состояние сброшено из-за ошибки распознавания');
+            }
+          },
+          onStatus: (status) {
+            debugPrint('🎤 [Microphone] Статус распознавания речи: $status');
+            if (status == 'done' && _isListening && mounted) {
+              debugPrint('🎤 [Microphone] Распознавание завершено (status=done), останавливаем запись');
+              _stopListening();
+            }
+          },
+        );
+        debugPrint('🎤 [Microphone] _speech.initialize() выполнен успешно');
+      } catch (initError, initStackTrace) {
+        debugPrint('🎤 [Microphone] ОШИБКА внутри _speech.initialize(): $initError');
+        debugPrint('🎤 [Microphone] Тип ошибки: ${initError.runtimeType}');
+        debugPrint('🎤 [Microphone] Stack trace: $initStackTrace');
+        rethrow;
+      }
+      
+      debugPrint('🎤 [Microphone] Инициализация SpeechToText завершена');
+      debugPrint('🎤 [Microphone] Результат available: $available');
+      
+      // Проверяем доступность после небольшой задержки
+      await Future.delayed(const Duration(milliseconds: 100));
+      debugPrint('🎤 [Microphone] _speech.isAvailable после задержки: ${_speech.isAvailable}');
+      
+      if (available == false && mounted) {
+        debugPrint('🎤 [Microphone] ВНИМАНИЕ: Распознавание речи недоступно (available=false)');
+      }
+      
+      if (mounted && !_speech.isAvailable) {
+        debugPrint('🎤 [Microphone] ВНИМАНИЕ: _speech.isAvailable = false после инициализации');
+      }
+    } catch (e, stackTrace) {
+      debugPrint('🎤 [Microphone] ОШИБКА при инициализации распознавания речи: $e');
+      debugPrint('🎤 [Microphone] Тип ошибки: ${e.runtimeType}');
+      debugPrint('🎤 [Microphone] Stack trace: $stackTrace');
+      // Пробрасываем ошибку дальше, чтобы обработать в вызывающем коде
+      rethrow;
+    }
   }
   
   @override
@@ -425,7 +508,7 @@ class _AiScreenState extends State<AiScreen> {
       }
     }
 
-      // Добавляем сообщение пользователя
+    // Добавляем сообщение пользователя
     setState(() {
       _hasConversation = true;
       _messages.add(ChatMessage(text: TextUtils.safeText(message), isUser: true));
@@ -691,6 +774,8 @@ class _AiScreenState extends State<AiScreen> {
   void dispose() {
     _typingTimer?.cancel();
     _copyToastTimer?.cancel();
+    _recordingTimer?.cancel();
+    _speech.stop();
     _chatMenuOverlay?.remove();
     _inputController.dispose();
     _scrollController.removeListener(_onScroll);
@@ -994,6 +1079,281 @@ class _AiScreenState extends State<AiScreen> {
     return result;
   }
 
+  // Методы для голосового ввода
+  Future<void> _startListening() async {
+    try {
+      debugPrint('🎤 [Microphone] Начало запроса разрешения на микрофон');
+      
+      // Проверяем текущий статус разрешения
+      PermissionStatus status = await Permission.microphone.status;
+      debugPrint('🎤 [Microphone] Текущий статус разрешения: $status');
+      debugPrint('🎤 [Microphone] isGranted: ${status.isGranted}');
+      debugPrint('🎤 [Microphone] isDenied: ${status.isDenied}');
+      debugPrint('🎤 [Microphone] isPermanentlyDenied: ${status.isPermanentlyDenied}');
+      
+      // Если разрешение не предоставлено, запрашиваем его
+      if (!status.isGranted) {
+        // Если разрешение уже было отклонено навсегда, открываем настройки
+        if (status.isPermanentlyDenied) {
+          debugPrint('🎤 [Microphone] Разрешение уже было отклонено навсегда ранее, открываем настройки приложения');
+          if (mounted) {
+            await openAppSettings();
+            debugPrint('🎤 [Microphone] Настройки приложения открыты');
+          }
+          return;
+        }
+        
+        // Запрашиваем разрешение через permission_handler
+        // НЕ инициализируем speech_to_text до получения разрешения, чтобы избежать краша
+        debugPrint('🎤 [Microphone] Статус denied, запрашиваем разрешение через Permission.microphone.request()');
+        try {
+          status = await Permission.microphone.request();
+          debugPrint('🎤 [Microphone] Статус после request(): $status');
+          debugPrint('🎤 [Microphone] isGranted после запроса: ${status.isGranted}');
+          debugPrint('🎤 [Microphone] isDenied после запроса: ${status.isDenied}');
+          debugPrint('🎤 [Microphone] isPermanentlyDenied после запроса: ${status.isPermanentlyDenied}');
+        } catch (e, stackTrace) {
+          debugPrint('🎤 [Microphone] ОШИБКА при запросе разрешения: $e');
+          debugPrint('🎤 [Microphone] Stack trace: $stackTrace');
+          return;
+        }
+        
+        // Если после запроса разрешение все еще не предоставлено
+        if (!status.isGranted) {
+          if (status.isPermanentlyDenied) {
+            // Если разрешение отклонено навсегда, открываем настройки
+            debugPrint('🎤 [Microphone] После запроса статус стал permanentlyDenied');
+            debugPrint('🎤 [Microphone] На iOS это может означать, что диалог не был показан');
+            debugPrint('🎤 [Microphone] Или пользователь ранее отклонил разрешение');
+            debugPrint('🎤 [Microphone] Открываем настройки приложения');
+            if (mounted) {
+              await openAppSettings();
+              debugPrint('🎤 [Microphone] Настройки приложения открыты');
+            }
+          } else {
+            // Пользователь отклонил запрос в системном диалоге (но не навсегда)
+            debugPrint('🎤 [Microphone] Пользователь отклонил запрос разрешения в системном диалоге');
+            debugPrint('🎤 [Microphone] Статус: denied (не permanentlyDenied), можно запросить снова позже');
+          }
+          return;
+        } else {
+          debugPrint('🎤 [Microphone] ✅ Разрешение предоставлено пользователем');
+        }
+      } else {
+        debugPrint('🎤 [Microphone] ✅ Разрешение уже было предоставлено ранее');
+      }
+
+      debugPrint('🎤 [Microphone] Инициализация распознавания речи');
+      
+      // Ждем немного после получения разрешения, чтобы iOS успел применить его
+      debugPrint('🎤 [Microphone] Ожидание применения разрешения (500ms)...');
+      await Future.delayed(const Duration(milliseconds: 500));
+      
+      if (!mounted) {
+        debugPrint('🎤 [Microphone] Widget не mounted после ожидания, прерываем');
+        return;
+      }
+      
+      // Инициализируем речь, если еще не инициализирована
+      if (!_speech.isAvailable) {
+        debugPrint('🎤 [Microphone] SpeechToText не инициализирован, запускаем инициализацию');
+        
+        try {
+          // Инициализируем напрямую с обработкой ошибок
+          await _initializeSpeech();
+          debugPrint('🎤 [Microphone] Инициализация завершена, isAvailable: ${_speech.isAvailable}');
+          
+          // Ждем немного после инициализации для стабильности
+          await Future.delayed(const Duration(milliseconds: 300));
+        } catch (e, stackTrace) {
+          debugPrint('🎤 [Microphone] ОШИБКА при инициализации SpeechToText: $e');
+          debugPrint('🎤 [Microphone] Тип ошибки: ${e.runtimeType}');
+          debugPrint('🎤 [Microphone] Stack trace: $stackTrace');
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Ошибка при инициализации распознавания речи')),
+            );
+          }
+          return;
+        }
+      } else {
+        debugPrint('🎤 [Microphone] SpeechToText уже инициализирован');
+      }
+
+      if (!mounted || !_speech.isAvailable) {
+        debugPrint('🎤 [Microphone] ОШИБКА: Распознавание речи недоступно после инициализации');
+        debugPrint('🎤 [Microphone] mounted: $mounted, isAvailable: ${_speech.isAvailable}');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Распознавание речи недоступно')),
+          );
+        }
+        return;
+      }
+      
+      if (!mounted) {
+        debugPrint('🎤 [Microphone] Widget не mounted, прерываем');
+        return;
+      }
+      
+      debugPrint('🎤 [Microphone] Начинаем запись голоса');
+    } catch (e, stackTrace) {
+      debugPrint('Error in _startListening: $e');
+      debugPrint('Stack trace: $stackTrace');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка при запуске записи голоса')),
+        );
+      }
+      return;
+    }
+
+    if (!mounted) return;
+
+    debugPrint('🎤 [Microphone] Устанавливаем состояние записи');
+    setState(() {
+      _isListening = true;
+      _isRecognizing = false;
+      _recognizedText = '';
+      _recordingSeconds = 0;
+    });
+
+    // Запускаем таймер для отсчета времени
+    debugPrint('🎤 [Microphone] Запускаем таймер отсчета времени');
+    _recordingTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted || !_isListening) {
+        debugPrint('🎤 [Microphone] Таймер остановлен: mounted=$mounted, isListening=$_isListening');
+        timer.cancel();
+        return;
+      }
+      setState(() {
+        _recordingSeconds++;
+      });
+      if (_recordingSeconds % 10 == 0) {
+        debugPrint('🎤 [Microphone] Запись продолжается: ${_formatRecordingTime(_recordingSeconds)}');
+      }
+    });
+
+    try {
+      debugPrint('🎤 [Microphone] Вызываем _speech.listen()');
+      await _speech.listen(
+        onResult: (result) {
+          debugPrint('🎤 [Microphone] Получен результат распознавания: ${result.recognizedWords}');
+          debugPrint('🎤 [Microphone] Финальный результат: ${result.finalResult}');
+          if (mounted && _isListening) {
+            setState(() {
+              _recognizedText = result.recognizedWords;
+            });
+          }
+        },
+        listenFor: const Duration(minutes: 5),
+        pauseFor: const Duration(seconds: 3),
+        localeId: 'ru_RU',
+        cancelOnError: true,
+        partialResults: true,
+      );
+    } catch (e, stackTrace) {
+      debugPrint('🎤 [Microphone] ОШИБКА при запуске распознавания речи: $e');
+      debugPrint('🎤 [Microphone] Stack trace: $stackTrace');
+      if (mounted) {
+        setState(() {
+          _isListening = false;
+          _isRecognizing = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка при запуске записи голоса')),
+        );
+      }
+    }
+  }
+
+  Future<void> _stopListening() async {
+    if (!_isListening) {
+      debugPrint('🎤 [Microphone] _stopListening вызван, но запись не активна');
+      return;
+    }
+
+    debugPrint('🎤 [Microphone] Остановка записи голоса');
+    debugPrint('🎤 [Microphone] Время записи: ${_formatRecordingTime(_recordingSeconds)}');
+    debugPrint('🎤 [Microphone] Распознанный текст до остановки: $_recognizedText');
+
+    try {
+      _recordingTimer?.cancel();
+      debugPrint('🎤 [Microphone] Таймер остановлен');
+      
+      if (_speech.isListening) {
+        debugPrint('🎤 [Microphone] Останавливаем _speech.listen()');
+        await _speech.stop();
+        debugPrint('🎤 [Microphone] _speech.stop() выполнен');
+      } else {
+        debugPrint('🎤 [Microphone] _speech.isListening = false, остановка не требуется');
+      }
+
+      if (!mounted) {
+        debugPrint('🎤 [Microphone] Widget не mounted после остановки, прерываем');
+        return;
+      }
+
+      // Сохраняем распознанный текст перед сбросом состояния
+      final finalText = _recognizedText.trim();
+      debugPrint('🎤 [Microphone] Финальный распознанный текст: "$finalText"');
+      
+      setState(() {
+        _isListening = false;
+        _isRecognizing = true;
+        _recordingSeconds = 0;
+      });
+      debugPrint('🎤 [Microphone] Состояние установлено: isListening=false, isRecognizing=true');
+
+      // Ждем немного для получения финального результата
+      debugPrint('🎤 [Microphone] Ожидание финального результата (500ms)');
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      if (!mounted) {
+        debugPrint('🎤 [Microphone] Widget не mounted после ожидания, прерываем');
+        return;
+      }
+
+      // Вставляем распознанный текст в поле ввода
+      debugPrint('🎤 [Microphone] Вставка распознанного текста в поле ввода');
+      setState(() {
+        _isRecognizing = false;
+        if (finalText.isNotEmpty) {
+          // Если в текстовом поле уже есть текст, добавляем распознанный текст к существующему
+          final existingText = _inputController.text.trim();
+          debugPrint('🎤 [Microphone] Существующий текст в поле: "$existingText"');
+          if (existingText.isNotEmpty) {
+            _inputController.text = '$existingText $finalText';
+            debugPrint('🎤 [Microphone] Текст добавлен к существующему: "${_inputController.text}"');
+          } else {
+            _inputController.text = finalText;
+            debugPrint('🎤 [Microphone] Текст вставлен в пустое поле: "${_inputController.text}"');
+          }
+        } else {
+          debugPrint('🎤 [Microphone] Распознанный текст пуст, поле ввода не изменено');
+        }
+      });
+      debugPrint('🎤 [Microphone] Распознавание завершено, состояние: isRecognizing=false');
+    } catch (e, stackTrace) {
+      debugPrint('🎤 [Microphone] ОШИБКА при остановке распознавания речи: $e');
+      debugPrint('🎤 [Microphone] Stack trace: $stackTrace');
+      if (mounted) {
+        setState(() {
+          _isListening = false;
+          _isRecognizing = false;
+          _recordingSeconds = 0;
+        });
+        debugPrint('🎤 [Microphone] Состояние сброшено из-за ошибки');
+      }
+    }
+  }
+
+  String _formatRecordingTime(int seconds) {
+    final minutes = seconds ~/ 60;
+    final secs = seconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
+  }
+
   void _sendMessage() {
     final text = TextUtils.safeText(_inputController.text.trim());
     if (text.isEmpty || _isTyping) {
@@ -1041,6 +1401,40 @@ class _AiScreenState extends State<AiScreen> {
     _scrollToBottom();
   }
 
+  Widget _buildRecordingUI(bool isDark, double Function(double) scaleWidth, double Function(double) scaleHeight) {
+    // Во время записи показываем время и "Говорите"
+    return Row(
+      children: [
+        Text(
+          _formatRecordingTime(_recordingSeconds),
+          style: AppTextStyle.bodyTextMedium(
+            scaleHeight(16),
+            color: isDark ? AppColors.white : _primaryTextColor,
+          ),
+        ),
+        SizedBox(width: scaleWidth(8)),
+        Text(
+          'Говорите',
+          style: AppTextStyle.bodyTextMedium(
+            scaleHeight(16),
+            color: isDark ? AppColors.white : _primaryTextColor,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRecognizingText(bool isDark, double Function(double) scaleWidth, double Function(double) scaleHeight) {
+    return _RecognizingTextAnimation(
+      baseText: 'Распознание голоса',
+      isDark: isDark,
+      scaleWidth: scaleWidth,
+      scaleHeight: scaleHeight,
+    );
+  }
+
+
+
 
   // Функция для скачивания и обработки файла
   Future<void> _downloadAndShareFile(String downloadUrl, String filename) async {
@@ -1056,7 +1450,7 @@ class _AiScreenState extends State<AiScreen> {
       );
       
       // Формируем полный URL
-      const baseUrl = 'https://alpha-backend-c91h.onrender.com';
+      const baseUrl = 'http://84.201.149.99:8080';
       final fullUrl = downloadUrl.startsWith('/') 
           ? '$baseUrl$downloadUrl' 
           : downloadUrl;
@@ -1242,11 +1636,11 @@ class _AiScreenState extends State<AiScreen> {
           ),
         );
       } else {
-        conversationArea = Padding(
-          padding: EdgeInsets.symmetric(horizontal: scaleWidth(24)),
-          child: _messages.isEmpty
-              ? const SizedBox.shrink()
-              : ListView.builder(
+      conversationArea = Padding(
+        padding: EdgeInsets.symmetric(horizontal: scaleWidth(24)),
+        child: _messages.isEmpty
+            ? const SizedBox.shrink()
+            : ListView.builder(
                 controller: _scrollController,
                 itemCount: _messages.length,
                 itemBuilder: (context, index) {
@@ -1267,7 +1661,7 @@ class _AiScreenState extends State<AiScreen> {
                   );
                 },
               ),
-        );
+      );
       }
     } else {
       conversationArea = SingleChildScrollView(
@@ -1466,87 +1860,96 @@ class _AiScreenState extends State<AiScreen> {
                     Expanded(
                       child: Align(
                         alignment: Alignment.bottomCenter,
-                        child: Container(
+                      child: Container(
                           // Максимальная высота текстового поля (изменить здесь при необходимости)
                           constraints: BoxConstraints(
                             minHeight: scaleHeight(54),
                             maxHeight: scaleHeight(150), // МАКСИМАЛЬНАЯ ВЫСОТА: изменить scaleHeight(200) на нужное значение
                           ),
-                          decoration: BoxDecoration(
-                                color: isDark
-                                    ? AppColors.darkBackgroundCard
-                                    : AppColors.white,
-                                borderRadius:
-                                    BorderRadius.circular(scaleHeight(12)),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Color(0x1F18274B),
-                                offset: Offset(0, 14),
-                                blurRadius: 64,
-                                spreadRadius: -4,
-                              ),
-                              BoxShadow(
-                                color: Color(0x1F18274B),
-                                offset: Offset(0, 8),
-                                blurRadius: 22,
-                                spreadRadius: -6,
-                              ),
-                            ],
-                          ),
-                          padding: EdgeInsets.only(
-                            left: scaleWidth(16),
-                            right: scaleWidth(15),
+                        decoration: BoxDecoration(
+                              color: isDark
+                                  ? AppColors.darkBackgroundCard
+                                  : AppColors.white,
+                              borderRadius:
+                                  BorderRadius.circular(scaleHeight(12)),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x1F18274B),
+                              offset: Offset(0, 14),
+                              blurRadius: 64,
+                              spreadRadius: -4,
+                            ),
+                            BoxShadow(
+                              color: Color(0x1F18274B),
+                              offset: Offset(0, 8),
+                              blurRadius: 22,
+                              spreadRadius: -6,
+                            ),
+                          ],
+                        ),
+                        padding: EdgeInsets.only(
+                          left: scaleWidth(16),
+                          right: scaleWidth(15),
                             top: scaleHeight(16),
                             bottom: scaleHeight(16),
-                          ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  controller: _inputController,
-                                  maxLines: null,
-                                  minLines: 1,
-                                  style: AppTextStyle.bodyTextMedium(
-                                    scaleHeight(16),
-                                    color: isDark
-                                        ? AppColors.white
-                                        : _primaryTextColor,
-                                  ),
-                                  cursorColor: _accentColor,
-                                  decoration: InputDecoration(
+                        ),
+                          child: _isListening
+                              ? _buildRecordingUI(isDark, scaleWidth, scaleHeight)
+                              : Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Expanded(
+                              child: _isRecognizing
+                                  ? _buildRecognizingText(isDark, scaleWidth, scaleHeight)
+                                  : TextField(
+                                      controller: _inputController,
+                                      maxLines: null,
+                                      minLines: 1,
+                                      style: AppTextStyle.bodyTextMedium(
+                                        scaleHeight(16),
+                                        color: isDark
+                                            ? AppColors.white
+                                            : _primaryTextColor,
+                                      ),
+                                      cursorColor: _accentColor,
+                                      decoration: InputDecoration(
                                         hintText: l.aiInputPlaceholder,
-                                    hintStyle: AppTextStyle.bodyTextMedium(
-                                      scaleHeight(16),
-                                      color: isDark
-                                          ? AppColors.darkSecondaryText
-                                          : AppColors.textDarkGrey,
-                                    ),
-                                    border: InputBorder.none,
-                                    isDense: true,
-                                    contentPadding: EdgeInsets.zero,
-                                  ),
-                                  textInputAction: TextInputAction.newline,
-                                  onSubmitted: (_) => _sendMessage(),
+                                        hintStyle: AppTextStyle.bodyTextMedium(
+                                          scaleHeight(16),
+                                          color: isDark
+                                              ? AppColors.darkSecondaryText
+                                              : AppColors.textDarkGrey,
+                                        ),
+                                        border: InputBorder.none,
+                                        isDense: true,
+                                        contentPadding: EdgeInsets.zero,
+                                      ),
+                                      textInputAction: TextInputAction.newline,
+                                      onSubmitted: (_) => _sendMessage(),
                                       enableInteractiveSelection: true,
                                       enableSuggestions: true,
                                       autocorrect: true,
+                                    ),
+                            ),
+                                    GestureDetector(
+                                      onTap: _startListening,
+                                      child: SvgPicture.asset(
+                                  'assets/icons/icon_mic.svg',
+                              width: scaleWidth(24),
+                              height: scaleHeight(24),
+                              fit: BoxFit.contain,
+                                      ),
+                            ),
+                          ],
                                 ),
-                              ),
-                                  SvgPicture.asset(
-                                    'assets/icons/icon_mic.svg',
-                                width: scaleWidth(24),
-                                height: scaleHeight(24),
-                                fit: BoxFit.contain,
-                              ),
-                            ],
-                          ),
                         ),
                       ),
                     ),
                     SizedBox(width: scaleWidth(20)),
                     GestureDetector(
-                      onTap: _isTyping ? _stopGeneration : _sendMessage,
+                      onTap: _isListening
+                          ? _stopListening
+                          : (_isTyping ? _stopGeneration : _sendMessage),
                       child: Container(
                         width: scaleWidth(54),
                         height: scaleHeight(54),
@@ -1556,7 +1959,7 @@ class _AiScreenState extends State<AiScreen> {
                                   BorderRadius.circular(scaleHeight(50)),
                         ),
                         child: Center(
-                          child: _isTyping
+                          child: _isListening
                               ? Container(
                                   width: scaleWidth(18),
                                   height: scaleWidth(18),
@@ -1567,12 +1970,23 @@ class _AiScreenState extends State<AiScreen> {
                                     ),
                                   ),
                                 )
-                              : Image.asset(
-                                  'assets/icons/light/icon_teleg.png',
-                                  width: scaleWidth(24),
-                                  height: scaleHeight(24),
-                                  fit: BoxFit.contain,
-                                ),
+                              : _isTyping
+                                  ? Container(
+                                      width: scaleWidth(18),
+                                      height: scaleWidth(18),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(
+                                          scaleWidth(2),
+                                        ),
+                                      ),
+                                    )
+                                  : Image.asset(
+                                      'assets/icons/light/icon_teleg.png',
+                            width: scaleWidth(24),
+                            height: scaleHeight(24),
+                            fit: BoxFit.contain,
+                          ),
                         ),
                       ),
                     ),
@@ -1974,7 +2388,7 @@ class _MessageBubble extends StatelessWidget {
               },
             ),
                   ],
-                ),
+            ),
     );
 
     if (message.isUser) {
@@ -1986,21 +2400,21 @@ class _MessageBubble extends StatelessWidget {
         children: [
           bubble,
           if (!message.isThinking) ...[
-            SizedBox(width: scaleWidth(10)),
-            GestureDetector(
-              onTap: () {
+          SizedBox(width: scaleWidth(10)),
+          GestureDetector(
+            onTap: () {
                 Clipboard.setData(ClipboardData(text: TextUtils.safeText(message.text)));
-                onCopy();
-              },
-              child: SvgPicture.asset(
-                isDark
-                    ? 'assets/icons/dark/icon_copy_dark.svg'
-                    : 'assets/icons/light/icon_copy.svg',
-                width: scaleWidth(20),
-                height: scaleHeight(30),
-                fit: BoxFit.contain,
-              ),
+              onCopy();
+            },
+            child: SvgPicture.asset(
+              isDark
+                  ? 'assets/icons/dark/icon_copy_dark.svg'
+                  : 'assets/icons/light/icon_copy.svg',
+              width: scaleWidth(20),
+              height: scaleHeight(30),
+              fit: BoxFit.contain,
             ),
+          ),
           ],
         ],
       );
@@ -2649,6 +3063,67 @@ class _ThinkingIndicatorState extends State<_ThinkingIndicator>
           ),
         );
       },
+    );
+  }
+}
+
+// Виджет для анимации текста "Распознание голоса" с точками
+class _RecognizingTextAnimation extends StatefulWidget {
+  final String baseText;
+  final bool isDark;
+  final double Function(double) scaleWidth;
+  final double Function(double) scaleHeight;
+
+  const _RecognizingTextAnimation({
+    required this.baseText,
+    required this.isDark,
+    required this.scaleWidth,
+    required this.scaleHeight,
+  });
+
+  @override
+  State<_RecognizingTextAnimation> createState() => _RecognizingTextAnimationState();
+}
+
+class _RecognizingTextAnimationState extends State<_RecognizingTextAnimation> {
+  int _dotCount = 0;
+  Timer? _dotTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startAnimation();
+  }
+
+  void _startAnimation() {
+    _dotTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      setState(() {
+        _dotCount = (_dotCount + 1) % 4; // 0, 1, 2, 3, затем снова 0
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _dotTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final dots = '.' * _dotCount;
+    final text = '${widget.baseText}$dots';
+    
+    return Text(
+      text,
+      style: AppTextStyle.bodyTextMedium(
+        widget.scaleHeight(16),
+        color: widget.isDark ? AppColors.white : AppColors.primaryText,
+      ),
     );
   }
 }
