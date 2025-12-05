@@ -92,6 +92,8 @@ class _AccountScreenState extends State<AccountScreen> {
       final nickname = _usernameController.text.trim();
       final email = _emailController.text.trim();
       final phone = _phoneController.text.trim();
+      
+      if (!mounted) return;
       final country = _getCountryName(_selectedCountry, context);
       final gender = _getGenderName(_selectedGender, context);
 

@@ -189,36 +189,41 @@ class _PersonalTemplatesScreenState extends State<PersonalTemplatesScreen> {
                 ),
                 SizedBox(height: scaleHeight(20)),
                 // Кнопка
-                InkWell(
-                  onTap: () async {
-                    final text = textController.text.trim();
-                    if (text.isNotEmpty) {
-                      await TemplateService.createPersonalTemplate(text);
-                      if (mounted) {
-                        Navigator.of(context).pop();
-                        await _refreshTemplates();
-                      }
-                    }
-                  },
-                  borderRadius: BorderRadius.circular(scaleHeight(16)),
-                  child: Container(
-                    width: scaleWidth(352),
-                    height: scaleHeight(41),
-                    decoration: BoxDecoration(
-                      color: Colors.black,
+                Builder(
+                  builder: (dialogContext) {
+                    return InkWell(
+                      onTap: () async {
+                        final text = textController.text.trim();
+                        if (text.isNotEmpty) {
+                          await TemplateService.createPersonalTemplate(text);
+                          if (!mounted) return;
+                          if (dialogContext.mounted) {
+                            Navigator.of(dialogContext).pop();
+                          }
+                          await _refreshTemplates();
+                        }
+                      },
                       borderRadius: BorderRadius.circular(scaleHeight(16)),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Добавить',
-                      style: TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w500,
-                        fontSize: scaleHeight(14),
-                        color: Colors.white,
+                      child: Container(
+                        width: scaleWidth(352),
+                        height: scaleHeight(41),
+                        decoration: BoxDecoration(
+                          color: Colors.black,
+                          borderRadius: BorderRadius.circular(scaleHeight(16)),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          'Добавить',
+                          style: TextStyle(
+                            fontFamily: 'Montserrat',
+                            fontWeight: FontWeight.w500,
+                            fontSize: scaleHeight(14),
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ],
             ),

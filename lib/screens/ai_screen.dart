@@ -1249,8 +1249,10 @@ class _AiScreenState extends State<AiScreen> {
         listenFor: const Duration(minutes: 5),
         pauseFor: const Duration(seconds: 3),
         localeId: 'ru_RU',
-        cancelOnError: true,
-        partialResults: true,
+        listenOptions: stt.SpeechListenOptions(
+          cancelOnError: true,
+          partialResults: true,
+        ),
       );
     } catch (e, stackTrace) {
       debugPrint('🎤 [Microphone] ОШИБКА при запуске распознавания речи: $e');

@@ -14,22 +14,11 @@ import UserNotifications
     FirebaseApp.configure()
     
     // Настройка Firebase Messaging
+    // НЕ запрашиваем разрешение здесь - это делается в FCMService через Flutter
+    // Это предотвращает двойной запрос разрешения
     if #available(iOS 10.0, *) {
       UNUserNotificationCenter.current().delegate = self
-      let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-      UNUserNotificationCenter.current().requestAuthorization(
-        options: authOptions,
-        completionHandler: { granted, error in
-          print("📱 iOS: Разрешение на уведомления: \(granted ? "предоставлено" : "отклонено")")
-          if let error = error {
-            print("❌ iOS: Ошибка запроса разрешения: \(error.localizedDescription)")
-          }
-        }
-      )
-    } else {
-      let settings: UIUserNotificationSettings =
-        UIUserNotificationSettings(types: [.alert, .badge, .sound], categories: nil)
-      application.registerUserNotificationSettings(settings)
+      // Убрали requestAuthorization отсюда - запрос происходит в FCMService
     }
     
     // Регистрация для remote notifications (требует платный Apple Developer аккаунт)

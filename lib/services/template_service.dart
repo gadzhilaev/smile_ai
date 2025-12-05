@@ -1863,7 +1863,7 @@ class TemplateService {
     int newId = 10000;
     for (final jsonString in customTemplatesJson) {
       final parts = jsonString.split('|');
-      if (parts.length >= 1) {
+      if (parts.isNotEmpty) {
         final id = int.tryParse(parts[0]) ?? 0;
         if (id >= newId) {
           newId = id + 1;
@@ -1898,7 +1898,7 @@ class TemplateService {
     // Обновляем шаблон в списке
     for (int i = 0; i < customTemplatesJson.length; i++) {
       final parts = customTemplatesJson[i].split('|');
-      if (parts.length >= 1) {
+      if (parts.isNotEmpty) {
         final templateId = int.tryParse(parts[0]) ?? 0;
         if (templateId == id) {
           customTemplatesJson[i] = '$id|$newTitle';
@@ -1960,7 +1960,7 @@ class TemplateService {
     int newId = 20000;
     for (final jsonString in foldersJson) {
       final parts = jsonString.split('|');
-      if (parts.length >= 1) {
+      if (parts.isNotEmpty) {
         final id = int.tryParse(parts[0]) ?? 0;
         if (id >= newId) {
           newId = id + 1;

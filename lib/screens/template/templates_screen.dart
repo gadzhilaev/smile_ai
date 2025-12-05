@@ -566,7 +566,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                 ..._personalFolders.map((folder) {
                   return InkWell(
                     onTap: () {
-                      // TODO: Открыть экран с шаблонами папки
+                      // Открыть экран с шаблонами папки
                     },
                     borderRadius: BorderRadius.circular(scaleHeight(13)),
                     child: Container(
@@ -623,7 +623,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                       ),
                     ),
                   );
-                }).toList(),
+                }),
                 // Последний контейнер - Добавить папку
                 InkWell(
                   onTap: () => _showAddFolderDialog(context, scaleWidth, scaleHeight),
@@ -1172,18 +1172,19 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                 SizedBox(height: scaleHeight(20)),
                 // Кнопка
                 Builder(
-                  builder: (context) {
+                  builder: (dialogContext) {
                     return InkWell(
                       onTap: () async {
                         final text = textController.text.trim();
                         if (text.isNotEmpty) {
                           await TemplateService.createPersonalFolder(text);
-                          if (mounted) {
-                            Navigator.of(context).pop();
-                            await _loadPersonalFolders();
+                          if (!mounted) return;
+                          if (dialogContext.mounted) {
+                            Navigator.of(dialogContext).pop();
                           }
-                  }
-                },
+                          await _loadPersonalFolders();
+                        }
+                      },
                 borderRadius: BorderRadius.circular(scaleHeight(16)),
                 child: Container(
                         width: scaleWidth(352),
