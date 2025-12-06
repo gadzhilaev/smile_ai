@@ -807,6 +807,7 @@ class _AiScreenState extends State<AiScreen> {
     }
   }
 
+  // ignore: unused_element
   void _showChatMenuOverlay() {
     if (_chatMenuOverlay != null) {
       _chatMenuOverlay!.remove();
@@ -2435,30 +2436,14 @@ class _AiScreenState extends State<AiScreen> {
                     ),
                     Align(
                       alignment: Alignment.centerLeft,
-                      child: GestureDetector(
-                        onTap: () {
+                          child: GestureDetector(
+                            onTap: () {
                           _showContextSettingsDialog();
                         },
                         child: Icon(
                           Icons.settings_outlined,
                           size: scaleWidth(24),
                           color: isDark ? AppColors.darkPrimaryText : AppColors.textPrimary,
-                        ),
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.centerRight,
-                          child: GestureDetector(
-                            onTap: () {
-                              _showChatMenuOverlay();
-                            },
-                            child: SvgPicture.asset(
-                              isDark
-                                  ? 'assets/icons/dark/icon_mes_dark.svg'
-                                  : 'assets/icons/light/icon_mes.svg',
-                          width: scaleWidth(24),
-                          height: scaleHeight(24),
-                          fit: BoxFit.contain,
                         ),
                       ),
                     ),
@@ -3514,7 +3499,7 @@ class _ChatMenuDrawer extends StatelessWidget {
                         // Вычисляем позицию начала строки с чатом
                         // Убираем отступ после "Чаты", так как он уже есть в коде
                         final chatRowTop = scaleHeight(75) + // padding top
-                            scaleHeight(24) + // крестик/icon_mes
+                            scaleHeight(24) + // крестик
                             scaleHeight(23) + // отступ после крестика
                             scaleHeight(24) + // "Новый чат" строка
                             scaleHeight(28) + // отступ после "Новый чат"

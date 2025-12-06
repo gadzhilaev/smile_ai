@@ -256,8 +256,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                       end: const Alignment(1.0, 1.0),
                       colors: isDark
                           ? const [
+                              Color(0xFF2A4A6B), // Меняем местами для темной темы
                               Color(0xFF2A5D4A),
-                              Color(0xFF2A4A6B),
                             ]
                           : const [
                               Color(0xFF73F1BF),
@@ -345,8 +345,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                       end: const Alignment(1.0, 1.0),
                       colors: isDark
                           ? const [
+                              Color(0xFFBE7685), // Меняем местами для темной темы
                               Color(0xFFC99D63),
-                              Color(0xFFBE7685),
                             ]
                           : const [
                               Color(0xFFF9CD84),
@@ -584,8 +584,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                           end: const Alignment(1.0, 1.0),
                           colors: isDark
                               ? const [
+                                  Color(0xFF5D1F56), // Меняем местами для темной темы
                                   Color(0xFF6B4154),
-                                  Color(0xFF5D1F56),
                                 ]
                               : const [
                                   Color(0xFFEB91D4),
@@ -772,11 +772,14 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
       final isLast = index == businessGoals.length - 1;
       
       // Безопасное получение градиента
+      // В темной теме цвета градиента меняются местами (слева вверху -> справа внизу, справа внизу -> слева вверху)
       final List<Color> gradientColors;
       if (isDark && item['darkGradient'] != null) {
         gradientColors = (item['darkGradient'] as List<dynamic>)
             .map((c) => c as Color)
-            .toList();
+            .toList()
+            .reversed
+            .toList(); // Меняем местами цвета для темной темы
       } else {
         gradientColors = (item['gradient'] as List<dynamic>)
             .map((c) => c as Color)
@@ -1240,7 +1243,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                 Icons.category,
                 size: height,
                 color: isDark 
-                    ? Colors.white.withValues(alpha: 0.5)
+                    ? Colors.white // Убираем затемнение для темной темы
                     : Colors.black.withValues(alpha: 0.5),
               );
             },
@@ -1250,7 +1253,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
             Icons.category,
             size: height,
             color: isDark 
-                ? Colors.white.withValues(alpha: 0.5)
+                ? Colors.white // Убираем затемнение для темной темы
                 : Colors.black.withValues(alpha: 0.5),
           );
         }

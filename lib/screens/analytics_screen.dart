@@ -960,7 +960,7 @@ class _MonthNichesContainer extends StatelessWidget {
                         ),
                       ),
                     ),
-                    // Иконка треугольника справа
+                    // Иконка треугольника справа (icon_tr_up для положительных процентов, icon_tr_down для отрицательных)
                     SvgPicture.asset(
                       isUp
                           ? 'assets/icons/icon_tr_up.svg'
