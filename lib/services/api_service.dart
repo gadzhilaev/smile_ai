@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'language_service.dart';
@@ -11,6 +12,9 @@ class ApiService {
 
   static const String _baseUrl = 'http://84.201.149.99:8080';
   static const Duration _healthCheckTimeout = Duration(minutes: 1);
+
+  /// Публичный геттер базового URL (например, для загрузки изображений)
+  static String get baseUrl => _baseUrl;
 
   /// Проверка здоровья сервера
   /// Возвращает true если сервер доступен (статус 200), false в противном случае
@@ -82,12 +86,14 @@ class ApiService {
         debugPrint('ApiService: check-user non-200 status code');
         return {
           'exists': false,
+          'error': 'server_error',
         };
       }
     } catch (e) {
       debugPrint('ApiService: error checking user: $e');
       return {
         'exists': false,
+        'error': 'network_error',
       };
     }
   }
@@ -490,12 +496,13 @@ class ApiService {
     required String phone,
     required String country,
     required String gender,
+    String? profilePictureId,
   }) async {
     try {
       final url = Uri.parse('$_baseUrl/api/auth/profile?token=$token');
       debugPrint('ApiService: updateProfile at URL: $url');
       
-      final requestBody = {
+      final requestBody = <String, dynamic>{
         'email': email,
         'full_name': fullName,
         'nickname': nickname,
@@ -503,6 +510,12 @@ class ApiService {
         'country': country,
         'gender': gender,
       };
+
+      // Если передан profile_picture, добавляем в тело запроса
+      // Пустая строка или null на стороне бэкенда очистит аватар
+      if (profilePictureId != null) {
+        requestBody['profile_picture'] = profilePictureId;
+      }
       
       debugPrint('ApiService: updateProfile request body: $requestBody');
       
@@ -558,6 +571,50 @@ class ApiService {
       }
     } catch (e) {
       debugPrint('ApiService: error during getProfile: $e');
+      return {
+        'error': 'Network error',
+      };
+    }
+  }
+
+  /// Загрузка аватара профиля
+  /// Возвращает обновлённый профиль пользователя при успехе (200)
+  /// Или 'error' (String) при ошибке
+  Future<Map<String, dynamic>> uploadProfilePicture({
+    required String token,
+    required File imageFile,
+  }) async {
+    try {
+      final url = Uri.parse('$_baseUrl/api/auth/profile-picture?token=$token');
+      debugPrint('ApiService: uploadProfilePicture at URL: $url');
+      debugPrint('ApiService: uploadProfilePicture file path: ${imageFile.path}');
+
+      final request = http.MultipartRequest('POST', url);
+      request.files.add(await http.MultipartFile.fromPath(
+        'profile_picture',
+        imageFile.path,
+      ));
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      debugPrint('ApiService: uploadProfilePicture response status code: ${response.statusCode}');
+      debugPrint('ApiService: uploadProfilePicture response body: ${response.body}');
+
+      final Map<String, dynamic> decoded =
+          json.decode(response.body) as Map<String, dynamic>;
+
+      if (response.statusCode == 200) {
+        debugPrint('ApiService: uploadProfilePicture decoded response: $decoded');
+        return decoded;
+      } else {
+        debugPrint('ApiService: uploadProfilePicture error response: $decoded');
+        return decoded;
+      }
+    } catch (e, stackTrace) {
+      debugPrint('ApiService: error during uploadProfilePicture: $e');
+      debugPrint('ApiService: error type: ${e.runtimeType}');
+      debugPrint('ApiService: stack trace: $stackTrace');
       return {
         'error': 'Network error',
       };

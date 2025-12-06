@@ -211,6 +211,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get authEmailErrorNotRegistered => 'Эта почта не зарегистрирована';
 
   @override
+  String get authEmailErrorConnection => 'Ошибка соединения. Проверьте интернет и попробуйте снова';
+
+  @override
   String get authButtonLogin => 'ВОЙТИ';
 
   @override
@@ -1355,4 +1358,121 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get templatesCategoryLogistics => 'Логистика';
+
+  @override
+  String get contextTitle => 'Контекст разговора';
+
+  @override
+  String get contextDescription => 'Установите контекст для этого разговора, чтобы получать более релевантные ответы';
+
+  @override
+  String get contextUserRole => 'Ваша роль';
+
+  @override
+  String get contextUserRolePlaceholder => 'Выберите вашу роль';
+
+  @override
+  String get contextBusinessStage => 'Стадия бизнеса';
+
+  @override
+  String get contextBusinessStagePlaceholder => 'Выберите стадию бизнеса';
+
+  @override
+  String get contextGoal => 'Цель';
+
+  @override
+  String get contextGoalPlaceholder => 'Выберите цель';
+
+  @override
+  String get contextUrgency => 'Срочность';
+
+  @override
+  String get contextUrgencyPlaceholder => 'Выберите срочность';
+
+  @override
+  String get contextRegion => 'Регион';
+
+  @override
+  String get contextRegionPlaceholder => 'Выберите регион';
+
+  @override
+  String get contextBusinessNiche => 'Ниша бизнеса';
+
+  @override
+  String get contextBusinessNichePlaceholder => 'Выберите нишу бизнеса';
+
+  @override
+  String get contextCancel => 'Отмена';
+
+  @override
+  String get contextSave => 'Сохранить';
+
+  @override
+  String get contextUserRoleOwner => 'Владелец';
+
+  @override
+  String get contextUserRoleMarketer => 'Маркетолог';
+
+  @override
+  String get contextUserRoleAccountant => 'Бухгалтер';
+
+  @override
+  String get contextUserRoleBeginner => 'Новичок';
+
+  @override
+  String get contextBusinessStageStartup => 'Стартап';
+
+  @override
+  String get contextBusinessStageStable => 'Стабильный';
+
+  @override
+  String get contextBusinessStageScaling => 'Масштабирование';
+
+  @override
+  String get contextGoalIncreaseRevenue => 'Увеличить доход';
+
+  @override
+  String get contextGoalReduceCosts => 'Снизить затраты';
+
+  @override
+  String get contextGoalHireStaff => 'Нанять сотрудников';
+
+  @override
+  String get contextGoalLaunchAds => 'Запустить рекламу';
+
+  @override
+  String get contextGoalLegalHelp => 'Юридическая помощь';
+
+  @override
+  String get contextUrgencyUrgent => 'Срочно';
+
+  @override
+  String get contextUrgencyNormal => 'Обычно';
+
+  @override
+  String get contextUrgencyPlanning => 'Планирование';
+
+  @override
+  String get contextBusinessNicheRetail => 'Розница';
+
+  @override
+  String get contextBusinessNicheServices => 'Услуги';
+
+  @override
+  String get contextBusinessNicheFoodService => 'Общественное питание';
+
+  @override
+  String get contextBusinessNicheManufacturing => 'Производство';
+
+  @override
+  String get contextBusinessNicheOnlineServices => 'Онлайн-услуги';
+
+  @override
+  String get contextRegionRussia => 'Россия';
+
+  @override
+  String get contextRegionAmerica => 'Америка';
+
+  @override
+  String get contextRegionBritain => 'Британия';
 }

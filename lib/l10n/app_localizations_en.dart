@@ -211,6 +211,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authEmailErrorNotRegistered => 'This email is not registered';
 
   @override
+  String get authEmailErrorConnection => 'Connection error. Check your internet and try again';
+
+  @override
   String get authButtonLogin => 'LOG IN';
 
   @override
@@ -1355,4 +1358,121 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get templatesCategoryLogistics => 'Logistics';
+
+  @override
+  String get contextTitle => 'Conversation Context';
+
+  @override
+  String get contextDescription => 'Set the context for this conversation to get more relevant answers';
+
+  @override
+  String get contextUserRole => 'Your role';
+
+  @override
+  String get contextUserRolePlaceholder => 'Select your role';
+
+  @override
+  String get contextBusinessStage => 'Business stage';
+
+  @override
+  String get contextBusinessStagePlaceholder => 'Select business stage';
+
+  @override
+  String get contextGoal => 'Goal';
+
+  @override
+  String get contextGoalPlaceholder => 'Select goal';
+
+  @override
+  String get contextUrgency => 'Urgency';
+
+  @override
+  String get contextUrgencyPlaceholder => 'Select urgency';
+
+  @override
+  String get contextRegion => 'Region';
+
+  @override
+  String get contextRegionPlaceholder => 'Select region';
+
+  @override
+  String get contextBusinessNiche => 'Business niche';
+
+  @override
+  String get contextBusinessNichePlaceholder => 'Select business niche';
+
+  @override
+  String get contextCancel => 'Cancel';
+
+  @override
+  String get contextSave => 'Save';
+
+  @override
+  String get contextUserRoleOwner => 'Owner';
+
+  @override
+  String get contextUserRoleMarketer => 'Marketer';
+
+  @override
+  String get contextUserRoleAccountant => 'Accountant';
+
+  @override
+  String get contextUserRoleBeginner => 'Beginner';
+
+  @override
+  String get contextBusinessStageStartup => 'Startup';
+
+  @override
+  String get contextBusinessStageStable => 'Stable';
+
+  @override
+  String get contextBusinessStageScaling => 'Scaling';
+
+  @override
+  String get contextGoalIncreaseRevenue => 'Increase revenue';
+
+  @override
+  String get contextGoalReduceCosts => 'Reduce costs';
+
+  @override
+  String get contextGoalHireStaff => 'Hire staff';
+
+  @override
+  String get contextGoalLaunchAds => 'Launch ads';
+
+  @override
+  String get contextGoalLegalHelp => 'Legal help';
+
+  @override
+  String get contextUrgencyUrgent => 'Urgent';
+
+  @override
+  String get contextUrgencyNormal => 'Normal';
+
+  @override
+  String get contextUrgencyPlanning => 'Planning';
+
+  @override
+  String get contextBusinessNicheRetail => 'Retail';
+
+  @override
+  String get contextBusinessNicheServices => 'Services';
+
+  @override
+  String get contextBusinessNicheFoodService => 'Food service';
+
+  @override
+  String get contextBusinessNicheManufacturing => 'Manufacturing';
+
+  @override
+  String get contextBusinessNicheOnlineServices => 'Online services';
+
+  @override
+  String get contextRegionRussia => 'Russia';
+
+  @override
+  String get contextRegionAmerica => 'America';
+
+  @override
+  String get contextRegionBritain => 'Britain';
 }

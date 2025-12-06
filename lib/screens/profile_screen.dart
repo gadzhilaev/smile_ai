@@ -36,6 +36,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final ScrollController _scrollController = ScrollController();
   final ImagePicker _imagePicker = ImagePicker();
   File? _selectedAvatar;
+  String? _profilePictureId; // ID файла аватара из API
 
   Future<void> _refreshProfile() async {
     // Загружаем данные профиля с API
@@ -70,6 +71,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (result.containsKey('error')) {
         debugPrint('ProfileScreen: error loading profile: ${result['error']}');
         return;
+      }
+
+      // Сохраняем ID аватара
+      final profilePictureId = result['profile_picture'] as String?;
+      if (mounted) {
+        setState(() {
+          _profilePictureId = (profilePictureId != null && profilePictureId.isNotEmpty)
+              ? profilePictureId
+              : null;
+        });
       }
 
       // Сохраняем данные в .env
@@ -137,13 +148,76 @@ class _ProfileScreenState extends State<ProfileScreen> {
         source: ImageSource.gallery,
       );
       if (image != null) {
+        final file = File(image.path);
         setState(() {
-          _selectedAvatar = File(image.path);
+          _selectedAvatar = file;
         });
+
+        // Отправляем файл на сервер как новую аватарку
+        await _uploadAvatar(file);
       }
     } catch (e) {
       // Обработка ошибок (например, если пользователь отменил выбор)
       debugPrint('Error picking image: $e');
+    }
+  }
+
+  /// Загрузка аватара на сервер
+  Future<void> _uploadAvatar(File imageFile) async {
+    try {
+      // Получаем токен из .env
+      await dotenv.load(fileName: ".env");
+      await EnvUtils.mergeRuntimeEnvIntoDotenv();
+      final token = dotenv.env['AUTH_TOKEN']?.trim();
+
+      if (token == null || token.isEmpty) {
+        debugPrint('ProfileScreen: AUTH_TOKEN not found in .env, cannot upload avatar');
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Ошибка: токен не найден'),
+            backgroundColor: AppColors.textError,
+          ),
+        );
+        return;
+      }
+
+      final result = await ApiService.instance.uploadProfilePicture(
+        token: token,
+        imageFile: imageFile,
+      );
+
+      if (!mounted) return;
+
+      if (result.containsKey('error')) {
+        debugPrint('ProfileScreen: error uploading profile picture: ${result['error']}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['error']?.toString() ?? 'Ошибка загрузки аватарки'),
+            backgroundColor: AppColors.textError,
+          ),
+        );
+        return;
+      }
+
+      // Обновляем ID аватара из ответа
+      final profilePictureId = result['profile_picture'] as String?;
+      setState(() {
+        _profilePictureId = (profilePictureId != null && profilePictureId.isNotEmpty)
+            ? profilePictureId
+            : null;
+      });
+
+      debugPrint('ProfileScreen: avatar uploaded successfully, profile_picture=$_profilePictureId');
+    } catch (e) {
+      debugPrint('ProfileScreen: error uploading avatar: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Ошибка загрузки аватарки: $e'),
+          backgroundColor: AppColors.textError,
+        ),
+      );
     }
   }
 
@@ -600,10 +674,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   image: FileImage(_selectedAvatar!),
                                   fit: BoxFit.cover,
                                 )
-                              : const DecorationImage(
-                                  image: AssetImage('assets/images/avatar.png'),
-                                  fit: BoxFit.cover,
-                                ),
+                              : _profilePictureId != null
+                                  ? DecorationImage(
+                                      image: NetworkImage(
+                                        '${ApiService.baseUrl}/api/files/$_profilePictureId',
+                                      ),
+                                      fit: BoxFit.cover,
+                                    )
+                                  : const DecorationImage(
+                                      image: AssetImage('assets/images/avatar.png'),
+                                      fit: BoxFit.cover,
+                                    ),
                         ),
                       ),
                       // Круг для редактирования с иконкой карандаша

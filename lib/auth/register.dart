@@ -108,6 +108,7 @@ class _RegistrationPlaceholderScreenState
     // Проверяем существование пользователя через API
     try {
       final result = await ApiService.instance.checkUser(email);
+      final hasNetworkError = result['error'] == 'network_error';
       final exists = result['exists'] == true;
 
       if (!mounted) return;
@@ -116,7 +117,14 @@ class _RegistrationPlaceholderScreenState
         _isLoading = false;
       });
 
-      if (exists) {
+      if (hasNetworkError) {
+        // Ошибка соединения / нет интернета
+        setState(() {
+          final l = AppLocalizations.of(context)!;
+          _showError = true;
+          _errorMessage = l.authEmailErrorConnection;
+        });
+      } else if (exists) {
         // Пользователь уже зарегистрирован
         setState(() {
           final l = AppLocalizations.of(context)!;
@@ -143,7 +151,7 @@ class _RegistrationPlaceholderScreenState
         _isLoading = false;
         final l = AppLocalizations.of(context)!;
         _showError = true;
-        _errorMessage = l.authEmailErrorInvalid;
+        _errorMessage = l.authEmailErrorConnection;
       });
     }
   }

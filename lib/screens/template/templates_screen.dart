@@ -1182,9 +1182,9 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                           if (dialogContext.mounted) {
                             Navigator.of(dialogContext).pop();
                           }
-                          await _loadPersonalFolders();
-                        }
-                      },
+                            await _loadPersonalFolders();
+                  }
+                },
                 borderRadius: BorderRadius.circular(scaleHeight(16)),
                 child: Container(
                         width: scaleWidth(352),

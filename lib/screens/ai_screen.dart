@@ -82,6 +82,9 @@ class _AiScreenState extends State<AiScreen> {
   String _recognizedText = '';
   Timer? _recordingTimer;
   int _recordingSeconds = 0;
+  
+  // Контекст беседы
+  Map<String, String>? _conversationContext;
 
   @override
   void initState() {
@@ -402,6 +405,9 @@ class _AiScreenState extends State<AiScreen> {
   }
 
   void _initializeScreen() {
+    // Загружаем контекст из .env асинхронно (не блокируем инициализацию)
+    _loadContextFromEnv();
+    
     // Сохраняем категорию если она передана
     if (widget.category != null) {
       _currentCategory = widget.category;
@@ -428,6 +434,33 @@ class _AiScreenState extends State<AiScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _sendMessageWithApi(widget.autoGenerateText!, category: widget.category);
       });
+    }
+  }
+
+  /// Загрузить контекст из .env
+  Future<void> _loadContextFromEnv() async {
+    try {
+      // Не блокируем инициализацию, загружаем в фоне
+      await Future.delayed(const Duration(milliseconds: 100));
+      
+      if (!mounted) return;
+      
+      await dotenv.load(fileName: ".env");
+      await EnvUtils.mergeRuntimeEnvIntoDotenv();
+      
+      if (!mounted) return;
+      
+      final loadedContext = EnvUtils.loadConversationContext();
+      if (loadedContext != null && mounted) {
+        setState(() {
+          _conversationContext = loadedContext;
+        });
+        debugPrint('AiScreen: conversation context loaded from .env');
+      }
+    } catch (e, stackTrace) {
+      debugPrint('AiScreen: error loading context from .env: $e');
+      debugPrint('AiScreen: stack trace: $stackTrace');
+      // Не крашим приложение, просто логируем ошибку
     }
   }
   
@@ -520,12 +553,13 @@ class _AiScreenState extends State<AiScreen> {
     _scrollToBottom();
 
     try {
-      // Отправляем запрос на API
+      // Отправляем запрос на API с контекстом
       final result = await ApiService.instance.sendMessage(
         userId: userId,
         message: message,
         category: category,
         conversationId: conversationId,
+        contextFilters: _conversationContext,
       );
 
       if (!mounted) return;
@@ -658,15 +692,31 @@ class _AiScreenState extends State<AiScreen> {
       
       for (final conv in conversationsList) {
         final id = conv['id'] as String? ?? '';
-        final title = conv['title'] as String? ?? '';
+        final title = conv['title'] as String?;
         final conversationId = id; // conversation_id это id из ответа
+        final contextData = conv['context'] as Map<String, dynamic>?;
         
-        if (id.isNotEmpty && title.isNotEmpty) {
+        // Преобразуем контекст из API в Map<String, String>
+        Map<String, String>? context;
+        if (contextData != null) {
+          context = <String, String>{};
+          contextData.forEach((key, value) {
+            if (value != null) {
+              context![key] = value.toString();
+            }
+          });
+          if (context.isEmpty) {
+            context = null;
+          }
+        }
+        
+        if (id.isNotEmpty) {
           loadedChats.add(ChatHistory(
             id: id,
-            title: _stripMarkdown(title),
+            title: (title != null && title.isNotEmpty) ? _stripMarkdown(title) : 'Новый чат',
             messages: [], // Сообщения загрузятся при открытии чата
             conversationId: conversationId,
+            context: context,
           ));
         }
       }
@@ -770,6 +820,424 @@ class _AiScreenState extends State<AiScreen> {
     });
   }
 
+  void _showContextSettingsDialog() {
+    final size = MediaQuery.of(context).size;
+    final double widthFactor = size.width / _designWidth;
+    final double heightFactor = size.height / _designHeight;
+
+    double scaleWidth(double value) => value * widthFactor;
+    double scaleHeight(double value) => value * heightFactor;
+
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final l = AppLocalizations.of(context)!;
+
+    // Значения по умолчанию из текущего контекста
+    String? selectedUserRole = _conversationContext?['user_role'];
+    String? selectedBusinessStage = _conversationContext?['business_stage'];
+    String? selectedGoal = _conversationContext?['goal'];
+    String? selectedUrgency = _conversationContext?['urgency'];
+    String? selectedRegion = _conversationContext?['region'];
+    String? selectedBusinessNiche = _conversationContext?['business_niche'];
+
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierColor: Colors.black.withValues(alpha: 0.5),
+      builder: (BuildContext dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return Dialog(
+              backgroundColor: Colors.transparent,
+              insetPadding: EdgeInsets.symmetric(horizontal: scaleWidth(24)),
+              child: Container(
+                constraints: BoxConstraints(
+                  maxHeight: size.height * 0.8,
+                ),
+                padding: EdgeInsets.symmetric(
+                  horizontal: scaleWidth(20),
+                  vertical: scaleHeight(24),
+                ),
+                decoration: BoxDecoration(
+                  color: isDark ? AppColors.darkBackgroundCard : Colors.white,
+                  borderRadius: BorderRadius.circular(scaleHeight(12)),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x1F18274B),
+                      offset: Offset(0, 14),
+                      blurRadius: 64,
+                      spreadRadius: -4,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Заголовок и крестик
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            l.contextTitle,
+                            style: TextStyle(
+                              fontFamily: 'Montserrat',
+                              fontWeight: FontWeight.w600,
+                              fontSize: scaleHeight(20),
+                              color: isDark ? AppColors.darkPrimaryText : AppColors.textPrimary,
+                            ),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () => Navigator.of(dialogContext).pop(),
+                          borderRadius: BorderRadius.circular(scaleHeight(12)),
+                          child: Container(
+                            width: scaleWidth(24),
+                            height: scaleHeight(24),
+                            alignment: Alignment.center,
+                            child: Icon(
+                              Icons.close,
+                              size: scaleHeight(24),
+                              color: isDark ? AppColors.darkPrimaryText : AppColors.textPrimary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: scaleHeight(8)),
+                    Text(
+                      l.contextDescription,
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w400,
+                        fontSize: scaleHeight(14),
+                        color: isDark ? AppColors.darkSecondaryText : AppColors.textSecondary,
+                      ),
+                    ),
+                    SizedBox(height: scaleHeight(20)),
+                    Flexible(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _buildContextDropdown(
+                              label: l.contextUserRole,
+                              placeholder: l.contextUserRolePlaceholder,
+                              value: selectedUserRole,
+                              items: [
+                                {'value': 'owner', 'label': l.contextUserRoleOwner},
+                                {'value': 'marketer', 'label': l.contextUserRoleMarketer},
+                                {'value': 'accountant', 'label': l.contextUserRoleAccountant},
+                                {'value': 'beginner', 'label': l.contextUserRoleBeginner},
+                              ],
+                              onChanged: (value) {
+                                setDialogState(() {
+                                  selectedUserRole = value;
+                                });
+                              },
+                              scaleWidth: scaleWidth,
+                              scaleHeight: scaleHeight,
+                              isDark: isDark,
+                            ),
+                            SizedBox(height: scaleHeight(16)),
+                            _buildContextDropdown(
+                              label: l.contextBusinessStage,
+                              placeholder: l.contextBusinessStagePlaceholder,
+                              value: selectedBusinessStage,
+                              items: [
+                                {'value': 'startup', 'label': l.contextBusinessStageStartup},
+                                {'value': 'stable', 'label': l.contextBusinessStageStable},
+                                {'value': 'scaling', 'label': l.contextBusinessStageScaling},
+                              ],
+                              onChanged: (value) {
+                                setDialogState(() {
+                                  selectedBusinessStage = value;
+                                });
+                              },
+                              scaleWidth: scaleWidth,
+                              scaleHeight: scaleHeight,
+                              isDark: isDark,
+                            ),
+                            SizedBox(height: scaleHeight(16)),
+                            _buildContextDropdown(
+                              label: l.contextGoal,
+                              placeholder: l.contextGoalPlaceholder,
+                              value: selectedGoal,
+                              items: [
+                                {'value': 'increase_revenue', 'label': l.contextGoalIncreaseRevenue},
+                                {'value': 'reduce_costs', 'label': l.contextGoalReduceCosts},
+                                {'value': 'hire_staff', 'label': l.contextGoalHireStaff},
+                                {'value': 'launch_ads', 'label': l.contextGoalLaunchAds},
+                                {'value': 'legal_help', 'label': l.contextGoalLegalHelp},
+                              ],
+                              onChanged: (value) {
+                                setDialogState(() {
+                                  selectedGoal = value;
+                                });
+                              },
+                              scaleWidth: scaleWidth,
+                              scaleHeight: scaleHeight,
+                              isDark: isDark,
+                            ),
+                            SizedBox(height: scaleHeight(16)),
+                            _buildContextDropdown(
+                              label: l.contextUrgency,
+                              placeholder: l.contextUrgencyPlaceholder,
+                              value: selectedUrgency,
+                              items: [
+                                {'value': 'urgent', 'label': l.contextUrgencyUrgent},
+                                {'value': 'normal', 'label': l.contextUrgencyNormal},
+                                {'value': 'planning', 'label': l.contextUrgencyPlanning},
+                              ],
+                              onChanged: (value) {
+                                setDialogState(() {
+                                  selectedUrgency = value;
+                                });
+                              },
+                              scaleWidth: scaleWidth,
+                              scaleHeight: scaleHeight,
+                              isDark: isDark,
+                            ),
+                            SizedBox(height: scaleHeight(16)),
+                            _buildContextDropdown(
+                              label: l.contextRegion,
+                              placeholder: l.contextRegionPlaceholder,
+                              value: selectedRegion,
+                              items: [
+                                {'value': 'russia', 'label': l.contextRegionRussia},
+                                {'value': 'america', 'label': l.contextRegionAmerica},
+                                {'value': 'britain', 'label': l.contextRegionBritain},
+                              ],
+                              onChanged: (value) {
+                                setDialogState(() {
+                                  selectedRegion = value;
+                                });
+                              },
+                              scaleWidth: scaleWidth,
+                              scaleHeight: scaleHeight,
+                              isDark: isDark,
+                            ),
+                            SizedBox(height: scaleHeight(16)),
+                            _buildContextDropdown(
+                              label: l.contextBusinessNiche,
+                              placeholder: l.contextBusinessNichePlaceholder,
+                              value: selectedBusinessNiche,
+                              items: [
+                                {'value': 'retail', 'label': l.contextBusinessNicheRetail},
+                                {'value': 'services', 'label': l.contextBusinessNicheServices},
+                                {'value': 'food_service', 'label': l.contextBusinessNicheFoodService},
+                                {'value': 'manufacturing', 'label': l.contextBusinessNicheManufacturing},
+                                {'value': 'online_services', 'label': l.contextBusinessNicheOnlineServices},
+                              ],
+                              onChanged: (value) {
+                                setDialogState(() {
+                                  selectedBusinessNiche = value;
+                                });
+                              },
+                              scaleWidth: scaleWidth,
+                              scaleHeight: scaleHeight,
+                              isDark: isDark,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: scaleHeight(24)),
+                    // Кнопки
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.of(dialogContext).pop(),
+                          child: Text(
+                            l.contextCancel,
+                            style: TextStyle(
+                              fontFamily: 'Montserrat',
+                              fontWeight: FontWeight.w500,
+                              fontSize: scaleHeight(14),
+                              color: isDark ? AppColors.darkSecondaryText : AppColors.textSecondary,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: scaleWidth(12)),
+                        ElevatedButton(
+                          onPressed: () async {
+                            // Сохраняем контекст
+                            final context = <String, String>{};
+                            if (selectedUserRole != null && selectedUserRole!.isNotEmpty) {
+                              context['user_role'] = selectedUserRole!;
+                            }
+                            if (selectedBusinessStage != null && selectedBusinessStage!.isNotEmpty) {
+                              context['business_stage'] = selectedBusinessStage!;
+                            }
+                            if (selectedGoal != null && selectedGoal!.isNotEmpty) {
+                              context['goal'] = selectedGoal!;
+                            }
+                            if (selectedUrgency != null && selectedUrgency!.isNotEmpty) {
+                              context['urgency'] = selectedUrgency!;
+                            }
+                            if (selectedRegion != null && selectedRegion!.isNotEmpty) {
+                              context['region'] = selectedRegion!;
+                            }
+                            if (selectedBusinessNiche != null && selectedBusinessNiche!.isNotEmpty) {
+                              context['business_niche'] = selectedBusinessNiche!;
+                            }
+
+                            setState(() {
+                              _conversationContext = context.isNotEmpty ? context : null;
+                            });
+
+                            // Сохраняем контекст в .env
+                            try {
+                              await EnvUtils.saveConversationContext(
+                                context.isNotEmpty ? context : null,
+                              );
+                              debugPrint('AiScreen: conversation context saved to .env');
+                            } catch (e) {
+                              debugPrint('AiScreen: error saving context to .env: $e');
+                            }
+
+                            // Если есть текущий чат, обновляем его контекст
+                            if (_currentChatId != null) {
+                              final chatIndex = _chatHistory.indexWhere((chat) => chat.id == _currentChatId);
+                              if (chatIndex != -1) {
+                                final conversationId = _chatHistory[chatIndex].conversationId;
+                                if (conversationId != null && conversationId.isNotEmpty) {
+                                  await ApiService.instance.updateConversationContext(
+                                    conversationId: conversationId,
+                                    context: context.isNotEmpty ? context : null,
+                                  );
+                                }
+                              }
+                            }
+
+                            if (dialogContext.mounted) {
+                              Navigator.of(dialogContext).pop();
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: isDark ? AppColors.darkPrimaryText : Colors.black,
+                            foregroundColor: isDark ? AppColors.darkBackgroundMain : Colors.white,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: scaleWidth(24),
+                              vertical: scaleHeight(12),
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(scaleHeight(8)),
+                            ),
+                          ),
+                          child: Text(
+                            l.contextSave,
+                            style: TextStyle(
+                              fontFamily: 'Montserrat',
+                              fontWeight: FontWeight.w500,
+                              fontSize: scaleHeight(14),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildContextDropdown({
+    required String label,
+    required String placeholder,
+    required String? value,
+    required List<Map<String, String>> items,
+    required Function(String?) onChanged,
+    required double Function(double) scaleWidth,
+    required double Function(double) scaleHeight,
+    required bool isDark,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontFamily: 'Montserrat',
+            fontWeight: FontWeight.w500,
+            fontSize: scaleHeight(14),
+            color: isDark ? AppColors.darkPrimaryText : AppColors.textPrimary,
+          ),
+        ),
+        SizedBox(height: scaleHeight(8)),
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(horizontal: scaleWidth(16), vertical: scaleHeight(2)),
+          constraints: BoxConstraints(
+            minHeight: scaleHeight(36),
+            maxHeight: scaleHeight(36),
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(scaleHeight(8)),
+            border: Border.all(
+              color: isDark ? AppColors.darkDivider : const Color(0xFFE0E0E0),
+              width: 1,
+            ),
+            color: isDark ? AppColors.darkBackgroundMain : Colors.white,
+          ),
+          child: DropdownButton<String>(
+            value: value,
+            isExpanded: true,
+            underline: const SizedBox.shrink(),
+            dropdownColor: isDark ? AppColors.darkBackgroundMain : Colors.white,
+            hint: Text(
+              placeholder,
+              style: TextStyle(
+                fontFamily: 'Montserrat',
+                fontWeight: FontWeight.w400,
+                fontSize: scaleHeight(14),
+                color: isDark ? AppColors.darkSecondaryText : AppColors.textSecondary,
+              ),
+            ),
+            items: items.map((item) {
+              return DropdownMenuItem<String>(
+                value: item['value'],
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: scaleHeight(4)),
+                  child: Text(
+                    item['label']!,
+                    style: TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontWeight: FontWeight.w400,
+                      fontSize: scaleHeight(14),
+                      color: isDark ? AppColors.darkPrimaryText : AppColors.textPrimary,
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+            onChanged: onChanged,
+            icon: Icon(
+              Icons.arrow_drop_down,
+              color: isDark ? AppColors.darkPrimaryText : AppColors.textPrimary,
+              size: scaleHeight(20),
+            ),
+            iconSize: scaleHeight(20),
+            isDense: true,
+            style: TextStyle(
+              fontFamily: 'Montserrat',
+              fontWeight: FontWeight.w400,
+              fontSize: scaleHeight(14),
+              color: isDark ? AppColors.darkPrimaryText : AppColors.textPrimary,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   void dispose() {
     _typingTimer?.cancel();
@@ -797,6 +1265,7 @@ class _AiScreenState extends State<AiScreen> {
         _messages.clear();
         _hasConversation = true;
         _isLoadingChat = false; // Сбрасываем флаг загрузки при открытии чата
+        _conversationContext = chat.context; // Загружаем контекст из чата
         _hideChatMenuOverlay();
       });
 
@@ -1356,7 +1825,7 @@ class _AiScreenState extends State<AiScreen> {
     return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
   }
 
-  void _sendMessage() {
+  Future<void> _sendMessage() async {
     final text = TextUtils.safeText(_inputController.text.trim());
     if (text.isEmpty || _isTyping) {
       return;
@@ -1379,14 +1848,70 @@ class _AiScreenState extends State<AiScreen> {
     
     // Если это новый чат, создаем его при первом сообщении
     if (_currentChatId == null) {
-      final cleanTitle = _stripMarkdown(text);
+      // Создаем беседу с контекстом через API
+      try {
+        await dotenv.load(fileName: ".env");
+        await EnvUtils.mergeRuntimeEnvIntoDotenv();
+        final userId = dotenv.env['USER_ID']?.trim();
+        
+        if (userId != null && userId.isNotEmpty) {
+          final cleanTitle = _stripMarkdown(text);
+          final title = cleanTitle.length > 30 ? '${cleanTitle.substring(0, 30)}...' : cleanTitle;
+          
+          // Создаем беседу с контекстом
+          final conversationResult = await ApiService.instance.createConversation(
+            userId: userId,
+            title: title,
+            context: _conversationContext,
+          );
+          
+          if (conversationResult.containsKey('conversation_id')) {
+            final conversationId = conversationResult['conversation_id'] as String;
+            final newChat = ChatHistory(
+              id: conversationId,
+              title: title,
+              messages: [],
+              conversationId: conversationId,
+              context: _conversationContext,
+            );
+            _chatHistory.insert(0, newChat);
+            _currentChatId = newChat.id;
+          } else {
+            // Если не удалось создать через API, создаем локально
       final newChat = ChatHistory(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
-        title: cleanTitle.length > 30 ? '${cleanTitle.substring(0, 30)}...' : cleanTitle,
+              title: title,
         messages: [],
+              context: _conversationContext,
       );
       _chatHistory.insert(0, newChat);
       _currentChatId = newChat.id;
+          }
+        } else {
+          // Если нет userId, создаем локально
+          final cleanTitle = _stripMarkdown(text);
+          final newChat = ChatHistory(
+            id: DateTime.now().millisecondsSinceEpoch.toString(),
+            title: cleanTitle.length > 30 ? '${cleanTitle.substring(0, 30)}...' : cleanTitle,
+            messages: [],
+            context: _conversationContext,
+          );
+          _chatHistory.insert(0, newChat);
+          _currentChatId = newChat.id;
+        }
+      } catch (e) {
+        debugPrint('AiScreen: error creating conversation: $e');
+        // В случае ошибки создаем локально
+        final cleanTitle = _stripMarkdown(text);
+        final newChat = ChatHistory(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          title: cleanTitle.length > 30 ? '${cleanTitle.substring(0, 30)}...' : cleanTitle,
+          messages: [],
+          context: _conversationContext,
+        );
+        _chatHistory.insert(0, newChat);
+        _currentChatId = newChat.id;
+      }
     }
     
     _inputController.clear();
@@ -1823,6 +2348,19 @@ class _AiScreenState extends State<AiScreen> {
                       ),
                     ),
                     Align(
+                      alignment: Alignment.centerLeft,
+                      child: GestureDetector(
+                        onTap: () {
+                          _showContextSettingsDialog();
+                        },
+                        child: Icon(
+                          Icons.settings_outlined,
+                          size: scaleWidth(24),
+                          color: isDark ? AppColors.darkPrimaryText : AppColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                    Align(
                       alignment: Alignment.centerRight,
                           child: GestureDetector(
                             onTap: () {
@@ -1904,34 +2442,34 @@ class _AiScreenState extends State<AiScreen> {
                               child: _isRecognizing
                                   ? _buildRecognizingText(isDark, scaleWidth, scaleHeight)
                                   : TextField(
-                                      controller: _inputController,
+                                controller: _inputController,
                                       maxLines: null,
                                       minLines: 1,
-                                      style: AppTextStyle.bodyTextMedium(
-                                        scaleHeight(16),
-                                        color: isDark
-                                            ? AppColors.white
-                                            : _primaryTextColor,
-                                      ),
-                                      cursorColor: _accentColor,
-                                      decoration: InputDecoration(
-                                        hintText: l.aiInputPlaceholder,
-                                        hintStyle: AppTextStyle.bodyTextMedium(
-                                          scaleHeight(16),
-                                          color: isDark
-                                              ? AppColors.darkSecondaryText
-                                              : AppColors.textDarkGrey,
-                                        ),
-                                        border: InputBorder.none,
-                                        isDense: true,
+                                style: AppTextStyle.bodyTextMedium(
+                                  scaleHeight(16),
+                                  color: isDark
+                                      ? AppColors.white
+                                      : _primaryTextColor,
+                                ),
+                                cursorColor: _accentColor,
+                                decoration: InputDecoration(
+                                      hintText: l.aiInputPlaceholder,
+                                  hintStyle: AppTextStyle.bodyTextMedium(
+                                    scaleHeight(16),
+                                    color: isDark
+                                        ? AppColors.darkSecondaryText
+                                        : AppColors.textDarkGrey,
+                                  ),
+                                  border: InputBorder.none,
+                                  isDense: true,
                                         contentPadding: EdgeInsets.zero,
-                                      ),
+                                ),
                                       textInputAction: TextInputAction.newline,
-                                      onSubmitted: (_) => _sendMessage(),
-                                      enableInteractiveSelection: true,
-                                      enableSuggestions: true,
-                                      autocorrect: true,
-                                    ),
+                                onSubmitted: (_) => _sendMessage(),
+                                    enableInteractiveSelection: true,
+                                    enableSuggestions: true,
+                                    autocorrect: true,
+                              ),
                             ),
                                     GestureDetector(
                                       onTap: _startListening,
@@ -2517,12 +3055,14 @@ class ChatHistory {
     required this.title,
     required this.messages,
     this.conversationId,
+    this.context,
   });
 
   final String id;
   final String title;
   final List<ChatMessage> messages;
   String? conversationId;
+  Map<String, String>? context;
 }
 
 class _ChatMenuDrawer extends StatelessWidget {

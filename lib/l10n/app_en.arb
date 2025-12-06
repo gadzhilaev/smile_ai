@@ -78,6 +78,7 @@
   "authEmailHint": "Email",
   "authEmailErrorInvalid": "Enter a valid email",
   "authEmailErrorNotRegistered": "This email is not registered",
+  "authEmailErrorConnection": "Connection error. Check your internet and try again",
   "authButtonLogin": "LOG IN",
   "authNoAccount": "Don’t have an account? ",
   "authRegister": "Sign up",
@@ -494,7 +495,94 @@
   "templatesCategoryEducation": "Education",
   "templatesCategoryRealEstate": "Real Estate",
   "templatesCategoryRestaurant": "Restaurant Business",
-  "templatesCategoryLogistics": "Logistics"
+  "templatesCategoryLogistics": "Logistics",
+  "contextTitle": "Conversation Context",
+  "@contextTitle": {
+    "description": "Context settings dialog title"
+  },
+  "contextDescription": "Set the context for this conversation to get more relevant answers",
+  "@contextDescription": {
+    "description": "Context settings dialog description"
+  },
+  "contextUserRole": "Your role",
+  "@contextUserRole": {
+    "description": "User role selection field"
+  },
+  "contextUserRolePlaceholder": "Select your role",
+  "@contextUserRolePlaceholder": {
+    "description": "Placeholder for role selection"
+  },
+  "contextBusinessStage": "Business stage",
+  "@contextBusinessStage": {
+    "description": "Business stage selection field"
+  },
+  "contextBusinessStagePlaceholder": "Select business stage",
+  "@contextBusinessStagePlaceholder": {
+    "description": "Placeholder for business stage selection"
+  },
+  "contextGoal": "Goal",
+  "@contextGoal": {
+    "description": "Goal selection field"
+  },
+  "contextGoalPlaceholder": "Select goal",
+  "@contextGoalPlaceholder": {
+    "description": "Placeholder for goal selection"
+  },
+  "contextUrgency": "Urgency",
+  "@contextUrgency": {
+    "description": "Urgency selection field"
+  },
+  "contextUrgencyPlaceholder": "Select urgency",
+  "@contextUrgencyPlaceholder": {
+    "description": "Placeholder for urgency selection"
+  },
+  "contextRegion": "Region",
+  "@contextRegion": {
+    "description": "Region selection field"
+  },
+  "contextRegionPlaceholder": "Select region",
+  "@contextRegionPlaceholder": {
+    "description": "Placeholder for region selection"
+  },
+  "contextBusinessNiche": "Business niche",
+  "@contextBusinessNiche": {
+    "description": "Business niche selection field"
+  },
+  "contextBusinessNichePlaceholder": "Select business niche",
+  "@contextBusinessNichePlaceholder": {
+    "description": "Placeholder for business niche selection"
+  },
+  "contextCancel": "Cancel",
+  "@contextCancel": {
+    "description": "Cancel button"
+  },
+  "contextSave": "Save",
+  "@contextSave": {
+    "description": "Save button"
+  },
+  "contextUserRoleOwner": "Owner",
+  "contextUserRoleMarketer": "Marketer",
+  "contextUserRoleAccountant": "Accountant",
+  "contextUserRoleBeginner": "Beginner",
+  "contextBusinessStageStartup": "Startup",
+  "contextBusinessStageStable": "Stable",
+  "contextBusinessStageScaling": "Scaling",
+  "contextGoalIncreaseRevenue": "Increase revenue",
+  "contextGoalReduceCosts": "Reduce costs",
+  "contextGoalHireStaff": "Hire staff",
+  "contextGoalLaunchAds": "Launch ads",
+  "contextGoalLegalHelp": "Legal help",
+  "contextUrgencyUrgent": "Urgent",
+  "contextUrgencyNormal": "Normal",
+  "contextUrgencyPlanning": "Planning",
+  "contextBusinessNicheRetail": "Retail",
+  "contextBusinessNicheServices": "Services",
+  "contextBusinessNicheFoodService": "Food service",
+  "contextBusinessNicheManufacturing": "Manufacturing",
+  "contextBusinessNicheOnlineServices": "Online services",
+  "contextRegionRussia": "Russia",
+  "contextRegionAmerica": "America",
+  "contextRegionBritain": "Britain"
 }
 
 

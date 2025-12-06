@@ -107,6 +107,7 @@ class _EmailScreenState extends State<EmailScreen> {
     // Проверяем существование пользователя через API
     try {
       final result = await ApiService.instance.checkUser(email);
+      final hasNetworkError = result['error'] == 'network_error';
       final exists = result['exists'] == true;
 
       if (!mounted) return;
@@ -115,7 +116,14 @@ class _EmailScreenState extends State<EmailScreen> {
         _isLoading = false;
       });
 
-      if (exists) {
+      if (hasNetworkError) {
+        // Ошибка соединения / нет интернета
+        setState(() {
+          final l = AppLocalizations.of(context)!;
+          _showError = true;
+          _errorMessage = l.authEmailErrorConnection;
+        });
+      } else if (exists) {
         // Пользователь существует - переходим к вводу пароля
         setState(() {
           _showError = false;
@@ -142,7 +150,7 @@ class _EmailScreenState extends State<EmailScreen> {
         _isLoading = false;
         final l = AppLocalizations.of(context)!;
         _showError = true;
-        _errorMessage = l.authEmailErrorNotRegistered;
+        _errorMessage = l.authEmailErrorConnection;
       });
     }
   }

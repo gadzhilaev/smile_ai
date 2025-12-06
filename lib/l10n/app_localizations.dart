@@ -491,6 +491,12 @@ abstract class AppLocalizations {
   /// **'This email is not registered'**
   String get authEmailErrorNotRegistered;
 
+  /// No description provided for @authEmailErrorConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection error. Check your internet and try again'**
+  String get authEmailErrorConnection;
+
   /// No description provided for @authButtonLogin.
   ///
   /// In en, this message translates to:
@@ -2782,6 +2788,240 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Logistics'**
   String get templatesCategoryLogistics;
+
+  /// Context settings dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Conversation Context'**
+  String get contextTitle;
+
+  /// Context settings dialog description
+  ///
+  /// In en, this message translates to:
+  /// **'Set the context for this conversation to get more relevant answers'**
+  String get contextDescription;
+
+  /// User role selection field
+  ///
+  /// In en, this message translates to:
+  /// **'Your role'**
+  String get contextUserRole;
+
+  /// Placeholder for role selection
+  ///
+  /// In en, this message translates to:
+  /// **'Select your role'**
+  String get contextUserRolePlaceholder;
+
+  /// Business stage selection field
+  ///
+  /// In en, this message translates to:
+  /// **'Business stage'**
+  String get contextBusinessStage;
+
+  /// Placeholder for business stage selection
+  ///
+  /// In en, this message translates to:
+  /// **'Select business stage'**
+  String get contextBusinessStagePlaceholder;
+
+  /// Goal selection field
+  ///
+  /// In en, this message translates to:
+  /// **'Goal'**
+  String get contextGoal;
+
+  /// Placeholder for goal selection
+  ///
+  /// In en, this message translates to:
+  /// **'Select goal'**
+  String get contextGoalPlaceholder;
+
+  /// Urgency selection field
+  ///
+  /// In en, this message translates to:
+  /// **'Urgency'**
+  String get contextUrgency;
+
+  /// Placeholder for urgency selection
+  ///
+  /// In en, this message translates to:
+  /// **'Select urgency'**
+  String get contextUrgencyPlaceholder;
+
+  /// Region selection field
+  ///
+  /// In en, this message translates to:
+  /// **'Region'**
+  String get contextRegion;
+
+  /// Placeholder for region selection
+  ///
+  /// In en, this message translates to:
+  /// **'Select region'**
+  String get contextRegionPlaceholder;
+
+  /// Business niche selection field
+  ///
+  /// In en, this message translates to:
+  /// **'Business niche'**
+  String get contextBusinessNiche;
+
+  /// Placeholder for business niche selection
+  ///
+  /// In en, this message translates to:
+  /// **'Select business niche'**
+  String get contextBusinessNichePlaceholder;
+
+  /// Cancel button
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get contextCancel;
+
+  /// Save button
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get contextSave;
+
+  /// No description provided for @contextUserRoleOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get contextUserRoleOwner;
+
+  /// No description provided for @contextUserRoleMarketer.
+  ///
+  /// In en, this message translates to:
+  /// **'Marketer'**
+  String get contextUserRoleMarketer;
+
+  /// No description provided for @contextUserRoleAccountant.
+  ///
+  /// In en, this message translates to:
+  /// **'Accountant'**
+  String get contextUserRoleAccountant;
+
+  /// No description provided for @contextUserRoleBeginner.
+  ///
+  /// In en, this message translates to:
+  /// **'Beginner'**
+  String get contextUserRoleBeginner;
+
+  /// No description provided for @contextBusinessStageStartup.
+  ///
+  /// In en, this message translates to:
+  /// **'Startup'**
+  String get contextBusinessStageStartup;
+
+  /// No description provided for @contextBusinessStageStable.
+  ///
+  /// In en, this message translates to:
+  /// **'Stable'**
+  String get contextBusinessStageStable;
+
+  /// No description provided for @contextBusinessStageScaling.
+  ///
+  /// In en, this message translates to:
+  /// **'Scaling'**
+  String get contextBusinessStageScaling;
+
+  /// No description provided for @contextGoalIncreaseRevenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Increase revenue'**
+  String get contextGoalIncreaseRevenue;
+
+  /// No description provided for @contextGoalReduceCosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Reduce costs'**
+  String get contextGoalReduceCosts;
+
+  /// No description provided for @contextGoalHireStaff.
+  ///
+  /// In en, this message translates to:
+  /// **'Hire staff'**
+  String get contextGoalHireStaff;
+
+  /// No description provided for @contextGoalLaunchAds.
+  ///
+  /// In en, this message translates to:
+  /// **'Launch ads'**
+  String get contextGoalLaunchAds;
+
+  /// No description provided for @contextGoalLegalHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal help'**
+  String get contextGoalLegalHelp;
+
+  /// No description provided for @contextUrgencyUrgent.
+  ///
+  /// In en, this message translates to:
+  /// **'Urgent'**
+  String get contextUrgencyUrgent;
+
+  /// No description provided for @contextUrgencyNormal.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal'**
+  String get contextUrgencyNormal;
+
+  /// No description provided for @contextUrgencyPlanning.
+  ///
+  /// In en, this message translates to:
+  /// **'Planning'**
+  String get contextUrgencyPlanning;
+
+  /// No description provided for @contextBusinessNicheRetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Retail'**
+  String get contextBusinessNicheRetail;
+
+  /// No description provided for @contextBusinessNicheServices.
+  ///
+  /// In en, this message translates to:
+  /// **'Services'**
+  String get contextBusinessNicheServices;
+
+  /// No description provided for @contextBusinessNicheFoodService.
+  ///
+  /// In en, this message translates to:
+  /// **'Food service'**
+  String get contextBusinessNicheFoodService;
+
+  /// No description provided for @contextBusinessNicheManufacturing.
+  ///
+  /// In en, this message translates to:
+  /// **'Manufacturing'**
+  String get contextBusinessNicheManufacturing;
+
+  /// No description provided for @contextBusinessNicheOnlineServices.
+  ///
+  /// In en, this message translates to:
+  /// **'Online services'**
+  String get contextBusinessNicheOnlineServices;
+
+  /// No description provided for @contextRegionRussia.
+  ///
+  /// In en, this message translates to:
+  /// **'Russia'**
+  String get contextRegionRussia;
+
+  /// No description provided for @contextRegionAmerica.
+  ///
+  /// In en, this message translates to:
+  /// **'America'**
+  String get contextRegionAmerica;
+
+  /// No description provided for @contextRegionBritain.
+  ///
+  /// In en, this message translates to:
+  /// **'Britain'**
+  String get contextRegionBritain;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

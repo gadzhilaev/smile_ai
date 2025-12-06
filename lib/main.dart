@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -74,18 +73,18 @@ void main() async {
   // Инициализируем ProfileService для загрузки данных из .env
   await ProfileService.instance.init();
 
-  // Проверяем health сервера
-  final isHealthy = await ApiService.instance.checkHealth();
-  
-  if (!isHealthy) {
-    // Закрываем приложение если health check не прошел
-    FlutterNativeSplash.remove();
-    if (Platform.isAndroid) {
-      SystemNavigator.pop();
+  // Проверяем health сервера (НЕ закрываем приложение, просто логируем статус)
+  try {
+    final isHealthy = await ApiService.instance.checkHealth();
+    if (!isHealthy) {
+      debugPrint('main.dart: API health check failed, but app will continue to run');
     } else {
-      exit(0);
+      debugPrint('main.dart: API health check OK');
     }
-    return;
+  } catch (e, stackTrace) {
+    debugPrint('main.dart: error during API health check: $e');
+    debugPrint('main.dart: stack trace: $stackTrace');
+    // Не останавливаем приложение при ошибке health-check
   }
 
   // Проверяем токен до запуска приложения

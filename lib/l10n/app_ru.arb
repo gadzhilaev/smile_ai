@@ -78,6 +78,7 @@
   "authEmailHint": "Email",
   "authEmailErrorInvalid": "Введите корректную почту",
   "authEmailErrorNotRegistered": "Эта почта не зарегистрирована",
+  "authEmailErrorConnection": "Ошибка соединения. Проверьте интернет и попробуйте снова",
   "authButtonLogin": "ВОЙТИ",
   "authNoAccount": "Нет аккаунта? ",
   "authRegister": "Зарегистрируйтесь",
@@ -494,7 +495,94 @@
   "templatesCategoryEducation": "Образование",
   "templatesCategoryRealEstate": "Недвижимость",
   "templatesCategoryRestaurant": "Ресторанный бизнес",
-  "templatesCategoryLogistics": "Логистика"
+  "templatesCategoryLogistics": "Логистика",
+  "contextTitle": "Контекст разговора",
+  "@contextTitle": {
+    "description": "Заголовок диалога настроек контекста"
+  },
+  "contextDescription": "Установите контекст для этого разговора, чтобы получать более релевантные ответы",
+  "@contextDescription": {
+    "description": "Описание диалога настроек контекста"
+  },
+  "contextUserRole": "Ваша роль",
+  "@contextUserRole": {
+    "description": "Поле выбора роли пользователя"
+  },
+  "contextUserRolePlaceholder": "Выберите вашу роль",
+  "@contextUserRolePlaceholder": {
+    "description": "Плейсхолдер для выбора роли"
+  },
+  "contextBusinessStage": "Стадия бизнеса",
+  "@contextBusinessStage": {
+    "description": "Поле выбора стадии бизнеса"
+  },
+  "contextBusinessStagePlaceholder": "Выберите стадию бизнеса",
+  "@contextBusinessStagePlaceholder": {
+    "description": "Плейсхолдер для выбора стадии бизнеса"
+  },
+  "contextGoal": "Цель",
+  "@contextGoal": {
+    "description": "Поле выбора цели"
+  },
+  "contextGoalPlaceholder": "Выберите цель",
+  "@contextGoalPlaceholder": {
+    "description": "Плейсхолдер для выбора цели"
+  },
+  "contextUrgency": "Срочность",
+  "@contextUrgency": {
+    "description": "Поле выбора срочности"
+  },
+  "contextUrgencyPlaceholder": "Выберите срочность",
+  "@contextUrgencyPlaceholder": {
+    "description": "Плейсхолдер для выбора срочности"
+  },
+  "contextRegion": "Регион",
+  "@contextRegion": {
+    "description": "Поле выбора региона"
+  },
+  "contextRegionPlaceholder": "Выберите регион",
+  "@contextRegionPlaceholder": {
+    "description": "Плейсхолдер для выбора региона"
+  },
+  "contextBusinessNiche": "Ниша бизнеса",
+  "@contextBusinessNiche": {
+    "description": "Поле выбора ниши бизнеса"
+  },
+  "contextBusinessNichePlaceholder": "Выберите нишу бизнеса",
+  "@contextBusinessNichePlaceholder": {
+    "description": "Плейсхолдер для выбора ниши бизнеса"
+  },
+  "contextCancel": "Отмена",
+  "@contextCancel": {
+    "description": "Кнопка отмены"
+  },
+  "contextSave": "Сохранить",
+  "@contextSave": {
+    "description": "Кнопка сохранения"
+  },
+  "contextUserRoleOwner": "Владелец",
+  "contextUserRoleMarketer": "Маркетолог",
+  "contextUserRoleAccountant": "Бухгалтер",
+  "contextUserRoleBeginner": "Новичок",
+  "contextBusinessStageStartup": "Стартап",
+  "contextBusinessStageStable": "Стабильный",
+  "contextBusinessStageScaling": "Масштабирование",
+  "contextGoalIncreaseRevenue": "Увеличить доход",
+  "contextGoalReduceCosts": "Снизить затраты",
+  "contextGoalHireStaff": "Нанять сотрудников",
+  "contextGoalLaunchAds": "Запустить рекламу",
+  "contextGoalLegalHelp": "Юридическая помощь",
+  "contextUrgencyUrgent": "Срочно",
+  "contextUrgencyNormal": "Обычно",
+  "contextUrgencyPlanning": "Планирование",
+  "contextBusinessNicheRetail": "Розница",
+  "contextBusinessNicheServices": "Услуги",
+  "contextBusinessNicheFoodService": "Общественное питание",
+  "contextBusinessNicheManufacturing": "Производство",
+  "contextBusinessNicheOnlineServices": "Онлайн-услуги",
+  "contextRegionRussia": "Россия",
+  "contextRegionAmerica": "Америка",
+  "contextRegionBritain": "Британия"
 }
 
 

@@ -17,9 +17,47 @@ class EnvUtils {
       final envPath = await _getEnvFilePath();
       final envFile = File(envPath);
       
-      // Если файл уже существует, ничего не делаем
+      // Если файл уже существует, проверяем и при необходимости дописываем недостающие поля CONTEXT_*
       if (await envFile.exists()) {
-        debugPrint('EnvUtils: .env file already exists, skipping creation');
+        debugPrint('EnvUtils: .env file already exists, checking for CONTEXT_* keys');
+        try {
+          String content = await envFile.readAsString();
+          final lines = content.split('\n');
+
+          final List<String> requiredKeys = [
+            'CONTEXT_USER_ROLE',
+            'CONTEXT_BUSINESS_STAGE',
+            'CONTEXT_GOAL',
+            'CONTEXT_URGENCY',
+            'CONTEXT_REGION',
+            'CONTEXT_BUSINESS_NICHE',
+          ];
+
+          bool changed = false;
+
+          for (final key in requiredKeys) {
+            final exists = lines.any((line) => line.startsWith('$key='));
+            if (!exists) {
+              debugPrint('EnvUtils: $key not found in existing .env, adding empty value');
+              if (content.isNotEmpty && !content.endsWith('\n')) {
+                lines.add('');
+              }
+              lines.add('$key=');
+              changed = true;
+            }
+          }
+
+          if (changed) {
+            final newContent = lines.join('\n');
+            await envFile.writeAsString(newContent, flush: true);
+            debugPrint('EnvUtils: .env file updated with missing CONTEXT_* keys');
+          } else {
+            debugPrint('EnvUtils: all CONTEXT_* keys already present');
+          }
+        } catch (e, stackTrace) {
+          debugPrint('EnvUtils: error while upgrading existing .env: $e');
+          debugPrint('EnvUtils: stack trace: $stackTrace');
+        }
         return;
       }
       
@@ -34,6 +72,12 @@ USER_NICKNAME=
 USER_PHONE=
 USER_COUNTRY=
 USER_GENDER=
+CONTEXT_USER_ROLE=
+CONTEXT_BUSINESS_STAGE=
+CONTEXT_GOAL=
+CONTEXT_URGENCY=
+CONTEXT_REGION=
+CONTEXT_BUSINESS_NICHE=
 ''';
       
       // Создаем родительские директории, если их нет
@@ -495,6 +539,12 @@ USER_NICKNAME=
 USER_PHONE=
 USER_COUNTRY=
 USER_GENDER=
+CONTEXT_USER_ROLE=
+CONTEXT_BUSINESS_STAGE=
+CONTEXT_GOAL=
+CONTEXT_URGENCY=
+CONTEXT_REGION=
+CONTEXT_BUSINESS_NICHE=
 ''';
       
       // Создаем родительские директории, если их нет
@@ -518,6 +568,12 @@ USER_GENDER=
         dotenv.env['USER_PHONE'] = '';
         dotenv.env['USER_COUNTRY'] = '';
         dotenv.env['USER_GENDER'] = '';
+        dotenv.env['CONTEXT_USER_ROLE'] = '';
+        dotenv.env['CONTEXT_BUSINESS_STAGE'] = '';
+        dotenv.env['CONTEXT_GOAL'] = '';
+        dotenv.env['CONTEXT_URGENCY'] = '';
+        dotenv.env['CONTEXT_REGION'] = '';
+        dotenv.env['CONTEXT_BUSINESS_NICHE'] = '';
         debugPrint('EnvUtils: in-memory .env values cleared');
       }
     } catch (e, stackTrace) {
@@ -525,6 +581,127 @@ USER_GENDER=
       debugPrint('EnvUtils: error type: ${e.runtimeType}');
       debugPrint('EnvUtils: stack trace: $stackTrace');
       rethrow;
+    }
+  }
+
+  /// Сохранить контекст беседы в .env файл
+  static Future<void> saveConversationContext(Map<String, String>? context) async {
+    try {
+      final envPath = await _getEnvFilePath();
+      final envFile = File(envPath);
+      
+      String content = '';
+      
+      if (await envFile.exists()) {
+        content = await envFile.readAsString();
+        debugPrint('EnvUtils: .env file exists, current content length: ${content.length}');
+      } else {
+        debugPrint('EnvUtils: .env file does not exist, will create new one');
+      }
+      
+      // Ищем существующие строки с контекстом
+      final lines = content.split('\n');
+      final Map<String, String> contextKeys = {
+        'CONTEXT_USER_ROLE': context?['user_role'] ?? '',
+        'CONTEXT_BUSINESS_STAGE': context?['business_stage'] ?? '',
+        'CONTEXT_GOAL': context?['goal'] ?? '',
+        'CONTEXT_URGENCY': context?['urgency'] ?? '',
+        'CONTEXT_REGION': context?['region'] ?? '',
+        'CONTEXT_BUSINESS_NICHE': context?['business_niche'] ?? '',
+      };
+      
+      // Обновляем или добавляем каждое поле
+      for (final entry in contextKeys.entries) {
+        bool found = false;
+        for (int i = 0; i < lines.length; i++) {
+          if (lines[i].startsWith('${entry.key}=')) {
+            lines[i] = '${entry.key}=${entry.value}';
+            found = true;
+            debugPrint('EnvUtils: found existing ${entry.key} line, updating it');
+            break;
+          }
+        }
+        
+        if (!found) {
+          debugPrint('EnvUtils: ${entry.key} line not found, adding new one');
+          if (content.isNotEmpty && !content.endsWith('\n')) {
+            lines.add('');
+          }
+          lines.add('${entry.key}=${entry.value}');
+        }
+      }
+      
+      // Записываем обратно в файл
+      final newContent = lines.join('\n');
+      debugPrint('EnvUtils: writing conversation context to file: $envPath');
+      
+      // Создаем родительские директории, если их нет
+      final parentDir = envFile.parent;
+      if (!await parentDir.exists()) {
+        await parentDir.create(recursive: true);
+        debugPrint('EnvUtils: created parent directory: ${parentDir.path}');
+      }
+      
+      // Записываем файл
+      await envFile.writeAsString(newContent, flush: true);
+      debugPrint('EnvUtils: conversation context write completed');
+      
+      // Обновляем в памяти
+      for (final entry in contextKeys.entries) {
+        _updateInMemoryEnv(entry.key, entry.value);
+      }
+    } catch (e, stackTrace) {
+      debugPrint('EnvUtils: error saving conversation context in .env: $e');
+      debugPrint('EnvUtils: error type: ${e.runtimeType}');
+      debugPrint('EnvUtils: stack trace: $stackTrace');
+      rethrow;
+    }
+  }
+
+  /// Загрузить контекст беседы из .env файла
+  static Map<String, String>? loadConversationContext() {
+    try {
+      if (!dotenv.isInitialized) {
+        debugPrint('EnvUtils: dotenv not initialized, cannot load context');
+        return null;
+      }
+      
+      final Map<String, String> context = {};
+      
+      final userRole = dotenv.env['CONTEXT_USER_ROLE']?.trim();
+      if (userRole != null && userRole.isNotEmpty) {
+        context['user_role'] = userRole;
+      }
+      
+      final businessStage = dotenv.env['CONTEXT_BUSINESS_STAGE']?.trim();
+      if (businessStage != null && businessStage.isNotEmpty) {
+        context['business_stage'] = businessStage;
+      }
+      
+      final goal = dotenv.env['CONTEXT_GOAL']?.trim();
+      if (goal != null && goal.isNotEmpty) {
+        context['goal'] = goal;
+      }
+      
+      final urgency = dotenv.env['CONTEXT_URGENCY']?.trim();
+      if (urgency != null && urgency.isNotEmpty) {
+        context['urgency'] = urgency;
+      }
+      
+      final region = dotenv.env['CONTEXT_REGION']?.trim();
+      if (region != null && region.isNotEmpty) {
+        context['region'] = region;
+      }
+      
+      final businessNiche = dotenv.env['CONTEXT_BUSINESS_NICHE']?.trim();
+      if (businessNiche != null && businessNiche.isNotEmpty) {
+        context['business_niche'] = businessNiche;
+      }
+      
+      return context.isNotEmpty ? context : null;
+    } catch (e) {
+      debugPrint('EnvUtils: error loading conversation context from .env: $e');
+      return null;
     }
   }
 }
