@@ -1031,6 +1031,28 @@ class _SupportScreenState extends State<SupportScreen> {
                                 ],
                           ),
                             ),
+                            // Сообщение о переключении на сотрудника после каждого сообщения пользователя (только текст, без контейнера)
+                            if (!message.fromSupport)
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  top: scaleHeight(8),
+                                  bottom: isLast ? 0 : scaleHeight(20),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    AppLocalizations.of(context)!.aiStaffMessage,
+                                    style: AppTextStyle.bodyTextMedium(
+                                      scaleHeight(14),
+                                      color: isDark 
+                                          ? AppColors.darkSecondaryText 
+                                          : AppColors.textDarkGrey,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    maxLines: 3,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
                           ],
                         );
                       },
@@ -1108,9 +1130,13 @@ class _SupportScreenState extends State<SupportScreen> {
                     bottom: scaleHeight(34) +
                         MediaQuery.of(context).padding.bottom,
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
                       // Левая иконка (скрепка) СНАРУЖИ поля
                       GestureDetector(
                         onTap: _pickImage,
@@ -1180,6 +1206,8 @@ class _SupportScreenState extends State<SupportScreen> {
                           height: scaleWidth(24),
                           fit: BoxFit.contain,
                         ),
+                      ),
+                        ],
                       ),
                     ],
                   ),

@@ -63,8 +63,6 @@ class _AiScreenState extends State<AiScreen> {
   bool _isEditMode = false;
   bool _showCopyToast = false;
   Timer? _copyToastTimer;
-  bool _showStaffMessage = false;
-  Timer? _staffMessageTimer;
   int? _selectedChatIndexForContextMenu;
   OverlayEntry? _chatMenuOverlay;
   bool _showScrollDownButton = false;
@@ -1521,30 +1519,6 @@ class _AiScreenState extends State<AiScreen> {
     });
   }
 
-  /// Проверка наличия изображений в тексте (base64, data:image и т.д.)
-  bool _checkForImages(String text) {
-    // Проверяем на base64 изображения
-    if (text.contains('data:image/') || text.contains('base64')) {
-      return true;
-    }
-    // Можно добавить другие проверки (URL изображений, файлы и т.д.)
-    return false;
-  }
-
-  void _showStaffMessageOnce() {
-    _staffMessageTimer?.cancel();
-    setState(() {
-      _showStaffMessage = true;
-    });
-    _staffMessageTimer = Timer(const Duration(seconds: 3), () {
-      if (!mounted) return;
-      setState(() {
-        _showStaffMessage = false;
-      });
-    });
-  }
-
-
   // Функция для удаления markdown-символов из текста
   static String _stripMarkdown(String text) {
     if (text.isEmpty) return text;
@@ -1858,12 +1832,6 @@ class _AiScreenState extends State<AiScreen> {
     final text = TextUtils.safeText(_inputController.text.trim());
     if (text.isEmpty || _isTyping) {
       return;
-    }
-
-    // Проверяем, есть ли в сообщении изображения (base64 или другие форматы)
-    final hasImages = _checkForImages(text);
-    if (hasImages) {
-      _showStaffMessageOnce();
     }
 
     // Если режим редактирования, сохраняем текст и выходим из режима редактирования
@@ -2428,12 +2396,12 @@ class _AiScreenState extends State<AiScreen> {
                   bottom: scaleHeight(20),
                 ),
                 child: Column(
-                        mainAxisSize: MainAxisSize.min,
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
+                  children: [
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
+                      children: [
                     Expanded(
                           child: Align(
                             alignment: Alignment.bottomCenter,
@@ -2566,35 +2534,9 @@ class _AiScreenState extends State<AiScreen> {
                           ),
                         ),
                       ),
-                        ),
+                    ),
                       ],
                     ),
-                    // Сообщение о переключении на сотрудника (под текстовым полем и кнопкой)
-                    if (_showStaffMessage)
-                      Padding(
-                        padding: EdgeInsets.only(top: scaleHeight(8)),
-                        child: Center(
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: scaleWidth(16),
-                              vertical: scaleHeight(8),
-                            ),
-                            decoration: BoxDecoration(
-                              color: (isDark ? AppColors.white : AppColors.black)
-                                  .withValues(alpha: isDark ? 0.8 : 0.9),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              l.aiStaffMessage,
-                              style: AppTextStyle.bodyTextMedium(
-                                14,
-                                color: isDark ? AppColors.black : Colors.white,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ),
-                      ),
                   ],
                 ),
               ),
@@ -2602,7 +2544,7 @@ class _AiScreenState extends State<AiScreen> {
           ),
         ),
       ),
-          if (_showCopyToast)
+      if (_showCopyToast)
             Center(
               child: Container(
                 padding: const EdgeInsets.symmetric(
