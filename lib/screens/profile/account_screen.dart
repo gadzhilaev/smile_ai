@@ -24,11 +24,13 @@ class _AccountScreenState extends State<AccountScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _telegramController = TextEditingController();
 
   final FocusNode _fullNameFocus = FocusNode();
   final FocusNode _usernameFocus = FocusNode();
   final FocusNode _emailFocus = FocusNode();
   final FocusNode _phoneFocus = FocusNode();
+  final FocusNode _telegramFocus = FocusNode();
 
   String? _selectedCountry = 'russia';
   String? _selectedGender = 'male';
@@ -92,6 +94,7 @@ class _AccountScreenState extends State<AccountScreen> {
       final nickname = _usernameController.text.trim();
       final email = _emailController.text.trim();
       final phone = _phoneController.text.trim();
+      final telegramUsername = _telegramController.text.trim();
       
       if (!mounted) return;
       final country = _getCountryName(_selectedCountry, context);
@@ -106,6 +109,7 @@ class _AccountScreenState extends State<AccountScreen> {
         phone: phone,
         country: country,
         gender: gender,
+        telegramUsername: telegramUsername.isNotEmpty ? telegramUsername : null,
       );
 
       if (!mounted) return;
@@ -134,6 +138,7 @@ class _AccountScreenState extends State<AccountScreen> {
           phone: result['phone'] as String? ?? phone,
           country: result['country'] as String? ?? country,
           gender: result['gender'] as String? ?? gender,
+          telegramUsername: result['telegram_username'] as String? ?? (telegramUsername.isNotEmpty ? telegramUsername : null),
         );
         debugPrint('AccountScreen: profile data saved to .env successfully');
       } catch (e) {
@@ -184,6 +189,10 @@ class _AccountScreenState extends State<AccountScreen> {
     // Инициализируем ProfileService для загрузки данных из .env
     await ProfileService.instance.init();
     
+    // Загружаем .env для получения telegram_username
+    await dotenv.load(fileName: ".env");
+    await EnvUtils.mergeRuntimeEnvIntoDotenv();
+    
     final profileService = ProfileService.instance;
     _fullNameController.text = profileService.fullName;
     _usernameController.text = profileService.username;
@@ -191,6 +200,13 @@ class _AccountScreenState extends State<AccountScreen> {
     _phoneController.text = profileService.phone;
     _selectedCountry = profileService.country;
     _selectedGender = profileService.gender;
+    
+    // Загружаем telegram_username из .env
+    final telegramUsername = dotenv.env['USER_TELEGRAM_USERNAME'] ?? '';
+    if (telegramUsername.isNotEmpty) {
+      _telegramController.text = telegramUsername;
+    }
+    
     setState(() {}); // Обновляем состояние для выпадающих списков
   }
 
@@ -200,10 +216,12 @@ class _AccountScreenState extends State<AccountScreen> {
     _usernameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
+    _telegramController.dispose();
     _fullNameFocus.dispose();
     _usernameFocus.dispose();
     _emailFocus.dispose();
     _phoneFocus.dispose();
+    _telegramFocus.dispose();
     super.dispose();
   }
 
@@ -343,6 +361,30 @@ class _AccountScreenState extends State<AccountScreen> {
                             designHeight: _designHeight,
                           ),
                         ],
+                      ),
+                      SizedBox(height: scaleHeight(26)),
+                      // Поле Telegram никнейма
+                      _TelegramInputField(
+                        controller: _telegramController,
+                        focusNode: _telegramFocus,
+                        hintText: l.authFieldTelegram,
+                        designWidth: _designWidth,
+                        designHeight: _designHeight,
+                      ),
+                      SizedBox(height: scaleHeight(8)),
+                      // Подсказка под полем Telegram
+                      Padding(
+                        padding: EdgeInsets.only(left: scaleWidth(18)),
+                        child: Text(
+                          l.authTelegramHint,
+                          style: AppTextStyle.bodyText(
+                            scaleHeight(12),
+                          ).copyWith(
+                            color: isDark
+                                ? AppColors.textSecondary
+                                : AppColors.textSecondary,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -1106,3 +1148,163 @@ class _GenderDropdownFieldState extends State<_GenderDropdownField> {
   }
 }
 
+
+
+class _TelegramInputField extends StatefulWidget {
+  const _TelegramInputField({
+    required this.controller,
+    required this.focusNode,
+    required this.hintText,
+    required this.designWidth,
+    required this.designHeight,
+  });
+
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final String hintText;
+  final double designWidth;
+  final double designHeight;
+
+  @override
+  State<_TelegramInputField> createState() => _TelegramInputFieldState();
+}
+
+class _TelegramInputFieldState extends State<_TelegramInputField> {
+  bool _isFocused = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.focusNode.addListener(_onFocusChange);
+    widget.controller.addListener(_onTextChange);
+  }
+
+  @override
+  void dispose() {
+    widget.focusNode.removeListener(_onFocusChange);
+    widget.controller.removeListener(_onTextChange);
+    super.dispose();
+  }
+
+  void _onFocusChange() {
+    if (mounted) {
+      setState(() {
+        _isFocused = widget.focusNode.hasFocus;
+      });
+    }
+  }
+
+  void _onTextChange() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  String _formatTelegramUsername(String text) {
+    String cleaned = text.replaceAll('@', '');
+    if (cleaned.isNotEmpty) {
+      return '@$cleaned';
+    }
+    return '';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final double widthFactor = size.width / widget.designWidth;
+    final double heightFactor = size.height / widget.designHeight;
+
+    double scaleWidth(double value) => value * widthFactor;
+    double scaleHeight(double value) => value * heightFactor;
+
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final bool hasText = widget.controller.text.isNotEmpty;
+    final bool showLabel = _isFocused || hasText;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: scaleWidth(376),
+          height: scaleHeight(52),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.black : AppColors.white,
+            borderRadius: BorderRadius.circular(scaleHeight(8)),
+            border: Border.all(
+              color: isDark ? AppColors.white : AppColors.black,
+              width: 1,
+            ),
+          ),
+          padding: EdgeInsets.symmetric(horizontal: scaleWidth(18)),
+          child: Column(
+            mainAxisAlignment: showLabel
+                ? MainAxisAlignment.start
+                : MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (showLabel) SizedBox(height: scaleHeight(8)),
+              if (showLabel)
+                Text(
+                  widget.hintText,
+                  style: AppTextStyle.fieldLabel(
+                    scaleHeight(10),
+                  ).copyWith(
+                    color: isDark
+                        ? AppColors.textSecondary
+                        : AppColors.textSecondary,
+                  ),
+                ),
+              if (showLabel) SizedBox(height: scaleHeight(4)),
+              Expanded(
+                child: Center(
+                  child: TextField(
+                    controller: widget.controller,
+                    focusNode: widget.focusNode,
+                    style: AppTextStyle.fieldText(
+                      scaleHeight(14),
+                    ).copyWith(
+                      color: isDark
+                          ? AppColors.white
+                          : AppColors.textPrimary,
+                    ),
+                    cursorColor: isDark
+                        ? AppColors.white
+                        : AppColors.textPrimary,
+                    decoration: InputDecoration(
+                      hintText: showLabel ? null : widget.hintText,
+                      hintStyle: AppTextStyle.fieldHint(
+                        scaleHeight(10),
+                      ).copyWith(
+                        color: isDark
+                            ? AppColors.textSecondary
+                            : AppColors.textSecondary,
+                      ),
+                      border: InputBorder.none,
+                      isDense: true,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                    textInputAction: TextInputAction.next,
+                    onChanged: (value) {
+                      final formatted = _formatTelegramUsername(value);
+                      if (formatted != widget.controller.text) {
+                        final newOffset = formatted.length;
+                        widget.controller.value = TextEditingValue(
+                          text: formatted,
+                          selection: TextSelection.collapsed(
+                            offset: newOffset,
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}

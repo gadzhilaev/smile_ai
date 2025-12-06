@@ -292,6 +292,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authFieldPhone => 'Phone number';
 
   @override
+  String get authFieldTelegram => 'TG username';
+
+  @override
+  String get authTelegramHint => 'TG Username is needed to sync chats with our Telegram bot';
+
+  @override
   String get authFieldCountry => 'Country';
 
   @override

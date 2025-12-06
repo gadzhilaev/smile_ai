@@ -13,9 +13,14 @@ import '../widgets/auth_input_field.dart';
 import '../widgets/auth_submit_button.dart';
 
 class RegistrationSuccessScreen extends StatefulWidget {
-  const RegistrationSuccessScreen({super.key, required this.email});
+  const RegistrationSuccessScreen({
+    super.key,
+    required this.email,
+    this.profilePictureId,
+  });
 
   final String email;
+  final String? profilePictureId;
 
   @override
   State<RegistrationSuccessScreen> createState() =>
@@ -251,12 +256,50 @@ class _RegistrationSuccessScreenState extends State<RegistrationSuccessScreen> {
                 SizedBox(height: scaleHeight(98)),
                 Center(
                   child: ClipOval(
-                    child: Image.asset(
-                      'assets/images/avatar.png',
-                      width: scaleWidth(130),
-                      height: scaleHeight(130),
-                      fit: BoxFit.cover,
-                    ),
+                    child: widget.profilePictureId != null
+                        ? Image.network(
+                            '${ApiService.baseUrl}/api/files/${widget.profilePictureId}',
+                            width: scaleWidth(130),
+                            height: scaleHeight(130),
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              // Если ошибка загрузки, показываем дефолтную аватарку
+                              return Container(
+                                width: scaleWidth(130),
+                                height: scaleHeight(130),
+                                decoration: BoxDecoration(
+                                  color: isDark
+                                      ? AppColors.darkBackgroundCard
+                                      : AppColors.textSecondary.withValues(alpha: 0.2),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.person,
+                                  size: scaleWidth(65),
+                                  color: isDark
+                                      ? AppColors.darkSecondaryText
+                                      : AppColors.textSecondary,
+                                ),
+                              );
+                            },
+                          )
+                        : Container(
+                            width: scaleWidth(130),
+                            height: scaleHeight(130),
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? AppColors.darkBackgroundCard
+                                  : AppColors.textSecondary.withValues(alpha: 0.2),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.person,
+                              size: scaleWidth(65),
+                              color: isDark
+                                  ? AppColors.darkSecondaryText
+                                  : AppColors.textSecondary,
+                            ),
+                          ),
                   ),
                 ),
                 SizedBox(height: scaleHeight(14)),

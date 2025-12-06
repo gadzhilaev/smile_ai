@@ -653,6 +653,18 @@ abstract class AppLocalizations {
   /// **'Phone number'**
   String get authFieldPhone;
 
+  /// No description provided for @authFieldTelegram.
+  ///
+  /// In en, this message translates to:
+  /// **'TG username'**
+  String get authFieldTelegram;
+
+  /// No description provided for @authTelegramHint.
+  ///
+  /// In en, this message translates to:
+  /// **'TG Username is needed to sync chats with our Telegram bot'**
+  String get authTelegramHint;
+
   /// No description provided for @authFieldCountry.
   ///
   /// In en, this message translates to:

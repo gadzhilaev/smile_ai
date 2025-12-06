@@ -107,6 +107,8 @@
   "authFieldNickname": "Nickname",
   "authFieldEmail": "Email",
   "authFieldPhone": "Phone number",
+  "authFieldTelegram": "TG username",
+  "authTelegramHint": "TG Username is needed to sync chats with our Telegram bot",
   "authFieldCountry": "Country",
   "authFieldGender": "Gender",
   "authCountryRussia": "Russia",

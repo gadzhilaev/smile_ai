@@ -152,12 +152,13 @@ class ApiService {
     required String phone,
     required String country,
     required String gender,
+    String? telegramUsername,
   }) async {
     try {
       final url = Uri.parse('$_baseUrl/api/auth/register');
       debugPrint('ApiService: register at URL: $url');
       
-      final requestBody = {
+      final requestBody = <String, dynamic>{
         'email': email,
         'password': password,
         'full_name': fullName,
@@ -166,6 +167,10 @@ class ApiService {
         'country': country,
         'gender': gender,
       };
+      
+      if (telegramUsername != null && telegramUsername.isNotEmpty) {
+        requestBody['telegram_username'] = telegramUsername;
+      }
       
       debugPrint('ApiService: register request body: $requestBody');
       
@@ -247,11 +252,13 @@ class ApiService {
       );
       
       debugPrint('ApiService: sendMessage response status code: ${response.statusCode}');
-      debugPrint('ApiService: sendMessage response body: ${response.body}');
+      // Убираем вывод JSON с таблицами
+      // debugPrint('ApiService: sendMessage response body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final decoded = json.decode(response.body) as Map<String, dynamic>;
-        debugPrint('ApiService: sendMessage decoded response: $decoded');
+        // Убираем вывод JSON с таблицами
+        // debugPrint('ApiService: sendMessage decoded response: $decoded');
         return decoded;
       } else {
         final decoded = json.decode(response.body) as Map<String, dynamic>;
@@ -501,6 +508,7 @@ class ApiService {
     required String country,
     required String gender,
     String? profilePictureId,
+    String? telegramUsername,
   }) async {
     try {
       final url = Uri.parse('$_baseUrl/api/auth/profile?token=$token');
@@ -519,6 +527,11 @@ class ApiService {
       // Пустая строка или null на стороне бэкенда очистит аватар
       if (profilePictureId != null) {
         requestBody['profile_picture'] = profilePictureId;
+      }
+      
+      // Если передан telegram_username, добавляем в тело запроса
+      if (telegramUsername != null && telegramUsername.isNotEmpty) {
+        requestBody['telegram_username'] = telegramUsername;
       }
       
       debugPrint('ApiService: updateProfile request body: $requestBody');

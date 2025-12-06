@@ -109,6 +109,7 @@ class _EmailScreenState extends State<EmailScreen> {
       final result = await ApiService.instance.checkUser(email);
       final hasNetworkError = result['error'] == 'network_error';
       final exists = result['exists'] == true;
+      final profilePictureId = result['profile_picture'] as String?;
 
       if (!mounted) return;
 
@@ -133,7 +134,12 @@ class _EmailScreenState extends State<EmailScreen> {
         FocusScope.of(context).unfocus();
         Navigator.of(context).push(
           MaterialPageRoute<void>(
-            builder: (_) => RegistrationSuccessScreen(email: email),
+            builder: (_) => RegistrationSuccessScreen(
+              email: email,
+              profilePictureId: (profilePictureId != null && profilePictureId.isNotEmpty)
+                  ? profilePictureId
+                  : null,
+            ),
           ),
         );
       } else {

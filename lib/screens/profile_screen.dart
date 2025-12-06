@@ -92,6 +92,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           phone: result['phone'] as String? ?? '',
           country: result['country'] as String? ?? '',
           gender: result['gender'] as String? ?? '',
+          telegramUsername: result['telegram_username'] as String?,
         );
         debugPrint('ProfileScreen: profile data saved to .env successfully');
       } catch (e) {

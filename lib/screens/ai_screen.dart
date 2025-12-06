@@ -6,14 +6,13 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:excel/excel.dart' hide Border;
+import 'package:excel/excel.dart' hide Border, TextSpan;
 import 'package:csv/csv.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:markdown/markdown.dart' as md;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
@@ -259,8 +258,11 @@ class _AiScreenState extends State<AiScreen> {
                 files = filesByMessageId[messageId];
               }
               
+              // Удаляем JSON блоки из текста сообщения
+              final cleanedContent = _MessageBubble._applyMarkdownFormatting(content);
+              
               loadedMessages.add(ChatMessage(
-                text: TextUtils.safeText(content),
+                text: TextUtils.safeText(cleanedContent),
                 isUser: isUser,
                 isThinking: false,
                 files: files,
@@ -349,8 +351,11 @@ class _AiScreenState extends State<AiScreen> {
                 files = filesByMessageId[messageId];
               }
               
+              // Удаляем JSON блоки из текста сообщения
+              final cleanedContent = _MessageBubble._applyMarkdownFormatting(content);
+              
               loadedMessages.add(ChatMessage(
-                text: TextUtils.safeText(content),
+                text: TextUtils.safeText(cleanedContent),
                 isUser: isUser,
                 isThinking: false,
                 files: files,
@@ -580,7 +585,7 @@ class _AiScreenState extends State<AiScreen> {
       }
 
       // Успешный ответ - переходим от "думает" к генерации
-      final responseText = TextUtils.safeText(result['response'] as String? ?? '');
+      var responseText = TextUtils.safeText(result['response'] as String? ?? '');
       final newConversationId = result['conversation_id'] as String?;
       
       // Парсим файлы из ответа
@@ -615,7 +620,9 @@ class _AiScreenState extends State<AiScreen> {
       }
 
       // Отображаем ответ с анимацией печати
+      // Текст печатается по буквам, но JSON блоки пропускаются
     _typingTimer?.cancel();
+      bool jsonBlockSkipped = false; // Флаг, что JSON блок уже пропущен
     _typingTimer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
         if (!mounted) {
           timer.cancel();
@@ -624,11 +631,13 @@ class _AiScreenState extends State<AiScreen> {
       setState(() {
           if (_currentTypingIndex >= responseText.length) {
           timer.cancel();
+            // Удаляем JSON блоки с таблицами из финального текста
+            final cleanedResponseText = _MessageBubble._applyMarkdownFormatting(responseText);
             _messages[_messages.length - 1] = ChatMessage(
-              text: responseText,
+              text: cleanedResponseText,
             isUser: false,
-            isThinking: false,
-            files: files, // Добавляем файлы в сообщение
+              isThinking: false,
+              files: files, // Добавляем файлы в сообщение
           );
           _isTyping = false;
             // Сохраняем чат после завершения генерации
@@ -639,18 +648,76 @@ class _AiScreenState extends State<AiScreen> {
               conversationId: newConversationId,
             );
         } else {
+            // Проверяем, находимся ли мы внутри JSON блока с таблицей
+            final jsonStartIndex = responseText.indexOf('```json');
+            bool isInJsonBlock = false;
+            int jsonEndIndex = -1;
+            
+            if (jsonStartIndex != -1 && 
+                responseText.contains('output_format') && 
+                responseText.contains('table')) {
+              // Ищем конец JSON блока
+              jsonEndIndex = responseText.indexOf('```', jsonStartIndex + 7);
+              if (jsonEndIndex != -1) {
+                // Проверяем, находимся ли мы внутри этого блока
+                isInJsonBlock = _currentTypingIndex.toInt() >= jsonStartIndex && 
+                               _currentTypingIndex.toInt() < jsonEndIndex + 3;
+              }
+            }
+            
+            if (isInJsonBlock && !jsonBlockSkipped) {
+              // Пропускаем JSON блок - переходим сразу к концу блока
+              _currentTypingIndex = jsonEndIndex + 3;
+              jsonBlockSkipped = true;
+              // Показываем текст до JSON блока и сразу добавляем файл
+              // Текст после JSON блока будет печататься дальше по буквам
+              final textBeforeJson = responseText.substring(0, jsonStartIndex);
+              final formattedText = _MessageBubble._applyMarkdownFormatting(textBeforeJson);
+              _messages[_messages.length - 1] = ChatMessage(
+                text: TextUtils.safeText(formattedText),
+                isUser: false,
+                isThinking: false,
+                files: files != null && files.isNotEmpty ? files : null,
+              );
+            } else if (!isInJsonBlock) {
+              // Обычная печать по буквам
           _currentTypingIndex += 1;
-          final partialText = responseText.substring(0, _currentTypingIndex.toInt());
-          // Применяем форматирование сразу, скрывая незакрытые markdown символы
-          final formattedText = _MessageBubble._applyMarkdownFormatting(partialText);
+              // Строим текст: если JSON блок уже пропущен, показываем текст до него + текущий текст после него
+              String partialText;
+              if (jsonBlockSkipped && jsonStartIndex != -1 && jsonEndIndex != -1) {
+                // JSON блок уже пропущен, показываем текст до блока + текущий текст после блока
+                final textBeforeJson = responseText.substring(0, jsonStartIndex);
+                if (_currentTypingIndex.toInt() > jsonEndIndex + 3) {
+                  // Мы уже после JSON блока, показываем текст до блока + текст после блока до текущей позиции
+                  final textAfterJson = responseText.substring(jsonEndIndex + 3, _currentTypingIndex.toInt());
+                  partialText = textBeforeJson + textAfterJson;
+                } else {
+                  // Мы еще в JSON блоке (не должно случиться, но на всякий случай)
+                  partialText = textBeforeJson;
+                }
+              } else {
+                // JSON блок еще не найден или не пропущен
+                partialText = responseText.substring(0, _currentTypingIndex.toInt());
+              }
+              
+              // Применяем форматирование сразу: скрываем незакрытые markdown символы
+              // Закрытые пары остаются для MarkdownBody
+              // Также удаляем JSON блоки во время генерации
+              final formattedText = _MessageBubble._applyMarkdownFormatting(partialText);
             _messages[_messages.length - 1] = ChatMessage(
-              text: TextUtils.safeText(formattedText),
+                text: TextUtils.safeText(formattedText),
             isUser: false,
-            isThinking: false,
+                isThinking: false,
+                files: files != null && files.isNotEmpty && jsonBlockSkipped ? files : null,
           );
+            } else {
+              // Мы внутри JSON блока, но уже пропустили его - просто увеличиваем индекс
+              _currentTypingIndex += 1;
+            }
         }
       });
-      _scrollToBottom();
+        // Прокручиваем вниз только если пользователь находится внизу чата
+        _scrollToBottomIfAtBottom();
     });
     } catch (e) {
       if (!mounted) return;
@@ -1321,8 +1388,11 @@ class _AiScreenState extends State<AiScreen> {
               files = filesByMessageId[messageId];
             }
             
+            // Удаляем JSON блоки из текста сообщения
+            final cleanedContent = _MessageBubble._applyMarkdownFormatting(content);
+            
             loadedMessages.add(ChatMessage(
-              text: content,
+              text: TextUtils.safeText(cleanedContent),
               isUser: isUser,
               isThinking: false,
               files: files,
@@ -2143,6 +2213,21 @@ class _AiScreenState extends State<AiScreen> {
     });
   }
 
+  // Прокручивает вниз только если пользователь находится внизу чата
+  void _scrollToBottomIfAtBottom() {
+    if (!_scrollController.hasClients) return;
+    
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.position.pixels;
+    final isAtBottom = (maxScroll - currentScroll) < 100; // 100 пикселей от низа
+    
+    // Прокручиваем только если пользователь находится внизу
+    if (isAtBottom) {
+      _scrollToBottom();
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
@@ -2401,7 +2486,7 @@ class _AiScreenState extends State<AiScreen> {
                   children: [
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
+                  children: [
                     Expanded(
                           child: Align(
                             alignment: Alignment.bottomCenter,
@@ -2544,7 +2629,7 @@ class _AiScreenState extends State<AiScreen> {
           ),
         ),
       ),
-      if (_showCopyToast)
+          if (_showCopyToast)
             Center(
               child: Container(
                 padding: const EdgeInsets.symmetric(
@@ -2588,28 +2673,18 @@ class _AiScreenState extends State<AiScreen> {
                             ? AppColors.darkBackgroundCard
                             : AppColors.white,
                         shape: BoxShape.circle,
-                        boxShadow: [
-                          const BoxShadow(
-                            color: Color(0x1F18274B),
-                            offset: Offset(0, 4),
-                            blurRadius: 12,
-                            spreadRadius: -2,
-                          ),
-                          BoxShadow(
-                            color: isDark
-                                ? Colors.white.withValues(alpha: 0.5)
-                                : Colors.black.withValues(alpha: 0.5),
-                            offset: const Offset(0, 2),
-                            blurRadius: 8,
-                            spreadRadius: 0,
-                          ),
-                        ],
+                        border: Border.all(
+                          color: isDark
+                              ? AppColors.white
+                              : AppColors.black,
+                          width: 1,
+                        ),
                       ),
                       child: Icon(
                         Icons.keyboard_arrow_down,
                         color: isDark
                             ? AppColors.white
-                            : _primaryTextColor,
+                            : AppColors.black,
                         size: scaleHeight(24),
                       ),
                     ),
@@ -2677,35 +2752,6 @@ class _SuggestionChip extends StatelessWidget {
   }
 }
 
-// Кастомный builder для горизонтальной линии
-class _HorizontalRuleBuilder extends MarkdownElementBuilder {
-  final Color lineColor;
-  final double lineHeight;
-  final double verticalPadding;
-  final bool isFirstInMessage;
-
-  _HorizontalRuleBuilder({
-    required this.lineColor,
-    this.lineHeight = 0.5,
-    this.verticalPadding = 16,
-    this.isFirstInMessage = false,
-  });
-
-  @override
-  Widget? visitElementAfter(md.Element element, TextStyle? preferredStyle) {
-    return Padding(
-      padding: EdgeInsets.only(
-        top: isFirstInMessage ? 0 : verticalPadding, // Убираем верхний отступ, если "---" в начале сообщения
-        bottom: verticalPadding,
-      ),
-      child: Container(
-        width: double.infinity,
-        height: lineHeight,
-        color: lineColor,
-      ),
-    );
-  }
-}
 
 class _MessageBubble extends StatelessWidget {
   const _MessageBubble({
@@ -2724,71 +2770,250 @@ class _MessageBubble extends StatelessWidget {
   final VoidCallback onCopy;
   final Future<void> Function(String downloadUrl, String filename) onDownloadFile;
 
-  // Применяет markdown форматирование к частичному тексту, скрывая незакрытые символы
+  // Применяет markdown форматирование к частичному тексту
+  // Убирает символы форматирования для незакрытых пар, чтобы они не показывались пользователю
   static String _applyMarkdownFormatting(String text) {
     if (text.isEmpty) return text;
     
     var result = text;
     
-    // Подсчитываем количество открывающих и закрывающих символов
-    final boldOpenCount = RegExp(r'\*\*(?![*])').allMatches(result).length;
-    final boldCloseCount = RegExp(r'(?<!\*)\*\*').allMatches(result).length;
-    final codeOpenCount = RegExp(r'`(?![`])').allMatches(result).length;
-    final codeCloseCount = RegExp(r'`(?![`])').allMatches(result).length;
+    // Обрабатываем жирный текст **text**
+    // Находим все открывающие и закрывающие **
+    final openMatches = RegExp(r'\*\*(?![*])').allMatches(result).toList();
+    final closeMatches = RegExp(r'(?<!\*)\*\*').allMatches(result).toList();
     
-    // Убираем незакрытые ** (жирный текст)
-    if (boldOpenCount > boldCloseCount) {
-      final diff = boldOpenCount - boldCloseCount;
+    final openCount = openMatches.length;
+    final closeCount = closeMatches.length;
+    
+    // Если есть незакрытые **, убираем их и добавляем временную закрывающую пару в конце
+    if (openCount > closeCount) {
+      final unpairedCount = openCount - closeCount;
+      // Убираем незакрытые ** (начиная с конца)
       int removed = 0;
-      result = result.replaceAllMapped(RegExp(r'\*\*(?![*])'), (match) {
-        if (removed < diff) {
+      for (int i = openMatches.length - 1; i >= 0 && removed < unpairedCount; i--) {
+        final match = openMatches[i];
+        // Проверяем, есть ли после этого закрывающая пара
+        final afterText = result.substring(match.end);
+        final hasCloseAfter = RegExp(r'(?<!\*)\*\*').hasMatch(afterText);
+        if (!hasCloseAfter) {
+          // Это незакрытая пара, убираем символы **
+          result = result.substring(0, match.start) + result.substring(match.end);
           removed++;
-          return '';
         }
-        return match.group(0) ?? '';
-      });
+      }
+      // Добавляем временную закрывающую пару в конце для MarkdownBody
+      result = '$result**';
     }
     
-    // Убираем незакрытые ` (код)
-    if (codeOpenCount > codeCloseCount) {
-      final diff = codeOpenCount - codeCloseCount;
-      int removed = 0;
-      result = result.replaceAllMapped(RegExp(r'`(?![`])'), (match) {
-        if (removed < diff) {
-          removed++;
-          return '';
-        }
-        return match.group(0) ?? '';
-      });
+    // Обрабатываем курсив *text* (но не **text**)
+    // Находим одиночные * (не часть **)
+    final italicMatches = RegExp(r'(?<!\*)\*(?!\*)').allMatches(result).toList();
+    if (italicMatches.length % 2 != 0 && italicMatches.isNotEmpty) {
+      // Нечетное количество - есть незакрытая пара, добавляем временную закрывающую
+      result = '$result*';
     }
     
-    // Убираем незакрытые * (курсив, но только если это не часть **)
-    // Простой подход: убираем все одиночные * в конце текста, которые не являются частью **
-    result = result.replaceAll(RegExp(r'(?<!\*)\*(?!\*)(?=\s*$)'), '');
+    // Обрабатываем код `text`
+    final codeMatches = RegExp(r'`').allMatches(result).toList();
+    // Если нечетное количество `, добавляем временную закрывающую пару
+    if (codeMatches.length % 2 != 0 && codeMatches.isNotEmpty) {
+      result = '$result`';
+    }
     
     // Убираем горизонтальные линии --- полностью
     result = result.replaceAll(RegExp(r'^[\s]*-{3,}[\s]*$', multiLine: true), '');
     result = result.replaceAll(RegExp(r'^[\s]*\*{3,}[\s]*$', multiLine: true), '');
     result = result.replaceAll(RegExp(r'^[\s]_{3,}[\s]*$', multiLine: true), '');
     
+    // Убираем JSON блоки с таблицами (```json\n{...output_format...table...}```)
+    // Обрабатываем все возможные варианты форматирования, включая частичные блоки во время генерации
+    
+    // КРИТИЧНО: Удаляем JSON блоки сразу, как только появляется начало блока с output_format и table
+    // Это нужно для того, чтобы блок не печатался во время генерации
+    
+    // Проверяем, есть ли начало JSON блока с output_format и table
+    if (result.contains('```json')) {
+      final jsonStartIndex = result.indexOf('```json');
+      if (jsonStartIndex != -1) {
+        // Получаем текст после начала блока
+        final afterJsonStart = result.substring(jsonStartIndex);
+        
+        // Проверяем, содержит ли блок output_format и table (даже если блок неполный)
+        if (afterJsonStart.contains('output_format') && afterJsonStart.contains('table')) {
+          // Ищем конец блока ``` (может быть неполным во время генерации)
+          final jsonEndIndex = result.indexOf('```', jsonStartIndex + 7);
+          if (jsonEndIndex != -1) {
+            // Полный блок найден, удаляем его полностью
+            result = result.substring(0, jsonStartIndex) + result.substring(jsonEndIndex + 3);
+          } else {
+            // Блок неполный (еще генерируется), удаляем все от начала блока до конца текста
+            // Это предотвратит печать блока во время генерации
+            result = result.substring(0, jsonStartIndex);
+          }
+        }
+      }
+    }
+    
+    // Убираем все полные JSON блоки, которые содержат output_format и table
+    result = result.replaceAllMapped(
+      RegExp(
+        r'```json[\s\S]*?```',
+        dotAll: true,
+        multiLine: true,
+      ),
+      (match) {
+        final content = match.group(0) ?? '';
+        // Проверяем, содержит ли блок output_format и table
+        if (content.contains('output_format') && content.contains('table')) {
+          return '';
+        }
+        return content;
+      },
+    );
+    
+    // Также убираем варианты с переносами строк перед блоком
+    result = result.replaceAll(
+      RegExp(
+        r'[\r\n]+\s*```json\s*[\r\n]*\{[\s\S]*?"output_format"[\s\S]*?"table"[\s\S]*?\}[\s\S]*?```',
+        dotAll: true,
+        multiLine: true,
+      ),
+      '',
+    );
+    
+    // Убираем варианты с escape-последовательностями \n (в виде текста)
+    result = result.replaceAll(
+      RegExp(
+        r'\\n\\n```json\\n\{[^}]*"output_format"[^}]*"table"[^}]*\}[^`]*```',
+        dotAll: true,
+      ),
+      '',
+    );
+    
+    // Убираем неполные блоки (без закрывающих кавычек) - важно для частичного текста
+    result = result.replaceAll(
+      RegExp(
+        r'```json\s*[\r\n]*\{[\s\S]*?"output_format"[\s\S]*?"table"[\s\S]*?',
+        dotAll: true,
+        multiLine: true,
+      ),
+      '',
+    );
+    
+    // Финальная проверка: убираем любые оставшиеся блоки с output_format и table
+    result = result.replaceAllMapped(
+      RegExp(
+        r'```[^`]*?output_format[^`]*?table[^`]*?```',
+        dotAll: true,
+        multiLine: true,
+        caseSensitive: false,
+      ),
+      (match) => '',
+    );
+    
+    // Дополнительная проверка: если остался ```json и после него есть output_format и table,
+    // удаляем все от начала блока до конца текста (для частичных блоков)
+    // Это важно для предотвращения печати блока во время генерации
+    while (result.contains('```json')) {
+      final jsonStart = result.indexOf('```json');
+      if (jsonStart == -1) break;
+      
+      final afterStart = result.substring(jsonStart);
+      if (afterStart.contains('output_format') && afterStart.contains('table')) {
+        // Удаляем все от начала блока до конца
+        result = result.substring(0, jsonStart);
+        break;
+      } else {
+        // Если это не наш блок, пропускаем его
+        break;
+      }
+    }
+    
     return result;
   }
 
-  // Проверяет, начинается ли сообщение с горизонтальной линии (---)
-  static bool _isMessageStartingWithHr(String text) {
-    if (text.isEmpty) return false;
-    // Убираем все пробелы, табы и переводы строк в начале
-    final trimmed = text.trimLeft();
-    // Проверяем, начинается ли с "---", "***" или "___" (markdown горизонтальные линии)
-    // Также проверяем варианты с пробелами после дефисов
-    final normalized = trimmed.replaceAll(RegExp(r'\s+'), ' ');
-    return normalized.startsWith('---') || 
-           normalized.startsWith('***') || 
-           normalized.startsWith('___') ||
-           normalized.startsWith('- - -') ||
-           normalized.startsWith('* * *') ||
-           normalized.startsWith('_ _ _');
+  // Строит форматированный текст с применением markdown во время генерации
+  // Для незакрытых пар применяет форматирование сразу, скрывая символы форматирования
+  Widget _buildFormattedText(
+    String text,
+    TextStyle baseStyle,
+    bool isDark,
+    double Function(double) scaleWidth,
+    double Function(double) scaleHeight,
+  ) {
+    // Всегда используем MarkdownBody для поддержки всех элементов markdown
+    // (заголовки ###, курсив *, таблицы, списки и т.д.)
+    return MarkdownBody(
+      data: text,
+              styleSheet: MarkdownStyleSheet(
+        p: baseStyle,
+        strong: baseStyle.copyWith(fontWeight: FontWeight.w600, fontFamily: 'Montserrat'),
+        em: baseStyle.copyWith(fontStyle: FontStyle.italic, fontFamily: 'Montserrat'),
+        h1: baseStyle.copyWith(
+          fontSize: scaleHeight(24),
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Montserrat',
+                ),
+        h2: baseStyle.copyWith(
+          fontSize: scaleHeight(20),
+          fontWeight: FontWeight.w600,
+                  fontFamily: 'Montserrat',
+                ),
+        h3: baseStyle.copyWith(
+          fontSize: scaleHeight(18),
+          fontWeight: FontWeight.w600,
+          fontFamily: 'Montserrat',
+        ),
+        code: baseStyle.copyWith(
+                  fontFamily: 'Montserrat',
+                  backgroundColor: isDark
+                      ? AppColors.darkBackgroundMain
+                      : AppColors.backgroundMain,
+                ),
+                codeblockDecoration: BoxDecoration(
+                  color: isDark
+                      ? AppColors.darkBackgroundMain
+                      : AppColors.backgroundMain,
+                  borderRadius: BorderRadius.circular(scaleHeight(8)),
+                ),
+                codeblockPadding: EdgeInsets.all(scaleHeight(12)),
+        tableHead: baseStyle.copyWith(
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Montserrat',
+                ),
+        tableBody: baseStyle,
+                tableBorder: TableBorder.all(
+                  color: isDark
+                      ? AppColors.darkSecondaryText
+                      : AppColors.textSecondary,
+                  width: 1,
+                ),
+                tableCellsPadding: EdgeInsets.all(scaleHeight(8)),
+        listBullet: baseStyle,
+        blockquote: baseStyle.copyWith(
+                  fontStyle: FontStyle.italic,
+                  fontFamily: 'Montserrat',
+                ),
+                blockquoteDecoration: BoxDecoration(
+                  border: Border(
+                    left: BorderSide(
+                      color: isDark
+                          ? AppColors.darkSecondaryText
+                          : AppColors.textSecondary,
+                      width: 3,
+                    ),
+                  ),
+                ),
+                blockquotePadding: EdgeInsets.only(
+                  left: scaleWidth(12),
+                  top: scaleHeight(8),
+                  bottom: scaleHeight(8),
+                ),
+              ),
+              selectable: true,
+    );
   }
+
 
   // Убирает горизонтальную линию (---) из текста полностью
   static String _removeLeadingHr(String text) {
@@ -2883,101 +3108,13 @@ class _MessageBubble extends StatelessWidget {
                       ),
                     // Текст сообщения
                     if (message.text.isNotEmpty)
-                      MarkdownBody(
-              data: _removeLeadingHr(TextUtils.safeText(message.text)),
-              styleSheet: MarkdownStyleSheet(
-                p: textStyle,
-                strong: textStyle.copyWith(
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'Montserrat',
-                ),
-                em: textStyle.copyWith(
-                  fontStyle: FontStyle.italic,
-                  fontFamily: 'Montserrat',
-                ),
-                code: textStyle.copyWith(
-                  fontFamily: 'Montserrat',
-                  backgroundColor: isDark
-                      ? AppColors.darkBackgroundMain
-                      : AppColors.backgroundMain,
-                ),
-                codeblockDecoration: BoxDecoration(
-                  color: isDark
-                      ? AppColors.darkBackgroundMain
-                      : AppColors.backgroundMain,
-                  borderRadius: BorderRadius.circular(scaleHeight(8)),
-                ),
-                codeblockPadding: EdgeInsets.all(scaleHeight(12)),
-                tableHead: textStyle.copyWith(
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'Montserrat',
-                ),
-                tableBody: textStyle,
-                tableBorder: TableBorder.all(
-                  color: isDark
-                      ? AppColors.darkSecondaryText
-                      : AppColors.textSecondary,
-                  width: 1,
-                ),
-                tableCellsPadding: EdgeInsets.all(scaleHeight(8)),
-                h1: textStyle.copyWith(
-                  fontSize: scaleHeight(24),
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'Montserrat',
-                ),
-                h2: textStyle.copyWith(
-                  fontSize: scaleHeight(20),
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'Montserrat',
-                ),
-                h3: textStyle.copyWith(
-                  fontSize: scaleHeight(18),
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'Montserrat',
-                ),
-                listBullet: textStyle,
-                blockquote: textStyle.copyWith(
-                  fontStyle: FontStyle.italic,
-                  fontFamily: 'Montserrat',
-                ),
-                blockquoteDecoration: BoxDecoration(
-                  border: Border(
-                    left: BorderSide(
-                      color: isDark
-                          ? AppColors.darkSecondaryText
-                          : AppColors.textSecondary,
-                      width: 3,
-                    ),
-                  ),
-                ),
-                blockquotePadding: EdgeInsets.only(
-                  left: scaleWidth(12),
-                  top: scaleHeight(8),
-                  bottom: scaleHeight(8),
-                ),
-                horizontalRuleDecoration: BoxDecoration(
-                  border: Border(
-                    top: BorderSide(
-                      color: message.isUser
-                          ? AppColors.white
-                          : (isDark ? AppColors.darkPrimaryText : AppColors.textPrimary),
-                      width: 3,
-                    ),
-                  ),
-                ),
-              ),
-              selectable: true,
-              builders: <String, MarkdownElementBuilder>{
-                'hr': _HorizontalRuleBuilder(
-                  lineColor: message.isUser
-                      ? AppColors.white
-                      : (isDark ? AppColors.darkPrimaryText : AppColors.textPrimary),
-                  lineHeight: 0.5,
-                  verticalPadding: scaleHeight(16),
-                  isFirstInMessage: _isMessageStartingWithHr(message.text),
-                ),
-              },
-            ),
+                      _buildFormattedText(
+                        _removeLeadingHr(TextUtils.safeText(message.text)),
+                        textStyle,
+                        isDark,
+                        scaleWidth,
+                        scaleHeight,
+                      ),
                   ],
             ),
     );
@@ -3201,7 +3338,7 @@ class _ChatMenuDrawer extends StatelessWidget {
                     children: [
                       // Крестик слева вверху
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           GestureDetector(
                             onTap: onClose,
@@ -3212,15 +3349,6 @@ class _ChatMenuDrawer extends StatelessWidget {
                                   ? AppColors.white
                                   : const Color(0xFF201D2F),
                             ),
-                          ),
-                          // icon_mes.svg справа вверху
-                          SvgPicture.asset(
-                            isDark
-                                ? 'assets/icons/dark/icon_mes_dark.svg'
-                                : 'assets/icons/light/icon_mes.svg',
-                            width: scaleWidth(24),
-                            height: scaleHeight(24),
-                            fit: BoxFit.contain,
                           ),
                         ],
                       ),
@@ -3250,7 +3378,7 @@ class _ChatMenuDrawer extends StatelessWidget {
                                     ? 'assets/icons/dark/icon_new_chat.svg'
                                     : 'assets/icons/light/icon_new_chat.svg',
                                 width: scaleWidth(24),
-                                height: scaleHeight(24),
+                                height: scaleHeight(21),
                                 fit: BoxFit.contain,
                               ),
                             ],

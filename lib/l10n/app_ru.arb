@@ -107,6 +107,8 @@
   "authFieldNickname": "Ник",
   "authFieldEmail": "Электронная почта",
   "authFieldPhone": "Номер телефона",
+  "authFieldTelegram": "ТГ никнейм",
+  "authTelegramHint": "ТГ Никнейм нужен для синхронизации чатов с нашим Telegram ботом",
   "authFieldCountry": "Страна",
   "authFieldGender": "Пол",
   "authCountryRussia": "Россия",

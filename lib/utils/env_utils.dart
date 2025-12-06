@@ -354,6 +354,7 @@ CONTEXT_BUSINESS_NICHE=
     required String phone,
     required String country,
     required String gender,
+    String? telegramUsername,
   }) async {
     try {
       final envPath = await _getEnvFilePath();
@@ -378,6 +379,10 @@ CONTEXT_BUSINESS_NICHE=
         'USER_COUNTRY': country,
         'USER_GENDER': gender,
       };
+      
+      if (telegramUsername != null && telegramUsername.isNotEmpty) {
+        userData['USER_TELEGRAM_USERNAME'] = telegramUsername;
+      }
       
       // Обновляем или добавляем каждое поле
       for (final entry in userData.entries) {

@@ -148,7 +148,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get aiSuggestionsTitle => 'Может эти слова тебе помогут...';
 
   @override
-  String get aiSuggestion1 => 'Составить договор';
+  String get aiSuggestion1 => 'Составить оговор';
 
   @override
   String get aiSuggestion2 => 'Предложить улучшения';
@@ -290,6 +290,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get authFieldPhone => 'Номер телефона';
+
+  @override
+  String get authFieldTelegram => 'ТГ никнейм';
+
+  @override
+  String get authTelegramHint => 'ТГ Никнейм нужен для синхронизации чатов с нашим Telegram ботом';
 
   @override
   String get authFieldCountry => 'Страна';
