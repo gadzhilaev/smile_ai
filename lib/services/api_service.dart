@@ -1,7 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:path/path.dart' as p;
+
 import 'language_service.dart';
 
 /// Сервис для работы с API
@@ -510,7 +514,7 @@ class ApiService {
         'country': country,
         'gender': gender,
       };
-
+      
       // Если передан profile_picture, добавляем в тело запроса
       // Пустая строка или null на стороне бэкенда очистит аватар
       if (profilePictureId != null) {
@@ -590,10 +594,38 @@ class ApiService {
       debugPrint('ApiService: uploadProfilePicture file path: ${imageFile.path}');
 
       final request = http.MultipartRequest('POST', url);
-      request.files.add(await http.MultipartFile.fromPath(
-        'profile_picture',
-        imageFile.path,
-      ));
+      // Определяем MIME-тип по расширению файла, чтобы backend видел image/*
+      final ext = p.extension(imageFile.path).toLowerCase();
+      String mimeType;
+      switch (ext) {
+        case '.png':
+          mimeType = 'image/png';
+          break;
+        case '.jpg':
+        case '.jpeg':
+          mimeType = 'image/jpeg';
+          break;
+        case '.gif':
+          mimeType = 'image/gif';
+          break;
+        case '.webp':
+          mimeType = 'image/webp';
+          break;
+        default:
+          // По умолчанию считаем JPEG
+          mimeType = 'image/jpeg';
+          break;
+      }
+
+      final mediaType = MediaType.parse(mimeType);
+
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'profile_picture',
+          imageFile.path,
+          contentType: mediaType,
+        ),
+      );
 
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);

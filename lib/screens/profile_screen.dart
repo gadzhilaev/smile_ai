@@ -667,46 +667,77 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Container(
                         width: scaleWidth(130),
                         height: scaleHeight(130),
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           shape: BoxShape.circle,
-                          image: _selectedAvatar != null
-                              ? DecorationImage(
-                                  image: FileImage(_selectedAvatar!),
+                        ),
+                        child: ClipOval(
+                          child: Builder(
+                            builder: (context) {
+                              final avatarSize = scaleHeight(130);
+
+                              // 1. Если пользователь только что выбрал локальное изображение
+                              if (_selectedAvatar != null) {
+                                return Image.file(
+                                  _selectedAvatar!,
                                   fit: BoxFit.cover,
-                                )
-                              : _profilePictureId != null
-                                  ? DecorationImage(
-                                      image: NetworkImage(
-                                        '${ApiService.baseUrl}/api/files/$_profilePictureId',
-                                      ),
-                                      fit: BoxFit.cover,
-                                    )
-                                  : const DecorationImage(
-                                      image: AssetImage('assets/images/avatar.png'),
-                                      fit: BoxFit.cover,
-                                    ),
+                                  width: avatarSize,
+                                  height: avatarSize,
+                                );
+                              }
+
+                              // 2. Если есть аватар в профиле (profile_picture из БД)
+                              if (_profilePictureId != null) {
+                                final baseUrl = ApiService.baseUrl;
+                                return Image.network(
+                                  '$baseUrl/api/files/$_profilePictureId',
+                                  fit: BoxFit.cover,
+                                  width: avatarSize,
+                                  height: avatarSize,
+                                );
+                              }
+
+                              // 3. Плейсхолдер: серый фон + иконка пользователя
+                              return Container(
+                                width: avatarSize,
+                                height: avatarSize,
+                                color: isDark
+                                    ? AppColors.darkBackgroundCard
+                                    : const Color(0xFFE0E0E0),
+                                alignment: Alignment.center,
+                                child: Icon(
+                                  Icons.person,
+                                  size: avatarSize * 0.5,
+                                  color: isDark
+                                      ? AppColors.white
+                                      : Colors.black,
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ),
-                      // Круг для редактирования с иконкой карандаша
+                      // Круглая кнопка с иконкой карандаша для изменения аватара
                       GestureDetector(
                         onTap: _pickAvatar,
                         child: Container(
                           width: scaleWidth(40),
                           height: scaleHeight(40),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF898989),
+                            color: isDark
+                                ? AppColors.darkPrimaryText
+                                : Colors.white,
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: Colors.white,
+                              color: isDark
+                                  ? AppColors.darkBackgroundMain
+                                  : Colors.white,
                               width: 4,
                             ),
                           ),
-                          child: Center(
-                            child: Icon(
-                              Icons.edit,
-                              size: scaleWidth(18),
-                              color: Colors.white,
-                            ),
+                          child: Icon(
+                            Icons.edit,
+                            size: scaleWidth(18),
+                            color: isDark ? Colors.black : Colors.black,
                           ),
                         ),
                       ),
