@@ -148,22 +148,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get aiSuggestionsTitle => 'Может эти слова тебе помогут...';
 
   @override
-  String get aiSuggestion1 => 'Привет';
+  String get aiSuggestion1 => 'Составить договор';
 
   @override
-  String get aiSuggestion2 => 'Как дела?';
+  String get aiSuggestion2 => 'Предложить улучшения';
 
   @override
-  String get aiSuggestion3 => 'Что умеешь?';
-
-  @override
-  String get aiSuggestion4 => 'Спроси меня';
-
-  @override
-  String get aiSuggestion5 => 'Помоги';
-
-  @override
-  String get aiSuggestion6 => 'Совет';
+  String get aiSuggestion3 => 'Провести анализ рынка';
 
   @override
   String get aiStopGeneration => 'Остановить генерацию...';
@@ -1475,4 +1466,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get contextRegionBritain => 'Британия';
+
+  @override
+  String get aiStaffMessage => 'Переключаем ваш диалог на сотрудника. Мы уже занимаемся вашим вопросом, ответим в ближайшее время';
+
+  @override
+  String get profileLogout => 'Выход';
 }

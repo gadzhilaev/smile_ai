@@ -52,12 +52,9 @@
 
   "aiGreeting": "Привет, ты можешь спросить меня",
   "aiSuggestionsTitle": "Может эти слова тебе помогут...",
-  "aiSuggestion1": "Привет",
-  "aiSuggestion2": "Как дела?",
-  "aiSuggestion3": "Что умеешь?",
-  "aiSuggestion4": "Спроси меня",
-  "aiSuggestion5": "Помоги",
-  "aiSuggestion6": "Совет",
+  "aiSuggestion1": "Составить оговор",
+  "aiSuggestion2": "Предложить улучшения",
+  "aiSuggestion3": "Провести анализ рынка",
 
   "aiStopGeneration": "Остановить генерацию...",
   "aiInputPlaceholder": "Введите вопрос...",
@@ -582,7 +579,9 @@
   "contextBusinessNicheOnlineServices": "Онлайн-услуги",
   "contextRegionRussia": "Россия",
   "contextRegionAmerica": "Америка",
-  "contextRegionBritain": "Британия"
+  "contextRegionBritain": "Британия",
+  "aiStaffMessage": "Переключаем ваш диалог на сотрудника. Мы уже занимаемся вашим вопросом, ответим в ближайшее время",
+  "profileLogout": "Выход"
 }
 
 

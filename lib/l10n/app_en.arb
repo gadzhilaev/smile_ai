@@ -52,12 +52,9 @@
 
   "aiGreeting": "Hi, you can ask me anything",
   "aiSuggestionsTitle": "Maybe these prompts will help you...",
-  "aiSuggestion1": "Hello",
-  "aiSuggestion2": "How are you?",
-  "aiSuggestion3": "What can you do?",
-  "aiSuggestion4": "Ask me something",
-  "aiSuggestion5": "Help me",
-  "aiSuggestion6": "Advice",
+  "aiSuggestion1": "Create a contract",
+  "aiSuggestion2": "Suggest improvements",
+  "aiSuggestion3": "Conduct market analysis",
 
   "aiStopGeneration": "Stop generation...",
   "aiInputPlaceholder": "Enter your question...",
@@ -582,7 +579,9 @@
   "contextBusinessNicheOnlineServices": "Online services",
   "contextRegionRussia": "Russia",
   "contextRegionAmerica": "America",
-  "contextRegionBritain": "Britain"
+  "contextRegionBritain": "Britain",
+  "aiStaffMessage": "Switching your dialog to a staff member. We are already working on your question, we will answer soon",
+  "profileLogout": "Logout"
 }
 
 

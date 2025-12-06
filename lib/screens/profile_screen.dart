@@ -636,7 +636,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 Expanded(
                                   child: Center(
                                     child: Text(
-                                      'Выход',
+                                      l.profileLogout,
                                       style: AppTextStyle.interRegular(
                                         scaleHeight(16),
                                         color: theme.colorScheme.onSurface,

@@ -148,22 +148,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiSuggestionsTitle => 'Maybe these prompts will help you...';
 
   @override
-  String get aiSuggestion1 => 'Hello';
+  String get aiSuggestion1 => 'Create a contract';
 
   @override
-  String get aiSuggestion2 => 'How are you?';
+  String get aiSuggestion2 => 'Suggest improvements';
 
   @override
-  String get aiSuggestion3 => 'What can you do?';
-
-  @override
-  String get aiSuggestion4 => 'Ask me something';
-
-  @override
-  String get aiSuggestion5 => 'Help me';
-
-  @override
-  String get aiSuggestion6 => 'Advice';
+  String get aiSuggestion3 => 'Conduct market analysis';
 
   @override
   String get aiStopGeneration => 'Stop generation...';
@@ -1475,4 +1466,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get contextRegionBritain => 'Britain';
+
+  @override
+  String get aiStaffMessage => 'Switching your dialog to a staff member. We are already working on your question, we will answer soon';
+
+  @override
+  String get profileLogout => 'Logout';
 }

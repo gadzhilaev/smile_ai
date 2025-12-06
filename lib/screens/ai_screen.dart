@@ -63,6 +63,8 @@ class _AiScreenState extends State<AiScreen> {
   bool _isEditMode = false;
   bool _showCopyToast = false;
   Timer? _copyToastTimer;
+  bool _showStaffMessage = false;
+  Timer? _staffMessageTimer;
   int? _selectedChatIndexForContextMenu;
   OverlayEntry? _chatMenuOverlay;
   bool _showScrollDownButton = false;
@@ -640,8 +642,11 @@ class _AiScreenState extends State<AiScreen> {
             );
         } else {
           _currentTypingIndex += 1;
+          final partialText = responseText.substring(0, _currentTypingIndex.toInt());
+          // Применяем форматирование сразу, скрывая незакрытые markdown символы
+          final formattedText = _MessageBubble._applyMarkdownFormatting(partialText);
             _messages[_messages.length - 1] = ChatMessage(
-              text: TextUtils.safeText(responseText.substring(0, _currentTypingIndex.toInt())),
+              text: TextUtils.safeText(formattedText),
             isUser: false,
             isThinking: false,
           );
@@ -1516,6 +1521,30 @@ class _AiScreenState extends State<AiScreen> {
     });
   }
 
+  /// Проверка наличия изображений в тексте (base64, data:image и т.д.)
+  bool _checkForImages(String text) {
+    // Проверяем на base64 изображения
+    if (text.contains('data:image/') || text.contains('base64')) {
+      return true;
+    }
+    // Можно добавить другие проверки (URL изображений, файлы и т.д.)
+    return false;
+  }
+
+  void _showStaffMessageOnce() {
+    _staffMessageTimer?.cancel();
+    setState(() {
+      _showStaffMessage = true;
+    });
+    _staffMessageTimer = Timer(const Duration(seconds: 3), () {
+      if (!mounted) return;
+      setState(() {
+        _showStaffMessage = false;
+      });
+    });
+  }
+
+
   // Функция для удаления markdown-символов из текста
   static String _stripMarkdown(String text) {
     if (text.isEmpty) return text;
@@ -1829,6 +1858,12 @@ class _AiScreenState extends State<AiScreen> {
     final text = TextUtils.safeText(_inputController.text.trim());
     if (text.isEmpty || _isTyping) {
       return;
+    }
+
+    // Проверяем, есть ли в сообщении изображения (base64 или другие форматы)
+    final hasImages = _checkForImages(text);
+    if (hasImages) {
+      _showStaffMessageOnce();
     }
 
     // Если режим редактирования, сохраняем текст и выходим из режима редактирования
@@ -2290,9 +2325,6 @@ class _AiScreenState extends State<AiScreen> {
                         l.aiSuggestion1,
                         l.aiSuggestion2,
                         l.aiSuggestion3,
-                        l.aiSuggestion4,
-                        l.aiSuggestion5,
-                        l.aiSuggestion6,
                       ]
                           .map(
                             (chip) => _SuggestionChip(
@@ -2303,7 +2335,8 @@ class _AiScreenState extends State<AiScreen> {
                               primaryTextColor: _primaryTextColor,
                               onTap: () {
                                 _inputController.text = TextUtils.safeText(chip);
-                                _sendMessage();
+                                // Фокус на текстовое поле
+                                FocusScope.of(context).requestFocus(FocusNode());
                               },
                             ),
                           )
@@ -2394,12 +2427,16 @@ class _AiScreenState extends State<AiScreen> {
                   right: scaleWidth(25),
                   bottom: scaleHeight(20),
                 ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Expanded(
-                      child: Align(
-                        alignment: Alignment.bottomCenter,
+                          child: Align(
+                            alignment: Alignment.bottomCenter,
                       child: Container(
                           // Максимальная высота текстового поля (изменить здесь при необходимости)
                           constraints: BoxConstraints(
@@ -2487,9 +2524,9 @@ class _AiScreenState extends State<AiScreen> {
                     ),
                     SizedBox(width: scaleWidth(20)),
                     GestureDetector(
-                      onTap: _isListening
-                          ? _stopListening
-                          : (_isTyping ? _stopGeneration : _sendMessage),
+                          onTap: _isListening
+                              ? _stopListening
+                              : (_isTyping ? _stopGeneration : _sendMessage),
                       child: Container(
                         width: scaleWidth(54),
                         height: scaleHeight(54),
@@ -2499,18 +2536,7 @@ class _AiScreenState extends State<AiScreen> {
                                   BorderRadius.circular(scaleHeight(50)),
                         ),
                         child: Center(
-                          child: _isListening
-                              ? Container(
-                                  width: scaleWidth(18),
-                                  height: scaleWidth(18),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(
-                                      scaleWidth(2),
-                                    ),
-                                  ),
-                                )
-                              : _isTyping
+                              child: _isListening
                                   ? Container(
                                       width: scaleWidth(18),
                                       height: scaleWidth(18),
@@ -2521,15 +2547,54 @@ class _AiScreenState extends State<AiScreen> {
                                         ),
                                       ),
                                     )
-                                  : Image.asset(
-                                      'assets/icons/light/icon_teleg.png',
+                                  : _isTyping
+                                      ? Container(
+                                          width: scaleWidth(18),
+                                          height: scaleWidth(18),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.circular(
+                                              scaleWidth(2),
+                                            ),
+                                          ),
+                                        )
+                                      : Image.asset(
+                                          'assets/icons/light/icon_teleg.png',
                             width: scaleWidth(24),
                             height: scaleHeight(24),
                             fit: BoxFit.contain,
                           ),
                         ),
                       ),
+                        ),
+                      ],
                     ),
+                    // Сообщение о переключении на сотрудника (под текстовым полем и кнопкой)
+                    if (_showStaffMessage)
+                      Padding(
+                        padding: EdgeInsets.only(top: scaleHeight(8)),
+                        child: Center(
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: scaleWidth(16),
+                              vertical: scaleHeight(8),
+                            ),
+                            decoration: BoxDecoration(
+                              color: (isDark ? AppColors.white : AppColors.black)
+                                  .withValues(alpha: isDark ? 0.8 : 0.9),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              l.aiStaffMessage,
+                              style: AppTextStyle.bodyTextMedium(
+                                14,
+                                color: isDark ? AppColors.black : Colors.white,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -2717,6 +2782,56 @@ class _MessageBubble extends StatelessWidget {
   final VoidCallback onCopy;
   final Future<void> Function(String downloadUrl, String filename) onDownloadFile;
 
+  // Применяет markdown форматирование к частичному тексту, скрывая незакрытые символы
+  static String _applyMarkdownFormatting(String text) {
+    if (text.isEmpty) return text;
+    
+    var result = text;
+    
+    // Подсчитываем количество открывающих и закрывающих символов
+    final boldOpenCount = RegExp(r'\*\*(?![*])').allMatches(result).length;
+    final boldCloseCount = RegExp(r'(?<!\*)\*\*').allMatches(result).length;
+    final codeOpenCount = RegExp(r'`(?![`])').allMatches(result).length;
+    final codeCloseCount = RegExp(r'`(?![`])').allMatches(result).length;
+    
+    // Убираем незакрытые ** (жирный текст)
+    if (boldOpenCount > boldCloseCount) {
+      final diff = boldOpenCount - boldCloseCount;
+      int removed = 0;
+      result = result.replaceAllMapped(RegExp(r'\*\*(?![*])'), (match) {
+        if (removed < diff) {
+          removed++;
+          return '';
+        }
+        return match.group(0) ?? '';
+      });
+    }
+    
+    // Убираем незакрытые ` (код)
+    if (codeOpenCount > codeCloseCount) {
+      final diff = codeOpenCount - codeCloseCount;
+      int removed = 0;
+      result = result.replaceAllMapped(RegExp(r'`(?![`])'), (match) {
+        if (removed < diff) {
+          removed++;
+          return '';
+        }
+        return match.group(0) ?? '';
+      });
+    }
+    
+    // Убираем незакрытые * (курсив, но только если это не часть **)
+    // Простой подход: убираем все одиночные * в конце текста, которые не являются частью **
+    result = result.replaceAll(RegExp(r'(?<!\*)\*(?!\*)(?=\s*$)'), '');
+    
+    // Убираем горизонтальные линии --- полностью
+    result = result.replaceAll(RegExp(r'^[\s]*-{3,}[\s]*$', multiLine: true), '');
+    result = result.replaceAll(RegExp(r'^[\s]*\*{3,}[\s]*$', multiLine: true), '');
+    result = result.replaceAll(RegExp(r'^[\s]_{3,}[\s]*$', multiLine: true), '');
+    
+    return result;
+  }
+
   // Проверяет, начинается ли сообщение с горизонтальной линии (---)
   static bool _isMessageStartingWithHr(String text) {
     if (text.isEmpty) return false;
@@ -2733,34 +2848,28 @@ class _MessageBubble extends StatelessWidget {
            normalized.startsWith('_ _ _');
   }
 
-  // Убирает горизонтальную линию (---) в начале сообщения
+  // Убирает горизонтальную линию (---) из текста полностью
   static String _removeLeadingHr(String text) {
     if (text.isEmpty) return text;
     
-    // Убираем все пробелы и переводы строк в начале
-    final trimmed = text.trimLeft();
+    // Убираем все вхождения "---", "***", "___" (горизонтальные линии markdown)
+    // Также убираем варианты с пробелами: "- - -", "* * *", "_ _ _"
+    var result = text;
     
-    // Проверяем, начинается ли с горизонтальной линии
-    if (trimmed.startsWith('---') || 
-        trimmed.startsWith('***') || 
-        trimmed.startsWith('___')) {
-      // Находим конец первой строки (до первого перевода строки)
-      final firstLineEnd = trimmed.indexOf('\n');
-      if (firstLineEnd != -1) {
-        // Убираем первую строку с "---" и следующие пустые строки
-        var result = trimmed.substring(firstLineEnd + 1);
-        // Убираем все пустые строки в начале
-        while (result.startsWith('\n') || result.startsWith('\r\n')) {
-          result = result.replaceFirst(RegExp(r'^[\r\n]+'), '');
-        }
-        return result;
-      } else {
-        // Если это только "---" без текста после, возвращаем пустую строку
-        return '';
-      }
-    }
+    // Убираем горизонтальные линии на отдельных строках
+    result = result.replaceAll(RegExp(r'^[\s]*-{3,}[\s]*$', multiLine: true), '');
+    result = result.replaceAll(RegExp(r'^[\s]*\*{3,}[\s]*$', multiLine: true), '');
+    result = result.replaceAll(RegExp(r'^[\s]_{3,}[\s]*$', multiLine: true), '');
     
-    return text;
+    // Убираем варианты с пробелами
+    result = result.replaceAll(RegExp(r'^[\s]*-[\s]*-[\s]*-[\s]*$', multiLine: true), '');
+    result = result.replaceAll(RegExp(r'^[\s]*\*[\s]*\*[\s]*\*[\s]*$', multiLine: true), '');
+    result = result.replaceAll(RegExp(r'^[\s]_[\s]_[\s]_[\s]*$', multiLine: true), '');
+    
+    // Убираем множественные пустые строки
+    result = result.replaceAll(RegExp(r'\n\s*\n\s*\n+'), '\n\n');
+    
+    return result.trim();
   }
 
   @override

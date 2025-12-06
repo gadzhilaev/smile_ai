@@ -324,7 +324,7 @@ class _FirstPlaceContainer extends StatelessWidget {
                   currentTop.title,
                   style: AppTextStyle.screenTitle(
                     scaleHeight(12),
-                    color: const Color(0xFF201D2F),
+                    color: isDark ? AppColors.darkPrimaryText : const Color(0xFF201D2F),
                   ),
                 ),
                 SizedBox(height: scaleHeight(10)),
@@ -333,7 +333,7 @@ class _FirstPlaceContainer extends StatelessWidget {
                   '$percentValue%',
                   style: AppTextStyle.screenTitle(
                     scaleHeight(20),
-                    color: const Color(0xFFAD2023),
+                    color: AppColors.accentRed,
                   ),
                   textAlign: TextAlign.left,
                 ),
@@ -342,7 +342,7 @@ class _FirstPlaceContainer extends StatelessWidget {
                   l.analyticsThisWeek,
                   style: AppTextStyle.screenTitleMedium(
                     scaleHeight(6),
-                    color: const Color(0xFFB3B2B2),
+                    color: isDark ? AppColors.darkSecondaryText : const Color(0xFFB3B2B2),
                   ),
                 ),
                 SizedBox(height: scaleHeight(11)),
@@ -351,7 +351,7 @@ class _FirstPlaceContainer extends StatelessWidget {
                   l.analyticsCategoryTakes(categoryPercentage.toStringAsFixed(0)),
                   style: AppTextStyle.screenTitleMedium(
                     scaleHeight(10),
-                    color: const Color(0xFFB3B2B2),
+                    color: isDark ? AppColors.darkSecondaryText : const Color(0xFFB3B2B2),
                   ).copyWith(
                     height: 1.0,
                   ),
@@ -421,7 +421,7 @@ class _SecondPlaceContainer extends StatelessWidget {
             l.analyticsSecondPlace,
             style: AppTextStyle.screenTitle(
               scaleHeight(12),
-              color: const Color(0xFF201D2F),
+              color: isDark ? AppColors.darkPrimaryText : const Color(0xFF201D2F),
             ),
             textAlign: TextAlign.center,
           ),
@@ -430,7 +430,7 @@ class _SecondPlaceContainer extends StatelessWidget {
             percentText,
             style: AppTextStyle.screenTitle(
               scaleHeight(22),
-              color: const Color(0xFFAD2023),
+              color: AppColors.accentRed,
             ),
             textAlign: TextAlign.center,
           ),
@@ -442,7 +442,7 @@ class _SecondPlaceContainer extends StatelessWidget {
                 nameLine1,
                 style: AppTextStyle.screenTitle(
                   scaleHeight(12),
-                  color: const Color(0xFFAD2023),
+                  color: AppColors.accentRed,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -451,7 +451,7 @@ class _SecondPlaceContainer extends StatelessWidget {
                   nameLine2,
                   style: AppTextStyle.screenTitle(
                     scaleHeight(12),
-                    color: const Color(0xFFAD2023),
+                    color: AppColors.accentRed,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -549,13 +549,12 @@ class _AiAnalyticsContainer extends StatelessWidget {
                             text: TextSpan(
                         style: AppTextStyle.bodyTextMedium(
                           scaleHeight(14),
-                                color: const Color(0xFF201D2F),
+                                color: isDark ? AppColors.darkPrimaryText : const Color(0xFF201D2F),
                               ).copyWith(
                                 height: 1.0,
                               ),
                               children: [
-                                const TextSpan(text: 'Было прибавлено '),
-                                TextSpan(text: '$percentValue%'),
+                                TextSpan(text: l.analyticsWasAdded(percentValue)),
                               ],
                             ),
                           ),
@@ -565,7 +564,7 @@ class _AiAnalyticsContainer extends StatelessWidget {
                             description,
                             style: AppTextStyle.bodyTextLight(
                               scaleHeight(12),
-                              color: const Color(0xFF201D2F),
+                              color: isDark ? AppColors.darkPrimaryText : const Color(0xFF201D2F),
                             ).copyWith(
                               height: 1.0,
                             ),
@@ -604,7 +603,7 @@ class _AiAnalyticsContainer extends StatelessWidget {
                     l.analyticsCompetitivenessLevel,
                     style: AppTextStyle.bodyText(
                       scaleHeight(8),
-                      color: const Color(0xFF9E9E9E),
+                      color: isDark ? AppColors.darkSecondaryText : const Color(0xFF9E9E9E),
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -633,7 +632,7 @@ class _AiAnalyticsContainer extends StatelessWidget {
                         l.analyticsBasedOnAi,
                         style: AppTextStyle.bodyText(
                           scaleHeight(4),
-                          color: const Color(0xFF9E9E9E),
+                          color: isDark ? AppColors.darkSecondaryText : const Color(0xFF9E9E9E),
                         ),
                       ),
                     ),
@@ -663,6 +662,8 @@ class _MetricsChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final locale = Localizations.localeOf(context);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     
     final size = MediaQuery.of(context).size;
     final double widthFactor = size.width / designWidth;
@@ -775,7 +776,7 @@ class _MetricsChart extends StatelessWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: const Color(0xFF3B0B0C),
+                        color: isDark ? AppColors.accentRed : const Color(0xFF3B0B0C),
                         width: scaleWidth(4),
                       ),
                     ),
@@ -790,15 +791,21 @@ class _MetricsChart extends StatelessWidget {
                       ),
                     ),
                   // Название месяца
-                  Text(
-                    monthNames[index],
-                    style: AppTextStyle.bodyText(
-                      scaleHeight(6),
-                      color: const Color(0xFF9E9E9E),
-                    ).copyWith(
-                      height: 16 / 6, // line-height: 16px / font-size: 6px
-                    ),
-                    textAlign: TextAlign.center,
+                  Builder(
+                    builder: (context) {
+                      final theme = Theme.of(context);
+                      final isDark = theme.brightness == Brightness.dark;
+                      return Text(
+                        monthNames[index],
+                        style: AppTextStyle.bodyText(
+                          scaleHeight(6),
+                          color: isDark ? AppColors.darkSecondaryText : const Color(0xFF9E9E9E),
+                        ).copyWith(
+                          height: 16 / 6, // line-height: 16px / font-size: 6px
+                        ),
+                        textAlign: TextAlign.center,
+                      );
+                    },
                   ),
                 ],
               ),
@@ -934,7 +941,7 @@ class _MonthNichesContainer extends StatelessWidget {
                         niche.title,
                         style: AppTextStyle.bodyTextMedium(
                           scaleHeight(14),
-                          color: const Color(0xFF000000),
+                          color: isDark ? AppColors.darkPrimaryText : const Color(0xFF000000),
                         ).copyWith(
                           height: 1.0,
                         ),
@@ -947,7 +954,7 @@ class _MonthNichesContainer extends StatelessWidget {
                         '${isUp ? '+' : '-'}${changeValue.toStringAsFixed(0)}%',
                         style: AppTextStyle.bodyTextMedium(
                           scaleHeight(13),
-                          color: const Color(0xFF000000),
+                          color: isDark ? AppColors.darkPrimaryText : const Color(0xFF000000),
                         ).copyWith(
                           height: 1.0,
                         ),

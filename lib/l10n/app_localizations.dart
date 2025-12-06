@@ -368,38 +368,20 @@ abstract class AppLocalizations {
   /// No description provided for @aiSuggestion1.
   ///
   /// In en, this message translates to:
-  /// **'Hello'**
+  /// **'Create a contract'**
   String get aiSuggestion1;
 
   /// No description provided for @aiSuggestion2.
   ///
   /// In en, this message translates to:
-  /// **'How are you?'**
+  /// **'Suggest improvements'**
   String get aiSuggestion2;
 
   /// No description provided for @aiSuggestion3.
   ///
   /// In en, this message translates to:
-  /// **'What can you do?'**
+  /// **'Conduct market analysis'**
   String get aiSuggestion3;
-
-  /// No description provided for @aiSuggestion4.
-  ///
-  /// In en, this message translates to:
-  /// **'Ask me something'**
-  String get aiSuggestion4;
-
-  /// No description provided for @aiSuggestion5.
-  ///
-  /// In en, this message translates to:
-  /// **'Help me'**
-  String get aiSuggestion5;
-
-  /// No description provided for @aiSuggestion6.
-  ///
-  /// In en, this message translates to:
-  /// **'Advice'**
-  String get aiSuggestion6;
 
   /// No description provided for @aiStopGeneration.
   ///
@@ -3022,6 +3004,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Britain'**
   String get contextRegionBritain;
+
+  /// No description provided for @aiStaffMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Switching your dialog to a staff member. We are already working on your question, we will answer soon'**
+  String get aiStaffMessage;
+
+  /// No description provided for @profileLogout.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout'**
+  String get profileLogout;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
