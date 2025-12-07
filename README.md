@@ -405,9 +405,6 @@ lib/
 - Интеграция с Backend API
 - Интеграция с Telegram Bot
 
-**Скачать**:
-- [APK для Android (v1.0.0)](https://github.com/gadzhilaev/smile_ai/releases/download/v1.0.0/app-release.apk)
-
 **Системные требования**:
 - Android: API 21 (Android 5.0) или выше
 - iOS: iOS 12.0 или выше
