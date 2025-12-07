@@ -133,5 +133,47 @@ class SupportService {
       throw Exception('Ошибка при регистрации устройства: $e');
     }
   }
+
+  /// Получение текущего режима поддержки (AI/Human)
+  static Future<String?> getSupportMode(String userId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/support_mode/$userId'),
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['mode'] as String?; // 'ai' или 'human'
+      } else {
+        debugPrint('SupportService: ошибка получения режима: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('SupportService: ошибка при получении режима: $e');
+      return null;
+    }
+  }
+
+  /// Установка режима поддержки (AI/Human)
+  static Future<String?> setSupportMode(String userId, String mode) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/support_mode/$userId'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'mode': mode}),
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['mode'] as String?; // 'ai' или 'human'
+      } else {
+        debugPrint('SupportService: ошибка установки режима: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('SupportService: ошибка при установке режима: $e');
+      return null;
+    }
+  }
 }
 

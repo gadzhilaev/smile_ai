@@ -75,8 +75,8 @@ void main() async {
 
   // Проверяем health сервера (НЕ закрываем приложение, просто логируем статус)
   try {
-    final isHealthy = await ApiService.instance.checkHealth();
-    if (!isHealthy) {
+  final isHealthy = await ApiService.instance.checkHealth();
+  if (!isHealthy) {
       debugPrint('main.dart: API health check failed, but app will continue to run');
     } else {
       debugPrint('main.dart: API health check OK');

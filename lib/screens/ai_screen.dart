@@ -3352,34 +3352,34 @@ class _ChatMenuDrawer extends StatelessWidget {
                             ),
                           ),
                           // Новый чат - текст и иконка справа
-                          GestureDetector(
-                            onTap: onNewChat,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  l.chatMenuNewChat,
-                                  style: AppTextStyle.screenTitle(
-                                    scaleHeight(16),
-                                    color: isDark
-                                        ? AppColors.white
-                                        : AppColors.black,
-                                  ).copyWith(
-                                    decoration: TextDecoration.none,
-                                  ),
+                      GestureDetector(
+                        onTap: onNewChat,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                l.chatMenuNewChat,
+                                style: AppTextStyle.screenTitle(
+                                  scaleHeight(16),
+                                  color: isDark
+                                      ? AppColors.white
+                                      : AppColors.black,
+                                ).copyWith(
+                                  decoration: TextDecoration.none,
                                 ),
-                                SizedBox(width: scaleWidth(12)),
-                                SvgPicture.asset(
-                                  isDark
-                                      ? 'assets/icons/dark/icon_new_chat.svg'
-                                      : 'assets/icons/light/icon_new_chat.svg',
-                                  width: scaleWidth(24),
+                              ),
+                              SizedBox(width: scaleWidth(12)),
+                              SvgPicture.asset(
+                                isDark
+                                    ? 'assets/icons/dark/icon_new_chat.svg'
+                                    : 'assets/icons/light/icon_new_chat.svg',
+                                width: scaleWidth(24),
                                   height: scaleHeight(21),
-                                  fit: BoxFit.contain,
-                                ),
-                              ],
-                            ),
+                                fit: BoxFit.contain,
+                              ),
+                            ],
                           ),
+                        ),
                         ],
                       ),
                       SizedBox(height: scaleHeight(28)),

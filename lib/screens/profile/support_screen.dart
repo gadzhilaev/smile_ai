@@ -35,11 +35,14 @@ class _SupportScreenState extends State<SupportScreen> {
   bool _isSending = false;
   Timer? _pollingTimer; // Fallback на случай если WebSocket недоступен
   DateTime? _lastMessageTime;
+  String? _currentMode; // 'ai' или 'human'
+  bool _hasShownModeSwitchMessage = false; // Флаг, показывался ли уже текст о переключении
 
   @override
   void initState() {
     super.initState();
     _loadMessageHistory();
+    _loadSupportMode();
     
     // Подключаемся к WebSocket для обновлений в реальном времени
     final userId = _getUserId();
@@ -59,6 +62,28 @@ class _SupportScreenState extends State<SupportScreen> {
     
     // Подписываемся на обновления истории при получении push уведомлений
     FCMService.onSupportReplyReceived = _loadMessageHistory;
+  }
+
+  /// Загрузка текущего режима поддержки
+  Future<void> _loadSupportMode() async {
+    final userId = _getUserId();
+    if (userId == null || userId.isEmpty) return;
+
+    try {
+      final mode = await SupportService.getSupportMode(userId);
+      if (mounted) {
+        setState(() {
+          _currentMode = mode ?? 'ai'; // По умолчанию AI режим
+        });
+      }
+    } catch (e) {
+      // Ошибка загрузки режима, используем режим по умолчанию
+      if (mounted) {
+        setState(() {
+          _currentMode = 'ai';
+        });
+      }
+    }
   }
   
   /// Обработка нового сообщения из WebSocket
@@ -303,12 +328,32 @@ class _SupportScreenState extends State<SupportScreen> {
     }
 
     try {
+      // Загружаем режим поддержки параллельно с историей
+      final modeFuture = SupportService.getSupportMode(userId);
+      
       // Передаем user_name только для GET запроса истории (не для отправки сообщений)
       final fullName = ProfileService.instance.fullName;
       final history = await SupportService.getMessageHistory(
         userId,
         userName: fullName.isNotEmpty ? fullName : null,
       );
+      
+      // Обновляем режим поддержки
+      final mode = await modeFuture;
+      if (mounted && mode != null) {
+        final previousMode = _currentMode;
+        setState(() {
+          _currentMode = mode;
+          // Если режим уже 'human' при загрузке истории, устанавливаем флаг
+          // (но только если режим изменился с 'ai' на 'human')
+          if (mode == 'human' && previousMode == 'ai') {
+            _hasShownModeSwitchMessage = true;
+          } else if (mode == 'human' && previousMode == 'human') {
+            // Если режим уже был 'human', флаг уже должен быть установлен
+            _hasShownModeSwitchMessage = true;
+          }
+        });
+      }
       if (mounted) {
         setState(() {
           // НЕ очищаем список полностью, чтобы не потерять сообщения, добавленные через WebSocket
@@ -778,7 +823,7 @@ class _SupportScreenState extends State<SupportScreen> {
       }
       
       // Отправляем все фото одним запросом
-      await SupportService.sendMessage(
+      final response = await SupportService.sendMessage(
         userId: userId,
         userName: ProfileService.instance.fullName.isNotEmpty
             ? ProfileService.instance.fullName
@@ -786,6 +831,23 @@ class _SupportScreenState extends State<SupportScreen> {
         message: messageText,
         photos: photoFiles, // Отправляем все фото одним запросом
       );
+      
+      // Обрабатываем ответ с режимом поддержки
+      if (mounted && response['mode'] != null) {
+        final newMode = response['mode'] as String;
+        final previousMode = _currentMode;
+        
+        setState(() {
+          _currentMode = newMode;
+          
+          // Показываем сообщение о переключении только если:
+          // 1. Режим изменился с 'ai' на 'human'
+          // 2. Сообщение еще не показывалось
+          if (previousMode == 'ai' && newMode == 'human' && !_hasShownModeSwitchMessage) {
+            _hasShownModeSwitchMessage = true;
+          }
+        });
+      }
       
       // После успешной отправки загружаем историю, чтобы получить сообщение с сервера
       // с правильными URL картинок
@@ -887,14 +949,43 @@ class _SupportScreenState extends State<SupportScreen> {
                                 color: theme.colorScheme.onSurface,
                               ),
                             ),
-                            Text(
-                              l.supportOnlineStatus,
-                              style: AppTextStyle.bodyText(
-                                scaleHeight(16),
-                                color: isDark
-                                    ? AppColors.darkSecondaryText
-                                    : const Color(0xFF5B5B5B),
-                              ),
+                            Row(
+                              children: [
+                                Text(
+                                  _currentMode == 'human' 
+                                      ? '👤 ${l.supportOnlineStatus}'
+                                      : '🤖 ${l.supportOnlineStatus}',
+                                  style: AppTextStyle.bodyText(
+                                    scaleHeight(16),
+                                    color: isDark
+                                        ? AppColors.darkSecondaryText
+                                        : const Color(0xFF5B5B5B),
+                                  ),
+                                ),
+                                if (_currentMode == 'human')
+                                  Padding(
+                                    padding: EdgeInsets.only(left: scaleWidth(8)),
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: scaleWidth(8),
+                                        vertical: scaleHeight(4),
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.accentRed.withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(scaleHeight(4)),
+                                      ),
+                                      child: Text(
+                                        'Human',
+                                        style: TextStyle(
+                                          fontFamily: 'Montserrat',
+                                          fontSize: scaleHeight(12),
+                                          color: AppColors.accentRed,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
                             ),
                           ],
                         ),
@@ -920,13 +1011,57 @@ class _SupportScreenState extends State<SupportScreen> {
                           )
                         : ListView.builder(
                       controller: _scrollController,
-                      itemCount: _messages.length,
+                      itemCount: _messages.length + (_currentMode == 'human' && _hasShownModeSwitchMessage ? 1 : 0),
                       physics: const BouncingScrollPhysics(),
                       itemBuilder: (context, index) {
-                        final message = _messages[index];
-                        final isLast = index == _messages.length - 1;
-                        final showDate = _shouldShowDate(index);
+                        // Находим индекс последнего сообщения пользователя для показа сообщения о переключении
+                        int? lastUserMessageIndex;
+                        if (_currentMode == 'human' && _hasShownModeSwitchMessage) {
+                          for (int i = _messages.length - 1; i >= 0; i--) {
+                            if (!_messages[i].fromSupport) {
+                              lastUserMessageIndex = i;
+                              break;
+                            }
+                          }
+                        }
                         
+                        // Если это индекс для системного сообщения о переключении
+                        if (lastUserMessageIndex != null && index == lastUserMessageIndex + 1) {
+                          return Padding(
+                            padding: EdgeInsets.symmetric(
+                              vertical: scaleHeight(12),
+                              horizontal: scaleWidth(24),
+                            ),
+                            child: Center(
+                              child: Text(
+                                AppLocalizations.of(context)!.aiStaffMessage,
+                                style: AppTextStyle.bodyTextMedium(
+                                  scaleHeight(14),
+                                  color: isDark 
+                                      ? AppColors.darkSecondaryText 
+                                      : AppColors.textDarkGrey,
+                                ),
+                                textAlign: TextAlign.center,
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          );
+                        }
+                        
+                        // Корректируем индекс для обычных сообщений
+                        final messageIndex = lastUserMessageIndex != null && index > lastUserMessageIndex 
+                            ? index - 1 
+                            : index;
+                        
+                        if (messageIndex >= _messages.length) {
+                          return const SizedBox.shrink();
+                        }
+                        
+                        final message = _messages[messageIndex];
+                        final isLast = messageIndex == _messages.length - 1;
+                        final showDate = _shouldShowDate(messageIndex);
+
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
@@ -934,7 +1069,7 @@ class _SupportScreenState extends State<SupportScreen> {
                             if (showDate && message.createdAt != null)
                               Padding(
                                 padding: EdgeInsets.only(
-                                  top: index == 0 ? 0 : scaleHeight(20),
+                                  top: messageIndex == 0 ? 0 : scaleHeight(20),
                                   bottom: scaleHeight(8),
                                 ),
                                 child: Center(
@@ -1031,28 +1166,6 @@ class _SupportScreenState extends State<SupportScreen> {
                                 ],
                           ),
                             ),
-                            // Сообщение о переключении на сотрудника после каждого сообщения пользователя (только текст, без контейнера)
-                            if (!message.fromSupport)
-                              Padding(
-                                padding: EdgeInsets.only(
-                                  top: scaleHeight(8),
-                                  bottom: isLast ? 0 : scaleHeight(20),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    AppLocalizations.of(context)!.aiStaffMessage,
-                                    style: AppTextStyle.bodyTextMedium(
-                                      scaleHeight(14),
-                                      color: isDark 
-                                          ? AppColors.darkSecondaryText 
-                                          : AppColors.textDarkGrey,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                    maxLines: 3,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ),
                           ],
                         );
                       },
