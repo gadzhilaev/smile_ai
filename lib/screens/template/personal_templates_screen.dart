@@ -444,7 +444,7 @@ class _PersonalTemplatesScreenState extends State<PersonalTemplatesScreen> {
         vertical: scaleHeight(11),
       ),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkBackgroundCard : AppColors.white,
+        color: AppColors.white, // В темной теме используем тот же белый цвет, что и в светлой
         borderRadius: BorderRadius.circular(scaleHeight(12)),
         boxShadow: const [
           BoxShadow(
@@ -473,7 +473,7 @@ class _PersonalTemplatesScreenState extends State<PersonalTemplatesScreen> {
                 scaleHeight(16),
               ).copyWith(
                 height: 18 / 16,
-                color: isDark ? AppColors.white : AppColors.textPrimary,
+                color: AppColors.textPrimary, // В темной теме используем тот же цвет текста, что и в светлой
               ),
             ),
           ),
@@ -493,16 +493,7 @@ class _PersonalTemplatesScreenState extends State<PersonalTemplatesScreen> {
                   width: scaleWidth(187),
                   height: scaleHeight(41),
                   decoration: BoxDecoration(
-                    gradient: isDark
-                        ? const LinearGradient(
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                            colors: [
-                              Color(0xFF1F2937),
-                              Color(0xFF374151),
-                            ],
-                          )
-                        : const LinearGradient(
+                    gradient: const LinearGradient(
                             begin: Alignment.centerLeft,
                             end: Alignment.centerRight,
                             colors: [
@@ -519,7 +510,7 @@ class _PersonalTemplatesScreenState extends State<PersonalTemplatesScreen> {
                     style: AppTextStyle.templateButton(
                       scaleHeight(14),
                     ).copyWith(
-                      color: isDark ? AppColors.white : AppColors.textPrimary,
+                      color: AppColors.textPrimary, // В темной теме используем тот же цвет текста, что и в светлой
                     ),
                   ),
                 ),

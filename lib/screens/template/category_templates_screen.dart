@@ -313,16 +313,7 @@ class _TemplateCard extends StatelessWidget {
                   width: scaleWidth(187),
                   height: scaleHeight(41),
                   decoration: BoxDecoration(
-                    gradient: isDark
-                        ? const LinearGradient(
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                            colors: [
-                              Color(0xFF1F2937),
-                              Color(0xFF374151),
-                            ],
-                          )
-                        : const LinearGradient(
+                    gradient: const LinearGradient(
                             begin: Alignment.centerLeft,
                             end: Alignment.centerRight,
                             colors: [

@@ -807,7 +807,6 @@ class _AiScreenState extends State<AiScreen> {
     }
   }
 
-  // ignore: unused_element
   void _showChatMenuOverlay() {
     if (_chatMenuOverlay != null) {
       _chatMenuOverlay!.remove();
@@ -1189,8 +1188,8 @@ class _AiScreenState extends State<AiScreen> {
                             }
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: isDark ? AppColors.darkPrimaryText : Colors.black,
-                            foregroundColor: isDark ? AppColors.darkBackgroundMain : Colors.white,
+                            backgroundColor: AppColors.accentRed, // Красный цвет, как круг с иконкой telegram
+                            foregroundColor: Colors.white,
                             padding: EdgeInsets.symmetric(
                               horizontal: scaleWidth(24),
                               vertical: scaleHeight(12),
@@ -2447,6 +2446,22 @@ class _AiScreenState extends State<AiScreen> {
                         ),
                       ),
                     ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                          child: GestureDetector(
+                            onTap: () {
+                              _showChatMenuOverlay();
+                            },
+                            child: SvgPicture.asset(
+                              isDark
+                                  ? 'assets/icons/dark/icon_mes_dark.svg'
+                                  : 'assets/icons/light/icon_mes.svg',
+                          width: scaleWidth(24),
+                          height: scaleHeight(24),
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -3321,10 +3336,11 @@ class _ChatMenuDrawer extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Крестик слева вверху
+                      // Крестик слева и "Новый чат" справа в одной строке
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
+                          // Крестик слева
                           GestureDetector(
                             onTap: onClose,
                             child: Icon(
@@ -3335,40 +3351,36 @@ class _ChatMenuDrawer extends StatelessWidget {
                                   : const Color(0xFF201D2F),
                             ),
                           ),
-                        ],
-                      ),
-                      SizedBox(height: scaleHeight(23)),
-                      // Новый чат - текст справа, иконка слева от текста
-                      GestureDetector(
-                        onTap: onNewChat,
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                l.chatMenuNewChat,
-                                style: AppTextStyle.screenTitle(
-                                  scaleHeight(16),
-                                  color: isDark
-                                      ? AppColors.white
-                                      : AppColors.black,
-                                ).copyWith(
-                                  decoration: TextDecoration.none,
+                          // Новый чат - текст и иконка справа
+                          GestureDetector(
+                            onTap: onNewChat,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  l.chatMenuNewChat,
+                                  style: AppTextStyle.screenTitle(
+                                    scaleHeight(16),
+                                    color: isDark
+                                        ? AppColors.white
+                                        : AppColors.black,
+                                  ).copyWith(
+                                    decoration: TextDecoration.none,
+                                  ),
                                 ),
-                              ),
-                              SizedBox(width: scaleWidth(12)),
-                              SvgPicture.asset(
-                                isDark
-                                    ? 'assets/icons/dark/icon_new_chat.svg'
-                                    : 'assets/icons/light/icon_new_chat.svg',
-                                width: scaleWidth(24),
-                                height: scaleHeight(21),
-                                fit: BoxFit.contain,
-                              ),
-                            ],
+                                SizedBox(width: scaleWidth(12)),
+                                SvgPicture.asset(
+                                  isDark
+                                      ? 'assets/icons/dark/icon_new_chat.svg'
+                                      : 'assets/icons/light/icon_new_chat.svg',
+                                  width: scaleWidth(24),
+                                  height: scaleHeight(21),
+                                  fit: BoxFit.contain,
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
+                        ],
                       ),
                       SizedBox(height: scaleHeight(28)),
                       // Заголовок "Чаты"
@@ -3499,10 +3511,8 @@ class _ChatMenuDrawer extends StatelessWidget {
                         // Вычисляем позицию начала строки с чатом
                         // Убираем отступ после "Чаты", так как он уже есть в коде
                         final chatRowTop = scaleHeight(75) + // padding top
-                            scaleHeight(24) + // крестик
-                            scaleHeight(23) + // отступ после крестика
-                            scaleHeight(24) + // "Новый чат" строка
-                            scaleHeight(28) + // отступ после "Новый чат"
+                            scaleHeight(24) + // крестик и "Новый чат" строка
+                            scaleHeight(28) + // отступ после строки
                             scaleHeight(20) + // "Чаты" заголовок
                             chatItemTopPadding + // отступ сверху для элемента чата (0 для первого, 20 для остальных)
                             (selectedChatIndex! * scaleHeight(44)); // позиция чата (отступ 20 + высота строки ~24)

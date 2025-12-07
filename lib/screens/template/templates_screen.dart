@@ -254,12 +254,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                       // 131.34deg от левого верхнего к правому нижнему
                       begin: const Alignment(-1.0, -1.0),
                       end: const Alignment(1.0, 1.0),
-                      colors: isDark
-                          ? const [
-                              Color(0xFF2A4A6B), // Меняем местами для темной темы
-                              Color(0xFF2A5D4A),
-                            ]
-                          : const [
+                      colors: const [
                               Color(0xFF73F1BF),
                               Color(0xFF79BAEF),
                             ],
@@ -343,12 +338,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                       // 129.51deg от левого верхнего к правому нижнему
                       begin: const Alignment(-1.0, -1.0),
                       end: const Alignment(1.0, 1.0),
-                      colors: isDark
-                          ? const [
-                              Color(0xFFBE7685), // Меняем местами для темной темы
-                              Color(0xFFC99D63),
-                            ]
-                          : const [
+                      colors: const [
                               Color(0xFFF9CD84),
                               Color(0xFFEE96A5),
                             ],
@@ -505,12 +495,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                         // 160.29deg
                         begin: const Alignment(-1.0, -1.0),
                         end: const Alignment(1.0, 1.0),
-                        colors: isDark
-                            ? const [
-                                Color(0xFF6B4154),
-                                Color(0xFF5D1F56),
-                              ]
-                            : const [
+                          colors: const [
                                 Color(0xFFEB91D4),
                                 Color(0xFFDD41B6),
                               ],
@@ -540,7 +525,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                                 fontSize: scaleHeight(14),
                                 height: 22 / 14,
                                 letterSpacing: 0,
-                                color: isDark ? AppColors.darkPrimaryText : Colors.black,
+                                color: isDark ? AppColors.white : Colors.black,
                               ),
                               textAlign: TextAlign.left,
                             ),
@@ -552,7 +537,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                                 fontSize: scaleHeight(14),
                                 height: 22 / 14,
                                 letterSpacing: 0,
-                                color: isDark ? AppColors.darkPrimaryText : Colors.black,
+                                color: isDark ? AppColors.white : Colors.black,
                               ),
                               textAlign: TextAlign.left,
                             ),
@@ -582,12 +567,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
                           // 160.29deg
                           begin: const Alignment(-1.0, -1.0),
                           end: const Alignment(1.0, 1.0),
-                          colors: isDark
-                              ? const [
-                                  Color(0xFF5D1F56), // Меняем местами для темной темы
-                                  Color(0xFF6B4154),
-                                ]
-                              : const [
+                          colors: const [
                                   Color(0xFFEB91D4),
                                   Color(0xFFDD41B6),
                                 ],
@@ -772,18 +752,13 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
       final isLast = index == businessGoals.length - 1;
       
       // Безопасное получение градиента
-      // В темной теме цвета градиента меняются местами (слева вверху -> справа внизу, справа внизу -> слева вверху)
-      final List<Color> gradientColors;
-      if (isDark && item['darkGradient'] != null) {
-        gradientColors = (item['darkGradient'] as List<dynamic>)
-            .map((c) => c as Color)
-            .toList()
-            .reversed
-            .toList(); // Меняем местами цвета для темной темы
-      } else {
-        gradientColors = (item['gradient'] as List<dynamic>)
-            .map((c) => c as Color)
-            .toList();
+      // В темной теме цвета градиента переворачиваются (верх ↔ низ)
+      List<Color> gradientColors = (item['gradient'] as List<dynamic>)
+          .map((c) => c as Color)
+          .toList();
+      if (isDark) {
+        // В темной теме переворачиваем цвета градиента
+        gradientColors = gradientColors.reversed.toList();
       }
       final gradientStops = (item['stops'] as List<dynamic>)
           .map((s) => s as double)
@@ -955,15 +930,13 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
       final isLast = index == industries.length - 1;
       
       // Безопасное получение градиента
-      final List<Color> gradientColors;
-      if (isDark && item['darkGradient'] != null) {
-        gradientColors = (item['darkGradient'] as List<dynamic>)
-            .map((c) => c as Color)
-            .toList();
-      } else {
-        gradientColors = (item['gradient'] as List<dynamic>)
-            .map((c) => c as Color)
-            .toList();
+      // В темной теме цвета градиента переворачиваются (верх ↔ низ)
+      List<Color> gradientColors = (item['gradient'] as List<dynamic>)
+          .map((c) => c as Color)
+          .toList();
+      if (isDark) {
+        // В темной теме переворачиваем цвета градиента
+        gradientColors = gradientColors.reversed.toList();
       }
       final gradientStops = (item['stops'] as List<dynamic>)
           .map((s) => s as double)
