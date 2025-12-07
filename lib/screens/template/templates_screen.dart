@@ -754,8 +754,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
       // Безопасное получение градиента
       // В темной теме цвета градиента переворачиваются (верх ↔ низ)
       List<Color> gradientColors = (item['gradient'] as List<dynamic>)
-          .map((c) => c as Color)
-          .toList();
+            .map((c) => c as Color)
+            .toList();
       if (isDark) {
         // В темной теме переворачиваем цвета градиента
         gradientColors = gradientColors.reversed.toList();
@@ -932,8 +932,8 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
       // Безопасное получение градиента
       // В темной теме цвета градиента переворачиваются (верх ↔ низ)
       List<Color> gradientColors = (item['gradient'] as List<dynamic>)
-          .map((c) => c as Color)
-          .toList();
+            .map((c) => c as Color)
+            .toList();
       if (isDark) {
         // В темной теме переворачиваем цвета градиента
         gradientColors = gradientColors.reversed.toList();

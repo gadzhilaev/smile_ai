@@ -1,5 +1,5 @@
 name: smile_ai
-description: "A new Flutter project."
+description: "Мобильное приложение с AI-ассистентом для бизнеса. Предоставляет интеллектуальные консультации, аналитику трендов, готовые шаблоны и многоуровневую поддержку. Разработано на Flutter для iOS и Android."
 publish_to: 'none'
 version: 1.1.0
 

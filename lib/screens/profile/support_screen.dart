@@ -37,6 +37,7 @@ class _SupportScreenState extends State<SupportScreen> {
   DateTime? _lastMessageTime;
   String? _currentMode; // 'ai' или 'human'
   bool _hasShownModeSwitchMessage = false; // Флаг, показывался ли уже текст о переключении
+  final Map<String, String> _shownSystemMessages = {}; // Карта показанных системных сообщений: ключ = текст, значение = ключ сообщения
 
   @override
   void initState() {
@@ -613,6 +614,18 @@ class _SupportScreenState extends State<SupportScreen> {
     }
   }
 
+  /// Проверка, является ли сообщение системным (о переключении)
+  bool _isSystemSwitchMessage(String text) {
+    final lowerText = text.toLowerCase();
+    // Проверяем наличие ключевых фраз о переключении
+    return lowerText.contains('переключаем') || 
+           lowerText.contains('переключаем ваш диалог') ||
+           lowerText.contains('switching') ||
+           lowerText.contains('switching your dialog') ||
+           lowerText.contains('перенаправляем') ||
+           lowerText.contains('перенаправляем диалог');
+  }
+
   String _formatDate(DateTime date) {
     // Форматируем дату в формате "16 ноября"
     final months = [
@@ -1011,56 +1024,57 @@ class _SupportScreenState extends State<SupportScreen> {
                           )
                         : ListView.builder(
                       controller: _scrollController,
-                      itemCount: _messages.length + (_currentMode == 'human' && _hasShownModeSwitchMessage ? 1 : 0),
+                      itemCount: _messages.length,
                       physics: const BouncingScrollPhysics(),
                       itemBuilder: (context, index) {
-                        // Находим индекс последнего сообщения пользователя для показа сообщения о переключении
-                        int? lastUserMessageIndex;
-                        if (_currentMode == 'human' && _hasShownModeSwitchMessage) {
-                          for (int i = _messages.length - 1; i >= 0; i--) {
-                            if (!_messages[i].fromSupport) {
-                              lastUserMessageIndex = i;
-                              break;
-                            }
+                        final message = _messages[index];
+                        final isLast = index == _messages.length - 1;
+                        final showDate = _shouldShowDate(index);
+                        
+                        // Проверяем, является ли сообщение от поддержки системным (о переключении)
+                        final isSystemMessage = message.fromSupport && _isSystemSwitchMessage(message.text);
+                        
+                        // Если это системное сообщение
+                        if (isSystemMessage) {
+                          // Создаем уникальный ключ для сообщения (текст + время создания)
+                          final messageKey = message.createdAt != null
+                              ? '${message.text}_${message.createdAt!.millisecondsSinceEpoch}'
+                              : '${message.text}_$index';
+                          
+                          // Проверяем, не показывали ли мы уже сообщение с таким же текстом
+                          // Если показывали, но это новое сообщение (другой ключ), заменяем старое
+                          final existingKey = _shownSystemMessages[message.text];
+                          
+                          if (existingKey == null || existingKey != messageKey) {
+                            // Обновляем карту показанных сообщений
+                            _shownSystemMessages[message.text] = messageKey;
+                            
+                            // Отображаем как системное сообщение (по центру, без контейнера)
+                            return Padding(
+                              padding: EdgeInsets.symmetric(
+                                vertical: scaleHeight(12),
+                                horizontal: scaleWidth(24),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  message.text,
+                                  style: AppTextStyle.bodyTextMedium(
+                                    scaleHeight(14),
+                                    color: isDark 
+                                        ? AppColors.darkSecondaryText 
+                                        : AppColors.textDarkGrey,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            );
+                          } else {
+                            // Если это сообщение уже показывалось, не отображаем его
+                            return const SizedBox.shrink();
                           }
                         }
-                        
-                        // Если это индекс для системного сообщения о переключении
-                        if (lastUserMessageIndex != null && index == lastUserMessageIndex + 1) {
-                          return Padding(
-                            padding: EdgeInsets.symmetric(
-                              vertical: scaleHeight(12),
-                              horizontal: scaleWidth(24),
-                            ),
-                            child: Center(
-                              child: Text(
-                                AppLocalizations.of(context)!.aiStaffMessage,
-                                style: AppTextStyle.bodyTextMedium(
-                                  scaleHeight(14),
-                                  color: isDark 
-                                      ? AppColors.darkSecondaryText 
-                                      : AppColors.textDarkGrey,
-                                ),
-                                textAlign: TextAlign.center,
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          );
-                        }
-                        
-                        // Корректируем индекс для обычных сообщений
-                        final messageIndex = lastUserMessageIndex != null && index > lastUserMessageIndex 
-                            ? index - 1 
-                            : index;
-                        
-                        if (messageIndex >= _messages.length) {
-                          return const SizedBox.shrink();
-                        }
-                        
-                        final message = _messages[messageIndex];
-                        final isLast = messageIndex == _messages.length - 1;
-                        final showDate = _shouldShowDate(messageIndex);
 
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1069,7 +1083,7 @@ class _SupportScreenState extends State<SupportScreen> {
                             if (showDate && message.createdAt != null)
                               Padding(
                                 padding: EdgeInsets.only(
-                                  top: messageIndex == 0 ? 0 : scaleHeight(20),
+                                  top: index == 0 ? 0 : scaleHeight(20),
                                   bottom: scaleHeight(8),
                                 ),
                                 child: Center(
