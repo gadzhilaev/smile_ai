@@ -78,7 +78,7 @@
 
 ### Backend API
 - **Репозиторий**: [alpha_backend](https://github.com/abakarovy/alpha_backend)
-- **API Endpoint**: `https://alpha-backend-c91h.onrender.com`
+- **API Endpoint**: `http://84.201.149.99:8080`
 - **Технологии**: Rust
 - **Описание**: Backend сервер, предоставляющий REST API для аутентификации, чата, аналитики и управления профилем
 
