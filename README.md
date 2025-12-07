@@ -383,9 +383,6 @@ lib/
 - Улучшенная навигация и управление историей чатов
 - Оптимизированная работа с темной и светлой темами
 
-**Скачать**:
-- [APK для Android (v1.1.0)](https://github.com/gadzhilaev/smile_ai/releases/download/v1.1.0/app-release.apk)
-
 **Системные требования**:
 - Android: API 21 (Android 5.0) или выше
 - iOS: iOS 12.0 или выше
