@@ -210,7 +210,8 @@ class NotificationService {
       importance: Importance.high,
       priority: Priority.high,
       showWhen: true,
-      icon: '@mipmap/ic_launcher',
+      icon: '@mipmap/ic_launcher', // Small icon (белая/прозрачная для статус-бара)
+      largeIcon: const DrawableResourceAndroidBitmap('@mipmap/ic_launcher'), // Large icon (аватарка приложения)
       playSound: enableSound,
       enableVibration: enableVibration,
     );
@@ -293,7 +294,8 @@ class NotificationService {
       importance: Importance.high,
       priority: Priority.high,
       showWhen: true,
-      icon: '@mipmap/ic_launcher',
+      icon: '@mipmap/ic_launcher', // Small icon (белая/прозрачная для статус-бара)
+      largeIcon: const DrawableResourceAndroidBitmap('@mipmap/ic_launcher'), // Large icon (аватарка приложения)
       playSound: enableSound,
       enableVibration: enableVibration,
     );
