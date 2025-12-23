@@ -1,15 +1,15 @@
-# Smile AI - Мобильное приложение бизнес-ассистента
+![SMILE AI - ИИ ЧАТ ПРИЛОЖЕНИЕ](assets/SMILE%20AI%20-%20ИИ%20ЧАТ%20ПРИЛОЖЕНИЕ.png)
+# SMILE AI — Мобильное приложение бизнес-ассистента
 
-<div align="center">
+<p align="center">
+  <img src="https://img.shields.io/badge/Flutter-3.9.2-02569B?style=for-the-badge&logo=flutter&logoColor=white" alt="Flutter"/>
+  <img src="https://img.shields.io/badge/Dart-3.9.2-0175C2?style=for-the-badge&logo=dart&logoColor=white" alt="Dart"/>
+  <img src="https://img.shields.io/badge/Firebase-Messaging-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firebase Messaging"/>
+  <img src="https://img.shields.io/badge/WebSocket-Realtime-4E5D94?style=for-the-badge&logo=signal&logoColor=white" alt="WebSocket"/>
+  <img src="https://img.shields.io/badge/CI/CD-GitHub%20Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white" alt="CI/CD"/>
+</p>
 
-![Smile AI](assets/images/logo2.png)
-
-**Мобильное приложение с AI-ассистентом для бизнеса**
-
-[![Flutter](https://img.shields.io/badge/Flutter-3.9.2-blue.svg)](https://flutter.dev)
-[![Dart](https://img.shields.io/badge/Dart-3.9.2-blue.svg)](https://dart.dev)
-
-</div>
+Мобильное приложение с AI-ассистентом для бизнеса и аналитики, построенное на Flutter с поддержкой реального времени и мультиязычности.
 
 ---
 
