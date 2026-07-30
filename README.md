@@ -6,7 +6,6 @@
   <img src="https://img.shields.io/badge/Dart-3.9.2-0175C2?style=for-the-badge&logo=dart&logoColor=white" alt="Dart"/>
   <img src="https://img.shields.io/badge/Firebase-Messaging-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firebase Messaging"/>
   <img src="https://img.shields.io/badge/WebSocket-Realtime-4E5D94?style=for-the-badge&logo=signal&logoColor=white" alt="WebSocket"/>
-  <img src="https://img.shields.io/badge/CI/CD-GitHub%20Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white" alt="CI/CD"/>
 </p>
 
 Мобильное приложение с AI-ассистентом для бизнеса и аналитики, построенное на Flutter с поддержкой реального времени и мультиязычности.
